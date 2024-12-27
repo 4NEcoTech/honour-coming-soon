@@ -52,14 +52,12 @@ export default function ComingSoon() {
 
   return (
     <>
-      {/* Favicon and Meta Tags */}
       <Head>
         <title>Coming Soon</title>
         <link rel="icon" href="4neco.ico" />
       </Head>
 
       <div className="relative min-h-screen bg-gradient-to-r from-blue-500 to-green-500 flex items-center justify-center text-white overflow-hidden">
-        {/* Background Animation */}
         <div
           className="absolute inset-0"
           style={{
@@ -73,12 +71,11 @@ export default function ComingSoon() {
           }}
         ></div>
 
-        {/* Main Content */}
         <div className="relative z-10 max-w-2xl w-full text-center p-6 bg-opacity-80 bg-black rounded-lg">
           <img
             src="/honourimage.jpg"
-            alt="honour jpg"
-            className="mx-auto w-32 mb-6"
+            alt="Honour Equality and Equity"
+            className="mx-auto max-w-[25rem] max-h-[21rem] mb-8 rounded-lg shadow-lg object-contain"
           />
           <h1 className="text-4xl font-bold mb-4">Coming Soon</h1>
           <p className="text-lg mb-8">
@@ -94,18 +91,18 @@ export default function ComingSoon() {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="px-4 py-2 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-white sm:w-64"
+              className="px-4 py-2 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-white sm:w-72"
               required
             />
             <button
               type="submit"
-              className="bg-white text-blue-600 font-bold px-6 py-2 rounded-md hover:bg-gray-100 transition"
+              className="bg-white text-blue-600 font-bold px-6 py-2 rounded-md hover:bg-gray-100 hover:scale-105 transition-transform"
             >
               Notify Me
             </button>
           </form>
           {message && <p className="mt-4 text-sm">{message}</p>}
-          <footer className="mt-12 text-sm">
+          <footer className="mt-12 text-sm px-4">
             Contact us at{' '}
             <a href="mailto:thehonourenterprise@gmail.com" className="underline">
               thehonourenterprise@gmail.com
@@ -113,7 +110,6 @@ export default function ComingSoon() {
           </footer>
         </div>
 
-        {/* Floating Decorations */}
         <div
           className="absolute w-40 h-40 rounded-full bg-green-300 blur-lg opacity-50"
           style={{
