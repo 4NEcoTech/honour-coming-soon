@@ -8,6 +8,18 @@ export default function ComingSoon() {
   const [message, setMessage] = useState('');
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
+  const handleMouseMove = (e) => {
+    setMousePosition({
+      x: e.clientX / window.innerWidth,
+      y: e.clientY / window.innerHeight,
+    });
+  };
+
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -17,37 +29,26 @@ export default function ComingSoon() {
     }
 
     try {
-      // Submit email via FormSubmit
-      const response = await fetch('https://formsubmit.co/0af46cfe4919596776f18a4ad4ac560c', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
+      const response = await fetch(
+        'https://script.google.com/macros/s/AKfycbxATAjMSQUC_t2U1LNo8EFyMVMViFRXDTs2o_8xZeg5Y64hHNcfIw9OwcwP10dztCng/exec',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ email }),
+        }
+      );
 
-      if (response.ok) {
-        setMessage('Thank you for subscribing! We’ll keep you updated.');
+      const result = await response.json();
+      if (result.result === 'success') {
+        setMessage('Thank you for subscribing!');
         setEmail('');
       } else {
         setMessage('Something went wrong. Please try again.');
       }
     } catch (error) {
-      setMessage('Something went wrong. Please try again.');
+      setMessage('An error occurred. Please try again.');
     }
   };
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePosition({
-        x: e.clientX / window.innerWidth,
-        y: e.clientY / window.innerHeight,
-      });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
 
   return (
     <>
@@ -84,8 +85,7 @@ export default function ComingSoon() {
             We're building something amazing. Stay updated by signing up for updates.
           </p>
           <form
-            action="https://formsubmit.co/0af46cfe4919596776f18a4ad4ac560c"
-            method="POST"
+            onSubmit={handleSubmit}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
             <input
@@ -96,23 +96,6 @@ export default function ComingSoon() {
               onChange={(e) => setEmail(e.target.value)}
               className="px-4 py-2 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-white sm:w-64"
               required
-            />
-            {/* Hidden Inputs for FormSubmit Enhancements */}
-            <input
-              type="hidden"
-              name="_webhook"
-              value="https://script.google.com/macros/s/AKfycbzaeH_pacJRQooWt4xufHN0q7cdjh0P1orDawmp54Y8v1VST0GN_qFhgLM82rmkpJyh/exec"
-            />
-            <input
-              type="hidden"
-              name="_autoresponse"
-              value="Thank you for subscribing to Honour updates!"
-            />
-            <input type="hidden" name="_captcha" value="false" />
-            <input
-              type="hidden"
-              name="_blacklist"
-              value="spam,badword,blocked"
             />
             <button
               type="submit"
