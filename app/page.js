@@ -76,8 +76,8 @@ export default function ComingSoon() {
         {/* Main Content */}
         <div className="relative z-10 max-w-2xl w-full text-center p-6 bg-opacity-80 bg-black rounded-lg">
           <img
-            src="/4N_Square-removebg.png"
-            alt="4Necotech Logo"
+            src="/honourimage.jpg"
+            alt="honour jpg"
             className="mx-auto w-32 mb-6"
           />
           <h1 className="text-4xl font-bold mb-4">Coming Soon</h1>
