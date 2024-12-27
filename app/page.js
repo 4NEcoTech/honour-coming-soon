@@ -1,101 +1,155 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState, useEffect } from 'react';
+import Head from 'next/head';
+
+export default function ComingSoon() {
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!email) {
+      setMessage('Please enter a valid email address.');
+      return;
+    }
+
+    try {
+      // Submit email via FormSubmit
+      const response = await fetch('https://formsubmit.co/0af46cfe4919596776f18a4ad4ac560c', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (response.ok) {
+        setMessage('Thank you for subscribing! We’ll keep you updated.');
+        setEmail('');
+      } else {
+        setMessage('Something went wrong. Please try again.');
+      }
+    } catch (error) {
+      setMessage('Something went wrong. Please try again.');
+    }
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePosition({
+        x: e.clientX / window.innerWidth,
+        y: e.clientY / window.innerHeight,
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <>
+      {/* Favicon and Meta Tags */}
+      <Head>
+        <title>Coming Soon</title>
+        <link rel="icon" href="4neco.ico" />
+      </Head>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      <div className="relative min-h-screen bg-gradient-to-r from-blue-500 to-green-500 flex items-center justify-center text-white overflow-hidden">
+        {/* Background Animation */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: `radial-gradient(
+                circle at ${mousePosition.x * 100}% ${mousePosition.y * 100}%,
+                rgba(255, 255, 255, 0.2),
+                transparent 60%
+              )`,
+            zIndex: 1,
+            transition: 'background 0.1s ease',
+          }}
+        ></div>
+
+        {/* Main Content */}
+        <div className="relative z-10 max-w-2xl w-full text-center p-6 bg-opacity-80 bg-black rounded-lg">
+          <img
+            src="/4N_Square-removebg.png"
+            alt="4Necotech Logo"
+            className="mx-auto w-32 mb-6"
+          />
+          <h1 className="text-4xl font-bold mb-4">Coming Soon</h1>
+          <p className="text-lg mb-8">
+            We're building something amazing. Stay updated by signing up for updates.
+          </p>
+          <form
+            action="https://formsubmit.co/0af46cfe4919596776f18a4ad4ac560c"
+            method="POST"
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+            <input
+              type="email"
+              name="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="px-4 py-2 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-white sm:w-64"
+              required
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            {/* Hidden Inputs for FormSubmit Enhancements */}
+            <input
+              type="hidden"
+              name="_webhook"
+              value="https://script.google.com/macros/s/AKfycbzaeH_pacJRQooWt4xufHN0q7cdjh0P1orDawmp54Y8v1VST0GN_qFhgLM82rmkpJyh/exec"
+            />
+            <input
+              type="hidden"
+              name="_autoresponse"
+              value="Thank you for subscribing to Honour updates!"
+            />
+            <input type="hidden" name="_captcha" value="false" />
+            <input
+              type="hidden"
+              name="_blacklist"
+              value="spam,badword,blocked"
+            />
+            <button
+              type="submit"
+              className="bg-white text-blue-600 font-bold px-6 py-2 rounded-md hover:bg-gray-100 transition"
+            >
+              Notify Me
+            </button>
+          </form>
+          {message && <p className="mt-4 text-sm">{message}</p>}
+          <footer className="mt-12 text-sm">
+            Contact us at{' '}
+            <a href="mailto:thehonourenterprise@gmail.com" className="underline">
+              thehonourenterprise@gmail.com
+            </a>
+          </footer>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+        {/* Floating Decorations */}
+        <div
+          className="absolute w-40 h-40 rounded-full bg-green-300 blur-lg opacity-50"
+          style={{
+            top: `${20 + mousePosition.y * 20}%`,
+            left: `${10 + mousePosition.x * 20}%`,
+            zIndex: 0,
+            transition: 'top 0.1s ease, left 0.1s ease',
+          }}
+        ></div>
+        <div
+          className="absolute w-60 h-60 rounded-full bg-blue-300 blur-lg opacity-50"
+          style={{
+            bottom: `${10 + mousePosition.y * 20}%`,
+            right: `${15 + mousePosition.x * 20}%`,
+            zIndex: 0,
+            transition: 'bottom 0.1s ease, right 0.1s ease',
+          }}
+        ></div>
+      </div>
+    </>
   );
 }
