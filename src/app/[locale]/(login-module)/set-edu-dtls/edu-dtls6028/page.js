@@ -1,0 +1,713 @@
+'use client';
+
+import { FormMultiSelect } from '@/components/extension/multi-select';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { zodResolver } from '@hookform/resolvers/zod';
+import Image from 'next/image';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+import * as z from 'zod';
+
+const formSchema = z.object({
+  institutionName: z.string().min(2, 'Institution name is required'),
+  mission: z
+    .string()
+    .max(1000, 'Mission statement must be less than 1000 characters'),
+  specialization: z
+    .array(z.string().min(1))
+    .min(1, 'Select at least one specialization'),
+  institutionType: z.string().min(1, 'Institution type is required'),
+  institutionEmail: z.string().email('Invalid email address'),
+  alternateEmail: z
+    .string()
+    .email('Invalid email address')
+    .optional()
+    .or(z.literal('')),
+  phoneNumber: z.string().min(10, 'Phone number is required'),
+  alternatePhoneNumber: z.string().optional(),
+  websiteUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
+  establishmentYear: z.number().optional(),
+});
+
+const specializations = [
+  {
+    category: 'Engineering and Technology',
+    specializations: [
+      { label: 'Computer Science Engineering (CSE)', value: 'cse' },
+      { label: 'Information Technology (IT)', value: 'it' },
+      {
+        label: 'Electronics and Communication Engineering (ECE)',
+        value: 'ece',
+      },
+      { label: 'Electrical and Electronics Engineering (EEE)', value: 'eee' },
+      { label: 'Mechanical Engineering', value: 'mechanical-engineering' },
+      { label: 'Civil Engineering', value: 'civil-engineering' },
+      { label: 'Chemical Engineering', value: 'chemical-engineering' },
+      { label: 'Biotechnology', value: 'biotechnology' },
+      {
+        label: 'Artificial Intelligence and Machine Learning (AI/ML)',
+        value: 'ai-ml',
+      },
+      { label: 'Data Science and Analytics', value: 'data-science' },
+      { label: 'Robotics and Automation', value: 'robotics' },
+      { label: 'Cybersecurity', value: 'cybersecurity' },
+      { label: 'Cloud Computing', value: 'cloud-computing' },
+      { label: 'Blockchain', value: 'blockchain' },
+      { label: 'UI/UX Design', value: 'ui-ux' },
+      { label: 'DevOps', value: 'devops' },
+    ],
+  },
+  {
+    category: 'Management and Business Administration',
+    specializations: [
+      { label: 'Finance', value: 'finance' },
+      { label: 'Marketing', value: 'marketing' },
+      { label: 'Human Resource Management (HRM)', value: 'hrm' },
+      {
+        label: 'Operations and Supply Chain Management',
+        value: 'operations-supply-chain',
+      },
+      { label: 'International Business', value: 'international-business' },
+      { label: 'Business Analytics', value: 'business-analytics' },
+      { label: 'Entrepreneurship', value: 'entrepreneurship' },
+      { label: 'Digital Marketing', value: 'digital-marketing' },
+    ],
+  },
+  {
+    category: 'Arts, Humanities, and Social Sciences',
+    specializations: [
+      { label: 'Psychology', value: 'psychology' },
+      { label: 'Sociology', value: 'sociology' },
+      { label: 'Political Science', value: 'political-science' },
+      { label: 'History', value: 'history' },
+      { label: 'Geography', value: 'geography' },
+      { label: 'Economics', value: 'economics' },
+      { label: 'English Literature', value: 'english-literature' },
+    ],
+  },
+  {
+    category: 'Science',
+    specializations: [
+      { label: 'Physics', value: 'physics' },
+      { label: 'Chemistry', value: 'chemistry' },
+      { label: 'Mathematics', value: 'mathematics' },
+      { label: 'Biology', value: 'biology' },
+      { label: 'Microbiology', value: 'microbiology' },
+      { label: 'Environmental Science', value: 'environmental-science' },
+    ],
+  },
+  {
+    category: 'Commerce and Finance',
+    specializations: [
+      { label: 'Accounting and Auditing', value: 'accounting' },
+      { label: 'Taxation', value: 'taxation' },
+      { label: 'Banking and Insurance', value: 'banking-insurance' },
+      { label: 'Corporate Law', value: 'corporate-law' },
+    ],
+  },
+  {
+    category: 'Medical and Health Sciences',
+    specializations: [
+      { label: 'Medicine (MBBS)', value: 'mbbs' },
+      { label: 'Nursing', value: 'nursing' },
+      { label: 'Pharmacy (BPharm)', value: 'pharmacy' },
+      { label: 'Physiotherapy', value: 'physiotherapy' },
+      { label: 'Public Health and Epidemiology', value: 'public-health' },
+    ],
+  },
+  {
+    category: 'Design and Creative Arts',
+    specializations: [
+      { label: 'Fashion Design', value: 'fashion-design' },
+      { label: 'Interior Design', value: 'interior-design' },
+      { label: 'Graphic Design', value: 'graphic-design' },
+      { label: 'Animation and Multimedia', value: 'animation' },
+    ],
+  },
+  {
+    category: 'Law',
+    specializations: [
+      { label: 'Corporate Law', value: 'corporate-law' },
+      { label: 'Criminal Law', value: 'criminal-law' },
+    ],
+  },
+  {
+    category: 'Other Specialized Fields',
+    specializations: [
+      { label: 'Journalism and Mass Communication', value: 'journalism' },
+      { label: 'Film and Television Production', value: 'film-production' },
+      { label: 'Event Management', value: 'event-management' },
+      { label: 'Sports Management', value: 'sports-management' },
+    ],
+  },
+];
+
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
+
+const debounce = (func, delay) => {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => func(...args), delay);
+  };
+};
+
+export default function EducationalDetailsTab({ initialData, onSubmit }) {
+  const [logo, setLogo] = useState(initialData?.logo || null);
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [searchResults, setSearchResults] = useState([]);
+  const [customEntry, setCustomEntry] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const [selected, setSelected] = useState([]);
+
+  // const [selectedValues, setSelectedValues] = useState([]);
+
+  // const handleSelect = (value) => {
+  //   const newValues = selectedValues.includes(value)
+  //     ? selectedValues.filter((v) => v !== value)
+  //     : [...selectedValues, value];
+
+  //   setSelectedValues(newValues);
+  //   form.setValue("specialization", newValues);
+  // };
+
+  const fetchInstitutions = async (query) => {
+    if (query.length < 4) return;
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `/api/global/v1/gblArET90011FtchInstitutnDtls?institutionName=${query}`
+      );
+      const data = await res.json();
+      setSearchResults(data.data || []);
+    } catch {
+      setSearchResults([]);
+    }
+    setLoading(false);
+  };
+
+  const handleSearch = debounce(fetchInstitutions, 500);
+
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      institutionName: initialData?.institutionName || '',
+      mission: initialData?.mission || '',
+      specialization: initialData?.specialization?.split(',') || [],
+      institutionType: initialData?.institutionType || '',
+      institutionEmail: initialData?.institutionEmail || '',
+      alternateEmail: initialData?.alternateEmail || '',
+      phoneNumber: initialData?.phoneNumber || '',
+      alternatePhoneNumber: initialData?.alternatePhoneNumber || '',
+      websiteUrl: initialData?.websiteUrl || '',
+      establishmentYear: initialData?.establishmentYear || currentYear,
+    },
+  });
+
+  const handleFileChange = (e, onChange) => {
+    const file = e.target.files[0];
+    if (file) {
+      setUploadedFile(file); // Store file info for display and submission
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setLogo(e.target.result);
+        onChange(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = (data) => {
+    const formattedSpecialization = Array.isArray(data.specialization)
+      ? data.specialization.join(',')
+      : data.specialization;
+
+    onSubmit({
+      ...data,
+      logo,
+      specialization: formattedSpecialization,
+      uploadedFile,
+    });
+  };
+
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="space-y-4 p-2 sm:p-4 max-w-xl mx-auto">
+        {/* Institution Name */}
+        {/* <FormField
+          control={form.control}
+          name="institutionName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-primary">
+                Institution Name <span className="text-destructive">*</span>
+              </FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Institution Name" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        /> */}
+
+        <FormField
+          control={form.control}
+          name="institutionName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-primary">
+                Institution Name <span className="text-destructive">*</span>
+              </FormLabel>
+              <FormControl>
+                <div className="relative">
+                  <Input
+                    {...field}
+                    placeholder="Search Institution"
+                    onChange={(e) => {
+                      field.onChange(e.target.value);
+                      handleSearch(e.target.value);
+                      setCustomEntry(false);
+                    }}
+                  />
+                  {loading && (
+                    <span className="absolute right-3 top-3 text-gray-500">
+                      Loading...
+                    </span>
+                  )}
+                </div>
+              </FormControl>
+              <FormMessage />
+
+              {/* Dropdown Results */}
+              {searchResults.length > 0 && !customEntry && (
+                <ul className="border mt-2 rounded-md bg-white shadow-lg">
+                  {searchResults.map((inst) => (
+                    <li
+                      key={inst.AISHE_Code}
+                      className="p-2 cursor-pointer hover:bg-gray-100"
+                      onClick={() => {
+                        field.onChange(inst.Institute_Name);
+                        setSearchResults([]);
+                      }}>
+                      {inst.Institute_Name}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {/* Manual Entry Option */}
+              {!loading &&
+                searchResults.length === 0 &&
+                !customEntry &&
+                field.value.length >= 4 && (
+                  <p
+                    className="mt-2 text-sm text-blue-600 cursor-pointer"
+                    onClick={() => setCustomEntry(true)}>
+                    Can&apos;t find your institution? Click here to enter
+                    manually.
+                  </p>
+                )}
+            </FormItem>
+          )}
+        />
+
+        {/* Upload Logo */}
+        <FormField
+          control={form.control}
+          name="logo"
+          render={({ field: { value, onChange, ...field } }) => (
+            <FormItem>
+              <FormLabel className="text-primary">
+                Upload Logo <span className="text-gray-400">(Optional)</span>
+              </FormLabel>
+              <FormControl>
+                <div>
+                  <div
+                    className="relative border-2 border-dashed border-gray-300 rounded-lg p-4 cursor-pointer text-center"
+                    onClick={() =>
+                      document.getElementById('uploadLogo')?.click()
+                    }>
+                    <Image
+                      src={logo || '/image/info/upload.svg'}
+                      alt="Upload Icon"
+                      width={32}
+                      height={32}
+                      className="mx-auto mb-2 w-8 h-8"
+                    />
+                    <p className="text-gray-600">
+                      <span className="text-blue-600">Click to upload</span> or
+                      drag and drop
+                    </p>
+                    <p className="text-gray-400 text-xs mt-1">
+                      JPG, JPEG, PNG less than 2MB
+                    </p>
+                  </div>
+                  <Input
+                    type="file"
+                    id="uploadLogo"
+                    accept=".jpg,.jpeg,.png"
+                    onChange={(e) => handleFileChange(e, onChange)}
+                    className="hidden"
+                    {...field}
+                  />
+                  {uploadedFile && (
+                    <p className="text-green-600 mt-2">
+                      File uploaded: {uploadedFile.name}
+                    </p>
+                  )}
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Establishment Year */}
+        <FormField
+          control={form.control}
+          name="establishmentYear"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-primary">
+                Establishment Year<span className="text-destructive">*</span>
+              </FormLabel>
+              <Select
+                onValueChange={(value) =>
+                  field.onChange(Number.parseInt(value))
+                }
+                value={field.value?.toString()}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select year" />
+                </SelectTrigger>
+                <SelectContent>
+                  {years.map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Mission */}
+        <FormField
+          control={form.control}
+          name="mission"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-primary">
+                Mission <span className="text-destructive">*</span>
+              </FormLabel>
+              <FormControl>
+                <Textarea
+                  {...field}
+                  placeholder="Let us know about your mission"
+                  className="resize-none min-h-[100px]"
+                />
+              </FormControl>
+              <p className="text-xs text-gray-500 mt-1">Less than 1000 words</p>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Specialization */}
+
+        {/* <FormField
+          control={form.control}
+          name="specialization"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-primary">
+                Specializations <span className="text-destructive">*</span>
+              </FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select specialization" />
+                </SelectTrigger>
+                <SelectContent>
+                  {specializations.map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        /> */}
+
+        {/* <FormField
+          control={form.control}
+          name="specialization"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-primary">
+                Specializations <span className="text-destructive">*</span>
+              </FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select specialization" />
+                </SelectTrigger>
+                <SelectContent>
+                  {specializations.map((category) => (
+                    <div key={category.category}>
+
+                      <div className="px-3 py-1 text-sm font-semibold text-primary">
+                        {category.category}
+                      </div>
+                      {category.specializations.map((item) => (
+                        <SelectItem key={item.value} value={item.value}>
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </div>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        /> */}
+        <FormMultiSelect
+          name="specialization"
+          label="Specializations"
+          options={specializations}
+          placeholder="Select specializations..."
+          // description="Select between 1 and 5 specializations"
+        />
+
+        {/* <FormField
+          control={form.control}
+          name="specialization"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-primary">
+                Specializations <span className="text-destructive">*</span>
+              </FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="w-full justify-between">
+                    {selectedValues.length > 0
+                      ? selectedValues.join(", ")
+                      : "Select Specializations"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full max-h-60 overflow-y-auto p-2">
+                  <ScrollArea className="h-60">
+                    {specializations.map((category) => (
+                      <div key={category.category}>
+                        <div className="text-muted-foreground px-2 py-1 font-semibold">
+                          {category.category}
+                        </div>
+                        {category.specializations.map((item) => (
+                          <div
+                            key={item.value}
+                            className="flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 rounded"
+                            onClick={() => handleSelect(item.value)}
+                          >
+                            <Checkbox
+                              checked={selectedValues.includes(item.value)}
+                            />
+                            <span>{item.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </ScrollArea>
+                </PopoverContent>
+              </Popover>
+              <FormMessage />
+            </FormItem>
+          )}
+        /> */}
+
+        {/* Institution Type */}
+        <FormField
+          control={form.control}
+          name="institutionType"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-primary">
+                Institution Type <span className="text-destructive">*</span>
+              </FormLabel>
+              <div className="flex gap-4">
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    id="private"
+                    value="private"
+                    checked={field.value === 'private'}
+                    onChange={() => field.onChange('private')}
+                    className="mr-2"
+                  />
+                  <label htmlFor="private">Private</label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    id="public"
+                    value="public"
+                    checked={field.value === 'public'}
+                    onChange={() => field.onChange('public')}
+                    className="mr-2"
+                  />
+                  <label htmlFor="public">Public</label>
+                </div>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Institution Email */}
+        <FormField
+          control={form.control}
+          name="institutionEmail"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-primary">
+                Institution Email ID <span className="text-destructive">*</span>
+              </FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  type="email"
+                  placeholder="example@institution.com"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Alternate Email */}
+        <FormField
+          control={form.control}
+          name="alternateEmail"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-primary">
+                Alternate Email ID{' '}
+                <span className="text-gray-400">(Optional)</span>
+              </FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  type="email"
+                  placeholder="alternate@institution.com"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Phone Number */}
+        <FormField
+          control={form.control}
+          name="phoneNumber"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-primary">
+                Phone Number<span className="text-destructive">*</span>
+              </FormLabel>
+              <FormControl>
+                <PhoneInput
+                  country={'in'}
+                  value={field.value}
+                  onChange={(value) => field.onChange(value)}
+                  inputStyle={{
+                    width: '100%',
+                    height: '40px',
+                    borderRadius: '5px',
+                    border: '1px solid #ccc',
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Alternate Phone Number */}
+        <FormField
+          control={form.control}
+          name="alternatePhoneNumber"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-primary">
+                Alternate Phone Number{' '}
+                <span className="text-gray-400">(Optional)</span>
+              </FormLabel>
+              <FormControl>
+                <PhoneInput
+                  country={'in'}
+                  value={field.value}
+                  onChange={(value) => field.onChange(value)}
+                  inputStyle={{
+                    width: '100%',
+                    height: '40px',
+                    borderRadius: '5px',
+                    border: '1px solid #ccc',
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Institution Website */}
+        <FormField
+          control={form.control}
+          name="websiteUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-primary">
+                Institution Website URL{' '}
+                <span className="text-gray-400">(Optional)</span>
+              </FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="https://your-website.com" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Submit Button */}
+        <Button type="submit" className="w-full bg-primary">
+          Next
+        </Button>
+      </form>
+    </Form>
+  );
+}

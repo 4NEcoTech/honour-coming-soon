@@ -1,0 +1,627 @@
+{
+  "pagePermissions": {
+    "cntct6011": {
+      "public": true
+    },
+    "cookie6012": {
+      "public": true
+    },
+    "faq6013": {
+      "public": true
+    },
+    "prvcyPlcy6014": {
+      "public": true
+    },
+    "trmsndCndtn6015": {
+      "public": true
+    },
+
+    "home": {
+      "public": true
+    },
+    "eductnlInst6002": {
+      "public": true
+    },
+    "hwitWrks6004": {
+      "public": true
+    },
+    "jobFair6005": {
+      "public": true
+    },
+    "jobFrm6006": {
+      "public": true
+    },
+    "achvrCntrl6007": {
+      "public": true
+    },
+    "institutnStdnt6008": {
+      "public": true
+    },
+    "institutnStdntPrfl6009": {
+      "public": true
+    },
+
+    "suprAdmnRgstrtn6101": {
+      "restrictedTo": ["saAdmin", "saTeam", "saSupport"]
+    },
+    "suprAdmnLogin6102": {
+      "restrictedTo": ["saAdmin", "saTeam", "saSupport"]
+    },
+    "suprAdmnDshbrd6103": {
+      "restrictedTo": ["saAdmin", "saTeam", "saSupport"]
+    },
+    "institutn6104": {
+      "restrictedTo": ["saAdmin", "saTeam", "saSupport"]
+    },
+    "reprtdUsrs6105": {
+      "restrictedTo": ["saAdmin", "saTeam", "saSupport"]
+    },
+    "setting6106": {
+      "restrictedTo": ["saAdmin", "saTeam", "saSupport"]
+    },
+    "configParams6107": {
+      "restrictedTo": ["saAdmin", "saTeam", "saSupport"]
+    },
+    "contact6110": {
+      "restrictedTo": ["saAdmin", "saTeam", "saSupport"]
+    },
+    "achieverCentral": {
+      "restrictedTo": ["saAdmin", "saTeam", "saSupport"]
+    },
+
+    "stdntDshbrd6071": {
+      "restrictedTo": ["studentVerified", "studentUnverified"]
+    },
+    "myPrfl6072": {
+      "restrictedTo": ["studentVerified", "studentUnverified"]
+    },
+    "mssg6073": {
+      "restrictedTo": ["studentVerified", "studentUnverified"]
+    },
+    "accntSttng6074": {
+      "restrictedTo": ["studentVerified", "studentUnverified"]
+    },
+    "resume6075": {
+      "restrictedTo": ["studentVerified", "studentUnverified"]
+    },
+    "skills6076": {
+      "restrictedTo": ["studentVerified", "studentUnverified"]
+    },
+    "prjct6077": {
+      "restrictedTo": ["studentVerified", "studentUnverified"]
+    },
+    "wrkExprnce6078": {
+      "restrictedTo": ["studentVerified", "studentUnverified"]
+    },
+    "myPrflEdit6079": {
+      "restrictedTo": ["studentVerified", "studentUnverified"]
+    },
+    "stdntPublicPrfl6080": {
+      "public": true
+    },
+    "about": {
+      "restrictedTo": ["studentVerified", "studentUnverified"]
+    },
+    "addEdctn6081": {
+      "restrictedTo": ["studentVerified", "studentUnverified"]
+    },
+    "addVlntrng6082": {
+      "restrictedTo": ["studentVerified", "studentUnverified"]
+    },
+    "jobApply": {
+      "restrictedTo": ["studentVerified"]
+    },
+    "jobDescription": {
+      "restrictedTo": ["studentVerified", "studentUnverified"]
+    },
+    "myJobss": {
+      "restrictedTo": ["studentVerified"]
+    },
+
+    "institutnDshbrd6051": {
+      "restrictedTo": [
+        "inAdminVerified",
+        "inAdminUnverified",
+        "inTeamVerified",
+        "inTeamUnverified",
+        "inSupportVerified",
+        "inSupportUnverified"
+      ]
+    },
+    "myPrfl6052": {
+      "restrictedTo": [
+        "inAdminVerified",
+        "inAdminUnverified",
+        "inTeamVerified",
+        "inTeamUnverified",
+        "inSupportVerified",
+        "inSupportUnverified"
+      ]
+    },
+    "eduInstitutn6053": {
+      "restrictedTo": ["inAdminVerified", "inTeamVerified", "inSupportVerified"]
+    },
+    "rgstrStdnt6054": {
+      "restrictedTo": ["inAdminVerified", "inTeamVerified"]
+    },
+    "addStdnts6055": {
+      "restrictedTo": ["inAdminVerified", "inTeamVerified"]
+    },
+    "stdntBlkImprt6056": {
+      "restrictedTo": ["inAdminVerified", "inTeamVerified"]
+    },
+    "teamStff6057": {
+      "restrictedTo": ["inAdminVerified"]
+    },
+    "addStffMembr6058": {
+      "restrictedTo": ["inAdminVerified"]
+    },
+    "message6059": {
+      "restrictedTo": [
+        "inAdminVerified",
+        "inAdminUnverified",
+        "inTeamVerified",
+        "inTeamUnverified",
+        "inSupportVerified",
+        "inSupportUnverified"
+      ]
+    },
+    "accntSttng6060": {
+      "restrictedTo": [
+        "inAdminVerified",
+        "inAdminUnverified",
+        "inTeamVerified",
+        "inTeamUnverified",
+        "inSupportVerified",
+        "inSupportUnverified"
+      ]
+    },
+    "myPrflEdit6061": {
+      "restrictedTo": [
+        "inAdminVerified",
+        "inAdminUnverified",
+        "inTeamVerified",
+        "inTeamUnverified",
+        "inSupportVerified",
+        "inSupportUnverified"
+      ]
+    },
+    "institutnPrflEdit6062": {
+      "restrictedTo": ["inAdminVerified", "inTeamVerified"]
+    },
+    "invitdStdnt6066": {
+      "restrictedTo": ["inAdminVerified", "inTeamVerified"]
+    },
+    "invitdStff6067": {
+      "restrictedTo": ["inAdminVerified"]
+    },
+    "teamBulkImprt": {
+      "restrictedTo": ["inAdminVerified"]
+    },
+
+    "adminPublicPrfl6063": {
+      "public": true
+    },
+    "institutionPublicPrfl6064": {
+      "public": true
+    },
+    "teamPublicPrfl6065": {
+      "public": true
+    },
+    "cmpnyPublicPrfl": {
+      "public": true
+    },
+    "ecolink": {
+      "public": true
+    },
+    "institutnPublicFllwng": {
+      "public": true
+    },
+    "jobCard": {
+      "public": true
+    },
+
+    "login6035": {
+      "public": true
+    },
+    "rgstrtn6021": {
+      "public": true
+    },
+    "otp6022": {
+      "public": true
+    },
+    "crtPsswd6023": {
+      "public": true
+    },
+    "frgtPsswd6036": {
+      "public": true
+    },
+    "rstPsswd6037": {
+      "public": true
+    },
+    "psswdRstScss6038": {
+      "public": true
+    },
+    "vrfctnPndng6032": {
+      "public": true
+    },
+    "vrfctnScss6034": {
+      "public": true
+    },
+    "studentSignup": {
+      "public": true
+    },
+    "teamSignup": {
+      "public": true
+    },
+
+    "setAdminDtls": {
+      "restrictedTo": ["inAdminUnverified"]
+    },
+    "prsnlDtls6024": {
+      "restrictedTo": ["inAdminUnverified"]
+    },
+    "addrsssDtls6025": {
+      "restrictedTo": ["inAdminUnverified"]
+    },
+    "soclLnks6026": {
+      "restrictedTo": ["inAdminUnverified"]
+    },
+    "adminDcmnt6027": {
+      "restrictedTo": ["inAdminUnverified"]
+    },
+
+    "setEduDtls": {
+      "restrictedTo": ["inAdminUnverified"]
+    },
+    "eduDtls6028": {
+      "restrictedTo": ["inAdminUnverified"]
+    },
+    "addrsssDtls6029": {
+      "restrictedTo": ["inAdminUnverified"]
+    },
+    "soclLnkss6030": {
+      "restrictedTo": ["inAdminUnverified"]
+    },
+    "cmpnyDcmnt6031": {
+      "restrictedTo": ["inAdminUnverified"]
+    },
+
+    "setStudntDtls": {
+      "restrictedTo": ["studentUnverified"]
+    },
+    "prsnlDtls6042": {
+      "restrictedTo": ["studentUnverified"]
+    },
+    "addrsssDtls6043": {
+      "restrictedTo": ["studentUnverified"]
+    },
+    "eduStls6044": {
+      "restrictedTo": ["studentUnverified"]
+    },
+    "soclLnks6045": {
+      "restrictedTo": ["studentUnverified"]
+    },
+    "stdntDcmnt6046": {
+      "restrictedTo": ["studentUnverified"]
+    },
+
+    "setTeamStaffPrfl": {
+      "restrictedTo": ["inTeamUnverified", "inSupportUnverified"]
+    },
+
+    "empLogin": {
+      "public": true
+    },
+    "empRgstr": {
+      "public": true
+    },
+    "prvcyPlcyKyc": {
+      "public": true
+    },
+    "empDcmntDtls": {
+      "restrictedTo": ["emAdminVerified", "emTeam", "emSupport"]
+    },
+    "setCmpPrfl": {
+      "restrictedTo": ["emAdminVerified", "emTeam", "emSupport"]
+    },
+    "cmpDtls": {
+      "restrictedTo": ["emAdminVerified", "emTeam", "emSupport"]
+    },
+    "addrsssDtls": {
+      "restrictedTo": ["emAdminVerified", "emTeam", "emSupport"]
+    },
+    "soclLnks": {
+      "restrictedTo": ["emAdminVerified", "emTeam", "emSupport"]
+    },
+    "setEmpPrfl": {
+      "restrictedTo": ["emAdminVerified", "emTeam", "emSupport"]
+    },
+    "prsnlDtls": {
+      "restrictedTo": ["emAdminVerified", "emTeam", "emSupport"]
+    },
+    "videoKyc": {
+      "restrictedTo": ["emAdminVerified", "emTeam", "emSupport"]
+    },
+    "videoKycRequest": {
+      "restrictedTo": ["emAdminVerified", "emTeam", "emSupport"]
+    },
+    "videoKycJoin": {
+      "restrictedTo": [
+        "emAdminVerified",
+        "emTeam",
+        "emSupport",
+        "saAdmin",
+        "saTeam",
+        "saSupport"
+      ]
+    },
+    "videoKycAdminJoin": {
+      "restrictedTo": ["saAdmin", "saTeam", "saSupport"]
+    },
+
+    "emplyrDshbrd": {
+      "restrictedTo": ["emAdminVerified", "emTeam", "emSupport"]
+    },
+    "cmpnyPrfl": {
+      "restrictedTo": ["emAdminVerified", "emTeam", "emSupport"]
+    },
+    "cmpsPlcmnt": {
+      "restrictedTo": ["emAdminVerified", "emTeam"]
+    },
+    "draft": {
+      "restrictedTo": ["emAdminVerified", "emTeam"]
+    },
+    "fairs": {
+      "restrictedTo": ["emAdminVerified", "emTeam"]
+    },
+    "hrngStats": {
+      "restrictedTo": ["emAdminVerified", "emTeam", "emSupport"]
+    },
+    "inbox": {
+      "restrictedTo": ["emAdminVerified", "emTeam", "emSupport"]
+    },
+    "institutns": {
+      "restrictedTo": ["emAdminVerified", "emTeam"]
+    },
+    "internship": {
+      "restrictedTo": ["emAdminVerified", "emTeam"]
+    },
+    "internshipOpprtnty": {
+      "restrictedTo": ["emAdminVerified", "emTeam"]
+    },
+    "intrvw": {
+      "restrictedTo": ["emAdminVerified", "emTeam", "emSupport"]
+    },
+    "job": {
+      "restrictedTo": ["emAdminVerified", "emTeam"]
+    },
+    "jobOpprtnty": {
+      "restrictedTo": ["emAdminVerified", "emTeam"]
+    },
+    "myJobs": {
+      "restrictedTo": ["emAdminVerified", "emTeam"]
+    },
+    "opprtnty": {
+      "restrictedTo": ["emAdminVerified", "emTeam"]
+    },
+    "project": {
+      "restrictedTo": ["emAdminVerified", "emTeam"]
+    },
+    "projectOpprtnty": {
+      "restrictedTo": ["emAdminVerified", "emTeam"]
+    },
+    "staffs": {
+      "restrictedTo": ["emAdminVerified"]
+    },
+    "talent": {
+      "restrictedTo": ["emAdminVerified", "emTeam"]
+    }
+  },
+
+  "rolePermissions": {
+    "guestUser": {
+      "public": true,
+      "canViewPublicProfiles": true,
+      "canViewJobListings": true,
+      "canRegister": true
+    },
+
+    "saAdmin": {
+      "public": true,
+      "restrictedAccess": true,
+      "canManageInstitutions": true,
+      "canManageUsers": true,
+      "canManageReportedUsers": true,
+      "canManageSettings": true,
+      "canManageConfigParams": true,
+      "canManageContacts": true,
+      "canManageAchieverCentral": true,
+      "canApproveVerifications": true,
+      "canPerformVideoKYC": true
+    },
+    "saTeam": {
+      "public": true,
+      "restrictedAccess": true,
+      "canManageInstitutions": true,
+      "canManageUsers": true,
+      "canManageReportedUsers": true,
+      "canManageSettings": false,
+      "canManageConfigParams": false,
+      "canManageContacts": true,
+      "canManageAchieverCentral": true,
+      "canApproveVerifications": true,
+      "canPerformVideoKYC": true
+    },
+    "saSupport": {
+      "public": true,
+      "restrictedAccess": true,
+      "canManageInstitutions": false,
+      "canManageUsers": true,
+      "canManageReportedUsers": true,
+      "canManageSettings": false,
+      "canManageConfigParams": false,
+      "canManageContacts": true,
+      "canManageAchieverCentral": false,
+      "canApproveVerifications": false,
+      "canPerformVideoKYC": true
+    },
+
+    "studentVerified": {
+      "public": true,
+      "restrictedAccess": true,
+      "canEditProfile": true,
+      "canManageResume": true,
+      "canManageSkills": true,
+      "canManageProjects": true,
+      "canManageWorkExperience": true,
+      "canApplyToJobs": true,
+      "canViewJobDetails": true,
+      "canSendMessages": true
+    },
+    "studentUnverified": {
+      "public": true,
+      "restrictedAccess": true,
+      "canEditProfile": true,
+      "canManageResume": true,
+      "canManageSkills": true,
+      "canManageProjects": true,
+      "canManageWorkExperience": true,
+      "canApplyToJobs": false,
+      "canViewJobDetails": true,
+      "canSendMessages": false
+    },
+
+    "inAdminVerified": {
+      "public": true,
+      "restrictedAccess": true,
+      "canManageInstitutionProfile": true,
+      "canManageStudents": true,
+      "canManageStaff": true,
+      "canSendMessages": true,
+      "canManageSettings": true,
+      "canInviteStudents": true,
+      "canInviteStaff": true,
+      "canBulkImportStudents": true,
+      "canBulkImportStaff": true
+    },
+    "inAdminUnverified": {
+      "public": true,
+      "restrictedAccess": true,
+      "canCompleteProfile": true,
+      "canUploadDocuments": true
+    },
+    "inTeamVerified": {
+      "public": true,
+      "restrictedAccess": true,
+      "canManageInstitutionProfile": true,
+      "canManageStudents": true,
+      "canSendMessages": true,
+      "canInviteStudents": true,
+      "canBulkImportStudents": true
+    },
+    "inTeamUnverified": {
+      "public": true,
+      "restrictedAccess": true,
+      "canCompleteProfile": true
+    },
+    "inSupportVerified": {
+      "public": true,
+      "restrictedAccess": true,
+      "canViewInstitutionProfile": true,
+      "canSendMessages": true
+    },
+    "inSupportUnverified": {
+      "public": true,
+      "restrictedAccess": true,
+      "canCompleteProfile": true
+    },
+
+    "emAdminVerified": {
+      "public": true,
+      "restrictedAccess": true,
+      "canManageCompanyProfile": true,
+      "canManageJobs": true,
+      "canManageInternships": true,
+      "canManageProjects": true,
+      "canManageStaff": true,
+      "canViewTalent": true,
+      "canManageInterviews": true,
+      "canSendMessages": true,
+      "canViewHiringStats": true,
+      "canParticipateInJobFairs": true
+    },
+    "emTeam": {
+      "public": true,
+      "restrictedAccess": true,
+      "canViewCompanyProfile": true,
+      "canManageJobs": true,
+      "canManageInternships": true,
+      "canManageProjects": true,
+      "canViewTalent": true,
+      "canManageInterviews": true,
+      "canSendMessages": true,
+      "canViewHiringStats": true,
+      "canParticipateInJobFairs": true
+    },
+    "emSupport": {
+      "public": true,
+      "restrictedAccess": true,
+      "canViewCompanyProfile": true,
+      "canViewJobs": true,
+      "canSendMessages": true,
+      "canViewHiringStats": true
+    },
+
+    "jobSeeker": {
+      "public": true,
+      "restrictedAccess": true,
+      "canEditProfile": true,
+      "canManageResume": true,
+      "canApplyToJobs": true,
+      "canViewJobDetails": true,
+      "canSendMessages": true
+    }
+  },
+
+  "actionMatrix": {
+    "createJob": {
+      "emAdminVerified": true,
+      "emTeam": true
+    },
+    "editJob": {
+      "emAdminVerified": true,
+      "emTeam": true
+    },
+    "deleteJob": {
+      "emAdminVerified": true
+    },
+    "approveStudent": {
+      "inAdminVerified": true,
+      "inTeamVerified": true
+    },
+    "approveInstitution": {
+      "saAdmin": true,
+      "saTeam": true
+    },
+    "approveEmployer": {
+      "saAdmin": true,
+      "saTeam": true
+    },
+    "manageAchievers": {
+      "saAdmin": true,
+      "saTeam": true
+    },
+    "viewAnalytics": {
+      "saAdmin": true,
+      "saTeam": true,
+      "inAdminVerified": true,
+      "emAdminVerified": true
+    },
+    "exportData": {
+      "saAdmin": true,
+      "inAdminVerified": true,
+      "emAdminVerified": true
+    }
+  }
+}

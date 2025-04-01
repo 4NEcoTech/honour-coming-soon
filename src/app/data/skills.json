@@ -1,0 +1,353 @@
+[
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf88482"
+    },
+    "industry_name": "Finance & Accounting",
+    "skills_list": [
+      "Financial Modeling",
+      "Tally",
+      "SAP FICO",
+      "Taxation",
+      "GST Filing",
+      "Budgeting",
+      "Auditing",
+      "CFA",
+      "CPA",
+      "QuickBooks"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf88483"
+    },
+    "industry_name": "Operations & Logistics",
+    "skills_list": [
+      "Supply Chain Management",
+      "Logistics",
+      "Inventory Management",
+      "Procurement",
+      "Lean Manufacturing",
+      "Warehouse Management"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf8848b"
+    },
+    "industry_name": "Languages",
+    "skills_list": [
+      "English Proficiency",
+      "Spanish",
+      "French",
+      "German",
+      "Mandarin",
+      "Hindi",
+      "Arabic",
+      "Translation"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf8848c"
+    },
+    "industry_name": "Leadership & Management",
+    "skills_list": [
+      "Strategic Planning",
+      "Team Management",
+      "Conflict Resolution",
+      "Change Management",
+      "Stakeholder Engagement",
+      "Risk Management"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf8848e"
+    },
+    "industry_name": "Industry-Specific Skills",
+    "skills_list": [
+      "Retail Management",
+      "Hospitality",
+      "Tourism Management",
+      "Aviation",
+      "Banking Operations",
+      "Insurance"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf88490"
+    },
+    "industry_name": "Emerging Technologies",
+    "skills_list": [
+      "Blockchain",
+      "IoT",
+      "Quantum Computing",
+      "5G Technology",
+      "AR/VR Development",
+      "Metaverse"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf8847d"
+    },
+    "industry_name": "Web Development",
+    "skills_list": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "React",
+      "Angular",
+      "Vue.js",
+      "Node.js",
+      "PHP",
+      "Django",
+      "Ruby on Rails",
+      "Bootstrap",
+      "RESTful APIs"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf88480"
+    },
+    "industry_name": "Marketing & Advertising",
+    "skills_list": [
+      "Digital Marketing",
+      "Content Marketing",
+      "SEO",
+      "SEM",
+      "Social Media Marketing",
+      "Google Ads",
+      "Email Marketing",
+      "Branding",
+      "CRM"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf8848a"
+    },
+    "industry_name": "Real Estate & Construction",
+    "skills_list": [
+      "Property Management",
+      "Real Estate Sales",
+      "Valuation",
+      "Site Supervision",
+      "Construction Management"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf8848d"
+    },
+    "industry_name": "Soft Skills",
+    "skills_list": [
+      "Communication",
+      "Problem-Solving",
+      "Teamwork",
+      "Emotional Intelligence",
+      "Adaptability",
+      "Critical Thinking",
+      "Time Management"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf8847c"
+    },
+    "industry_name": "Data Science & Analytics",
+    "skills_list": [
+      "Machine Learning",
+      "Data Analysis",
+      "Data Visualization",
+      "Power BI",
+      "Tableau",
+      "R",
+      "AI",
+      "NLP",
+      "Big Data (Hadoop, Spark)",
+      "Statistics"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf88484"
+    },
+    "industry_name": "Customer Service",
+    "skills_list": [
+      "Customer Relationship Management",
+      "Escalation Handling",
+      "Call Center Management",
+      "Conflict Resolution",
+      "Customer Retention"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf88489"
+    },
+    "industry_name": "Legal & Compliance",
+    "skills_list": [
+      "Corporate Law",
+      "Contract Management",
+      "Legal Research",
+      "Compliance",
+      "Intellectual Property",
+      "Drafting",
+      "Negotiations"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf88491"
+    },
+    "industry_name": "Other Technical Skills",
+    "skills_list": [
+      "Networking",
+      "Ethical Hacking",
+      "Linux",
+      "Kubernetes",
+      "Docker",
+      "VMware",
+      "Automation Tools"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf8847e"
+    },
+    "industry_name": "Mobile App Development",
+    "skills_list": [
+      "Android Development (Java, Kotlin)",
+      "iOS Development (Swift, Objective-C)",
+      "Flutter",
+      "React Native"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf8847f"
+    },
+    "industry_name": "Engineering & Architecture",
+    "skills_list": [
+      "AutoCAD",
+      "MATLAB",
+      "SolidWorks",
+      "CAD",
+      "Embedded Systems",
+      "Electronics Design",
+      "Robotics",
+      "Circuit Design"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf88486"
+    },
+    "industry_name": "Creative & Design",
+    "skills_list": [
+      "Graphic Design",
+      "UI/UX Design",
+      "Video Editing",
+      "Motion Graphics",
+      "3D Modeling",
+      "Adobe Suite (Photoshop, Illustrator, After Effects)",
+      "Figma"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf88487"
+    },
+    "industry_name": "Healthcare & Medicine",
+    "skills_list": [
+      "Nursing",
+      "Clinical Research",
+      "Medical Coding",
+      "Health Informatics",
+      "Pharmacy",
+      "Biomedical Engineering"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf88481"
+    },
+    "industry_name": "Sales & Business Development",
+    "skills_list": [
+      "Lead Generation",
+      "B2B Sales",
+      "B2C Sales",
+      "Account Management",
+      "Negotiation",
+      "Salesforce",
+      "HubSpot",
+      "Market Research"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf88485"
+    },
+    "industry_name": "Human Resources",
+    "skills_list": [
+      "Recruitment",
+      "Talent Acquisition",
+      "Payroll Management",
+      "HR Analytics",
+      "Employee Engagement",
+      "Organizational Development"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf8847b"
+    },
+    "industry_name": "IT & Software Development",
+    "skills_list": [
+      "Python",
+      "Java",
+      "C++",
+      "SQL",
+      "C#",
+      ".NET",
+      "Full Stack Development",
+      "Cloud Computing (AWS, Azure, GCP)",
+      "Cybersecurity",
+      "SAP",
+      "DevOps"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf88488"
+    },
+    "industry_name": "Education & Training",
+    "skills_list": [
+      "Teaching",
+      "Curriculum Development",
+      "E-Learning",
+      "Instructional Design",
+      "Training Facilitation"
+    ]
+  },
+  {
+    "_id": {
+      "$oid": "67627a7ffeebb28fcaf8848f"
+    },
+    "industry_name": "Certifications",
+    "skills_list": [
+      "PMP",
+      "Six Sigma",
+      "AWS Certified Solutions Architect",
+      "ITIL",
+      "CISSP",
+      "CFA",
+      "Google Ads Certification",
+      "Scrum Master (CSM)"
+    ]
+  }
+]
