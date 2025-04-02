@@ -44,7 +44,7 @@ function ForgotPasswordPage() {
   const onSubmit = async (data) => {
     console.log(data);
     try {
-      const res = await fetch('/api/gblBrBTForgotPasswordSendMail', {
+      const res = await fetch('/api/global/v1/gblBrBTForgotPasswordSendMail', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
