@@ -117,7 +117,7 @@ function RegistrationWithCredentialForm({ goToNextStep }) {
         localStorage.setItem('_id', JSON.stringify(responseData.user._id));
         localStorage.setItem(
           'role',
-          JSON.stringify(responseData.user.utUserRole)
+          JSON.stringify(responseData.user.UT_User_Role)
         );
 
         toast({

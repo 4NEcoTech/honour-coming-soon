@@ -425,8 +425,10 @@ function Otp({ goToNextStep }) {
         headers: { 'Content-Type': 'application/json' },
         // Pass email and role for resend endpoint
         body: JSON.stringify({
-          email: searchParams.get('email'),
-          role: searchParams.get('role'),
+          // email: searchParams.get('email'),
+          // role: searchParams.get('role'),
+          email: localStorage.getItem("email"),
+          role: localStorage.getItem("role"),
         }),
       });
 

@@ -114,7 +114,7 @@ export async function POST(request) {
     const requestBody = await request.json();
     const { email: requestEmail, role: requestRole } = requestBody;
     const cookieStore = cookies();
-    const userEmails = cookieStore.get('user_email');
+    const userEmails = await cookieStore.get('user_email');
     let email = userEmails ? userEmails.value : requestEmail;
 
     if (!email) {
@@ -133,7 +133,7 @@ export async function POST(request) {
     // Find the user in the database using email and role
     const existingUser = await User.findOne({
       UT_Email: email,
-      UT_User_Role: requestRole,
+      // UT_User_Role: requestRole,
     });
     if (!existingUser) {
       return NextResponse.json(

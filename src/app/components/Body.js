@@ -268,9 +268,9 @@ export default function Home() {
                   "Committed_to_bridging_the_gap_between_academia_and_industry"
                 )}
               </p>
-              <Button className="px-6 py-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition">
+              {/* <Button className="px-6 py-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition">
                 {t("Read_more")}
-              </Button>
+              </Button> */}
             </div>
           </div>
         </section>

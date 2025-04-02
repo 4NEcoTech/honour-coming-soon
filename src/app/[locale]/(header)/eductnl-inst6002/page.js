@@ -253,7 +253,7 @@ const Page = () => {
           </div>
 
           {/* Last Section */}
-          <div className="px-6 py-12 container mx-auto">
+          {/* <div className="px-6 py-12 container mx-auto">
             <h2 className="text-2xl text-left sm:text-left md:text-center lg:text-center font-bold md:text-3xl">
               <span className="text-green-500 dark:text-emerald-400">
                 250+ Institutions
@@ -272,7 +272,7 @@ const Page = () => {
                 />
                 <div className="text-left mt-2 sm:mt-0">
                   {' '}
-                  {/* Added text-left on desktop */}
+             
                   <h3 className="text-lg font-bold">IIT Kanpur</h3>
                   <p className="text-gray-600">Kanpur, UP</p>
                   <p className="text-gray-600">256 Students registered</p>
@@ -288,7 +288,7 @@ const Page = () => {
                 />
                 <div className="text-left mt-2 sm:mt-0">
                   {' '}
-                  {/* Added text-left on desktop */}
+           
                   <h3 className="text-lg font-bold">ISB Delhi</h3>
                   <p className="text-gray-600">Delhi</p>
                   <p className="text-gray-600">312 Students registered</p>
@@ -304,7 +304,7 @@ const Page = () => {
                 />
                 <div className="text-left  mt-2 sm:mt-0">
                   {' '}
-                  {/* Added text-left on desktop */}
+              
                   <h3 className="text-lg font-bold">IIT Guwahati</h3>
                   <p className="text-gray-600">Guwahati, Assam</p>
                   <p className="text-gray-600">412 Students registered</p>
@@ -338,7 +338,7 @@ const Page = () => {
                 Register your institution with HCJ
               </Link>
             </div>
-          </div>
+          </div> */}
         </>
       )}
     </div>

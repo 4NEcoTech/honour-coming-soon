@@ -200,7 +200,7 @@ export default function HowItWorks() {
           </h2>
           <p className="max-w-5xl mx-auto text-gray-600 dark:text-gray-300  leading-relaxed text-center text-sm sm:text-base lg:text-lg">
             <strong>HCJ simplifies</strong> the connection between{' '}
-            <strong>students</strong>,<strong>institutions</strong>, and{' '}
+            <strong>students</strong>,&nbsp;<strong>institutions</strong>, and{' '}
             <strong>employers</strong>. <strong>Institutions</strong> can create{' '}
             <strong> profiles</strong> to <strong>add their students</strong> to
             the platform, enabling seamless connections with{' '}
