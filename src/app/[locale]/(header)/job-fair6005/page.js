@@ -134,7 +134,7 @@ const Page = () => {
         </div>
       </div>
 
-      <div className="bg-transparent py-10 container mx-auto">
+   {/*    <div className="bg-transparent py-10 container mx-auto">
         <div className="flex items-center justify-center px-4 mb-6">
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold text-center">
             Our Partners
@@ -156,7 +156,7 @@ const Page = () => {
             </div>
           ))}
         </Slider>
-      </div>
+      </div> */}
 
       {/* Banner Section */}
       <div
