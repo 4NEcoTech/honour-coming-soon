@@ -76,7 +76,7 @@ const Page = () => {
           <p className="text-base sm:text-lg md:text-2xl font-bold mt-2 sm:mt-4">
             November 10 - November 20
           </p>
-          <Link href="/rgstrtn6021">
+          <Link href="/login6035">
             <Button className="bg-primary px-4 py-2 rounded-md mt-2 sm:mt-4 text-sm w-full sm:w-[250px] md:w-[300px] lg:w-[400px] mx-auto">
               Login To Register for this job fair
             </Button>

@@ -485,7 +485,7 @@ function Otp({ goToNextStep }) {
                             onKeyDown={(e) => handleBackspace(e, index)}
                             className={`w-12 h-12 text-center text-lg border rounded-md focus:ring-2 focus:outline-none ${
                               isVerified === false
-                                ? 'border-input focus:ring-ring'
+                                ? 'border-input focus:ring-ring border-gray-500'
                                 : isVerified
                                 ? 'border-green-500 focus:ring-green-500'
                                 : 'border-destructive focus:ring-destructive'
