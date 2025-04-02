@@ -18,7 +18,8 @@ import { z } from 'zod';
 import Otp from '@/components/otp';
 import PasswordResetSuccess from '@/components/password-reset-success';
 import ResetPassword from '@/components/reset-password';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 
 const schema = z.object({
   email: z.string().email({ message: '6036_1 Invalid email address.' }),
