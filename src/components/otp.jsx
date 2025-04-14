@@ -274,19 +274,19 @@
 
 // export default Otp;
 
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useEffect, useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from "react";
 import {
   IoMdCheckmarkCircleOutline,
   IoMdCloseCircleOutline,
-} from 'react-icons/io';
+} from "react-icons/io";
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 import {
   Form,
@@ -294,32 +294,32 @@ import {
   FormField,
   FormItem,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { useSearchParams } from 'next/navigation';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 
 const formSchema = (t) =>
   z.object({
     pin: z
       .string()
-      .length(4, { message: 'PIN must be 4 digits' })
-      .regex(/^\d+$/, { message: 'PIN must contain only numbers' }),
+      .length(4, { message: "PIN must be 4 digits" })
+      .regex(/^\d+$/, { message: "PIN must contain only numbers" }),
   });
 
 function Otp({ goToNextStep }) {
-  const t = useTranslations('ErrorCode');
+  const t = useTranslations("ErrorCode");
   const searchParams = useSearchParams();
-  const [otp, setOtp] = useState(['', '', '', '']); // 4 OTP input fields
+  const [otp, setOtp] = useState(["", "", "", ""]); // 4 OTP input fields
   const [isVerified, setIsVerified] = useState(false);
   const [timer, setTimer] = useState(20);
   const { toast } = useToast();
   const form = useForm({
     resolver: zodResolver(formSchema(t)),
     defaultValues: {
-      pin: '',
+      pin: "",
     },
   });
 
@@ -335,7 +335,7 @@ function Otp({ goToNextStep }) {
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
-    form.setValue('pin', newOtp.join(''), { shouldValidate: true });
+    form.setValue("pin", newOtp.join(""), { shouldValidate: true });
 
     // Move to next input if available
     if (value && index < 3) {
@@ -346,14 +346,14 @@ function Otp({ goToNextStep }) {
 
   async function onSubmit(data) {
     try {
-      const response = await fetch('/api/global/v1/gblBrBt90008VerifyOtp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/global/v1/gblBrBt90008VerifyOtp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         // Pass email and role (from URL query parameters) along with OTP
         body: JSON.stringify({
           otp,
-          email: searchParams.get('email'),
-          role: searchParams.get('role'),
+          email: searchParams.get("email"),
+          role: searchParams.get("role"),
         }),
       });
 
@@ -363,27 +363,27 @@ function Otp({ goToNextStep }) {
         // Handle specific status codes
         switch (response.status) {
           case 400:
-            console.error('Validation Error:', responseData.message);
+            console.error("Validation Error:", responseData.message);
             toast({
-              title: 'OTP Error.',
+              title: "OTP Error.",
               description: t(responseData.code),
             });
             break;
           case 500:
-            console.error('Server Error:', responseData.message);
+            console.error("Server Error:", responseData.message);
           // fallthrough
           case 409:
             toast({
-              title: 'Server Error!.',
+              title: "Server Error!.",
               description: t(responseData.code),
               // responseData.message ||
               // 'Something went wrong on the server. Please try again later.',
             });
             break;
           default:
-            console.error('Unexpected Error:', responseData.message);
+            console.error("Unexpected Error:", responseData.message);
             toast({
-              title: 'An unexpected error occurred.',
+              title: "An unexpected error occurred.",
               description: t(responseData.code),
               // description: responseData.message || 'Please try again.',
             });
@@ -403,50 +403,51 @@ function Otp({ goToNextStep }) {
       }
     } catch (error) {
       toast({
-        title: 'Error in onSubmit:',
+        title: "Error in onSubmit:",
         description: t(responseData.code),
-        // responseData.message ||
-        // 'Network error or unexpected issue. Please try again later.',
       });
     }
   }
 
   const handleBackspace = (e, index) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
       const prevInput = document.getElementById(`otp-${index - 1}`);
       if (prevInput) prevInput.focus();
     }
   };
 
   const handleResend = async () => {
+    // console.log(
+    //   "email:",
+    //   localStorage.getItem("email"),
+    //   "role:",
+    //   localStorage.getItem("role")
+    // );
     try {
-      const response = await fetch('/api/global/v1/gblBrBt90007ResentOtp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/global/v1/gblBrBt90007ResentOtp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         // Pass email and role for resend endpoint
         body: JSON.stringify({
-          // email: searchParams.get('email'),
-          // role: searchParams.get('role'),
-          email: localStorage.getItem("email"),
-          role: localStorage.getItem("role"),
+          email: searchParams.get("email"),
         }),
       });
 
       const responseData = await response.json();
       console.log(responseData.message);
       toast({
-        title: 'OTP Sent Successfully!.',
+        title: "OTP Sent Successfully!.",
         description: t(responseData.code),
       });
       setTimer(20); // Reset timer
-      setOtp(['', '', '', '']);
+      setOtp(["", "", "", ""]);
       form.reset();
       setIsVerified(false);
     } catch (error) {
       toast({
-        title: 'Error generating OTP:',
+        title: "Error generating OTP:",
         description:
-          'Network error or unexpected issue. Please try again later.',
+          "Network error or unexpected issue. Please try again later.",
       });
     }
   };
@@ -485,10 +486,10 @@ function Otp({ goToNextStep }) {
                             onKeyDown={(e) => handleBackspace(e, index)}
                             className={`w-12 h-12 text-center text-lg border rounded-md focus:ring-2 focus:outline-none ${
                               isVerified === false
-                                ? 'border-input focus:ring-ring border-gray-500'
+                                ? "border-input focus:ring-ring border-gray-500"
                                 : isVerified
-                                ? 'border-green-500 focus:ring-green-500'
-                                : 'border-destructive focus:ring-destructive'
+                                ? "border-green-500 focus:ring-green-500"
+                                : "border-destructive focus:ring-destructive"
                             }`}
                             required
                             aria-label={`OTP digit ${index + 1}`}
@@ -546,7 +547,7 @@ function Otp({ goToNextStep }) {
                   <Loader2 className="animate-spin" />
                 )}
                 Verify
-              </Button> 
+              </Button>
             </form>
           </Form>
         </CardContent>

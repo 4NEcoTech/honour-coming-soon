@@ -23,7 +23,6 @@ import RegisteredStudentPopup from '../../components/cmpltd-student-Profile';
 export default function StudentsPage() {
   const pathname = usePathname();
   const status = pathname.includes('invited') ? 'invited' : 'registered';
-  const institutionNum = '1001'; // 🔒 Hardcoded for now
 
   const [students, setStudents] = useState([]);
   const [viewMode, setViewMode] = useState('table');
@@ -94,7 +93,7 @@ export default function StudentsPage() {
 
     fetchStudents();
 
-    return () => controller.abort(); // ✅ Cleanup fetch on unmount or deps change
+    return () => controller.abort(); //  Cleanup fetch on unmount or deps change
   }, [status, institutionData]);
 
   // Filter by search

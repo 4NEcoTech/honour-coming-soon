@@ -1,236 +1,203 @@
-'use client';
+"use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { toast } from '@/hooks/use-toast';
-import { useRouter } from '@/i18n/routing';
-import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
-import AddressDetailsTab from './addrss-dtls6029/page';
-import EducationalDetailsTab from './edu-dtls6028/page';
-import SocialLinksTab from './socl-lnkss6030/page';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "@/hooks/use-toast"
+import { useRouter } from "@/i18n/routing"
+import { useSession } from "next-auth/react"
+import { useEffect, useState } from "react"
+import AddressDetailsTab from "./addrss-dtls6029/page"
+import EducationalDetailsTab from "./edu-dtls6028/page"
+import SocialLinksTab from "./socl-lnkss6030/page"
 
 export default function Page() {
-  const [activeTab, setActiveTab] = useState('educationalDetails');
-  const [progress, setProgress] = useState(0);
+  const [activeTab, setActiveTab] = useState("educationalDetails")
+  const [progress, setProgress] = useState(0)
   const [formData, setFormData] = useState({
     educationalDetails: null,
     addressDetails: null,
     socialIcons: null,
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { data: session, update } = useSession();
-  const router = useRouter();
-  // console.log(formData.educationalDetails, ' [formData] ');
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { data: session, update } = useSession()
+  const router = useRouter()
 
+  // Load saved form data from localStorage
   useEffect(() => {
-    const savedData = localStorage.getItem('eduProfileData');
+    const savedData = localStorage.getItem("institutionProfileData")
     if (savedData) {
-      const parsedData = JSON.parse(savedData);
-      setFormData(parsedData);
-      updateProgress(parsedData);
+      try {
+        const parsedData = JSON.parse(savedData)
+        setFormData(parsedData)
+        updateProgress(parsedData)
+      } catch (error) {
+        console.error("Error parsing saved form data:", error)
+      }
     }
-  }, []);
+  }, [])
 
+  // Update progress based on completed steps
   const updateProgress = (data) => {
-    const steps = ['educationalDetails', 'addressDetails', 'socialIcons'];
-    const completedSteps = steps.filter((step) => data[step] !== null).length;
-    setProgress((completedSteps / steps.length) * 100);
-  };
+    const steps = ["educationalDetails", "addressDetails", "socialIcons"]
+    const completedSteps = steps.filter(step => data[step] !== null).length
+    setProgress((completedSteps / steps.length) * 100)
+  }
 
+  // Update form data and save to localStorage
   const updateFormData = (step, data) => {
-    console.log(` [updateFormData] Updating ${step}:`, data);
-    setFormData((prev) => {
-      const newFormData = { ...prev, [step]: data };
-      localStorage.setItem('eduProfileData', JSON.stringify(newFormData));
-      updateProgress(newFormData);
-      return newFormData;
-    });
-  };
+    setFormData(prev => {
+      const newFormData = { ...prev, [step]: data }
+      localStorage.setItem("institutionProfileData", JSON.stringify(newFormData))
+      updateProgress(newFormData)
+      return newFormData
+    })
+  }
 
+  // Tab configuration
   const tabs = [
-    { id: 'educationalDetails', label: 'Educational Details' },
-    { id: 'addressDetails', label: 'Address Details' },
-    { id: 'socialIcons', label: 'Social Links' },
-  ];
+    { id: "educationalDetails", label: "Institution Details" },
+    { id: "addressDetails", label: "Address" },
+    { id: "socialIcons", label: "Social Links" },
+  ]
 
+  // Check if user can navigate to a specific tab
   const canNavigateToTab = (tabId) => {
-    const tabIndex = tabs.findIndex((tab) => tab.id === tabId);
-    return tabs.slice(0, tabIndex).every((tab) => formData[tab.id] !== null);
-  };
+    const tabIndex = tabs.findIndex(tab => tab.id === tabId)
+    return tabs.slice(0, tabIndex).every(tab => formData[tab.id] !== null)
+  }
 
-  const handleSkip = () => {
-    localStorage.removeItem('eduProfileData');
-    router.push('/institutn-dshbrd6051');
-  };
-
+  // Validate and submit the profile
   const handleSubmitProfile = async () => {
     if (!formData.educationalDetails || !formData.addressDetails) {
       toast({
-        title: 'Missing information',
-        description: 'Please complete all required sections before submitting.',
-        variant: 'destructive',
-      });
-      return;
+        title: "Missing information",
+        description: "Please complete all required sections before submitting.",
+        variant: "destructive",
+      })
+      return
     }
 
     // Check if socialIcons exists and is valid
-    if (
-      !Array.isArray(formData.socialIcons) ||
-      formData.socialIcons.length === 0
-    ) {
-      toast({
-        title: 'Missing Social Links',
-        description:
-          'Please add at least one social profile before submitting.',
-        variant: 'destructive',
-      });
-      return;
-    }
+    // if (!Array.isArray(formData.socialIcons) || formData.socialIcons.length === 0) {
+    //   toast({
+    //     title: "Missing Social Links",
+    //     description: "Please add at least one social profile before submitting.",
+    //     variant: "destructive",
+    //   })
+    //   return
+    // }
 
     // If all validations pass, proceed with submission
-    // console.log('📌 [handleSubmitProfile] Submitting formData:', formData);
-    submitProfile(formData);
-  };
+    submitProfile(formData)
+  }
 
   const submitProfile = async (latestFormData) => {
-    setIsSubmitting(true);
+    setIsSubmitting(true)
 
     try {
-      const submitData = new FormData();
+      // Prepare submission data
+      const submissionData = {
+        // Institution details
+        CD_User_Id: session.user.individualId,
+        CD_Company_Name: formData.educationalDetails.institutionName,
+        CD_Company_Type: formData.educationalDetails.institutionType,
+        CD_Company_Establishment_Year: formData.educationalDetails.establishmentYear,
+        CD_Company_Email: formData.educationalDetails.institutionEmail,
+        CD_Phone_Number: formData.educationalDetails.phoneNumber,
+        CD_Company_Website: formData.educationalDetails.websiteUrl || "",
+        CD_Company_Logo: formData.educationalDetails.logoUrl || "",
+        CD_Company_About: formData.educationalDetails.mission || "Tell us about your institution!",
 
-      submitData.append('CD_User_Id', session.user.individualId);
-      submitData.append(
-        'CD_Company_Name',
-        latestFormData.educationalDetails.institutionName
-      );
-      submitData.append(
-        'CD_Company_Type',
-        latestFormData.educationalDetails.institutionType
-      );
-      submitData.append(
-        'CD_Company_Establishment_Year',
-        latestFormData.educationalDetails.establishmentYear
-      );
-      submitData.append(
-        'CD_Company_Email',
-        latestFormData.educationalDetails.institutionEmail
-      );
-      submitData.append(
-        'CD_Phone_Number',
-        latestFormData.educationalDetails.phoneNumber
-      );
-      submitData.append(
-        'CD_Company_Website',
-        latestFormData.educationalDetails.websiteUrl || ''
-      );
+        // Address details
+        CAD_Address_Line1: formData.addressDetails.addressLine1,
+        CAD_Address_Line2: formData.addressDetails.addressLine2 || "",
+        CAD_Landmark: formData.addressDetails.landmark || "",
+        CAD_City: formData.addressDetails.city,
+        CAD_State: formData.addressDetails.state,
+        CAD_Country: formData.addressDetails.country,
+        CAD_Pincode: formData.addressDetails.pincode,
 
-      if (latestFormData.educationalDetails.uploadedFile) {
-        submitData.append(
-          'CD_Company_Logo',
-          latestFormData.educationalDetails.uploadedFile
-        );
+        // Social links
+        SL_Social_Profile_Name: formData.educationalDetails.institutionName,
+        ...(formData.socialIcons?.reduce((acc, item) => {
+          if (item?.platform && item?.url) {
+            acc[`SL_${item.platform}_Url`] = item.url
+          }
+          return acc
+        }, {}) || {}),
+
+        // Routing info
+        lang: router.locale || "en",
+        route: "institution-ecolink"
       }
 
-      submitData.append(
-        'CAD_Address_Line1',
-        latestFormData.addressDetails.addressLine1
-      );
-      submitData.append('CAD_City', latestFormData.addressDetails.city);
-      submitData.append('CAD_State', latestFormData.addressDetails.state);
-      submitData.append('CAD_Country', latestFormData.addressDetails.country);
-      submitData.append('CAD_Pincode', latestFormData.addressDetails.pincode);
+      // Submit to API
+      const response = await fetch("/api/institution/v1/hcjBrBT60281CreateInstitutionProfile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(submissionData),
+      })
 
-      const profileObject = latestFormData.socialIcons.reduce((acc, item) => {
-        acc[item.platform] = item.url; // Set key as platform, value as URL
-        return acc;
-      }, {});
-      if (
-        Array.isArray(latestFormData.socialIcons) &&
-        latestFormData.socialIcons.length > 0
-      ) {
-        submitData.append('SL_Social_Profile_Name', 'social Data');
-        Object.keys(profileObject).forEach((key) => {
-          submitData.append(key, profileObject[key]);
-        });
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create institution profile")
       }
 
-      // console.log('🔍 Logging FormData before submission:');
-      // for (const [key, value] of submitData.entries()) {
-      //   console.log(`📝 ${key}:`, value);
-      // }
-
-      const response = await fetch(
-        '/api/institution/v1/hcjBrBT60281CreateInstitutionProfile',
-        {
-          method: 'POST',
-          body: submitData,
-        }
-      );
-
-      const result = await response.json();
-
-      if (result.success) {
-        toast({
-          title: 'Success!',
-          description: 'Institution profile created successfully.',
-        });
-
-        // Setting Individual_id in the session
-        update({
-          ...session,
-          user: { ...session.user, companyId: result.companyId },
-        });
-
-        router.push('/cmpny-dcmnt6031');
-        localStorage.removeItem('eduProfileData');
-      } else {
-        throw new Error(result.message || 'Failed to create profile');
-      }
-    } catch (error) {
-      console.error('Error submitting profile:', error);
+      // Handle success
       toast({
-        title: 'Error',
-        description:
-          error.message ||
-          'Failed to create institution profile. Please try again.',
-        variant: 'destructive',
-      });
+        title: "Success!",
+        description: "Institution profile created successfully.",
+      })
+
+      // Update session with company ID
+      await update({
+        ...session,
+        user: {
+          ...session.user,
+          companyId: result.companyId,
+          hasLogo: !!formData.educationalDetails.logoUrl,
+        },
+      })
+
+      // Clear form data and redirect
+      localStorage.removeItem("institutionProfileData")
+      router.push("/cmpny-dcmnt6031")
+
+    } catch (error) {
+      console.error("Profile submission error:", error)
+      toast({
+        title: "Error",
+        description: error.message || "An error occurred while creating your profile.",
+        variant: "destructive",
+      })
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 py-8 px-4">
       <Card className="max-w-3xl mx-auto">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg sm:text-2xl">
-              Create Educational Institution Profile
-            </CardTitle>
-            {/* <Button
-              variant="link"
-              className="text-primary"
-              onClick={handleSkip}>
-              Skip for now <ChevronRight className="ml-1 h-4 w-4" />
-            </Button> */}
+            <CardTitle className="text-2xl">Create Institution Profile</CardTitle>
           </div>
           <Progress value={progress} className="h-2" />
         </CardHeader>
         <CardContent>
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3 mb-8">
-              {tabs.map((tab) => (
+              {tabs.map(tab => (
                 <TabsTrigger
                   key={tab.id}
                   value={tab.id}
                   disabled={!canNavigateToTab(tab.id)}
-                  className="data-[state=active]:bg-primary data-[state=active]:text-white text-xs md:text-base">
+                  className="data-[state=active]:bg-primary data-[state=active]:text-white text-xs md:text-base"
+                >
                   {tab.label}
                 </TabsTrigger>
               ))}
@@ -239,8 +206,8 @@ export default function Page() {
             <TabsContent value="educationalDetails">
               <EducationalDetailsTab
                 onSubmit={(data) => {
-                  updateFormData('educationalDetails', data);
-                  setActiveTab('addressDetails');
+                  updateFormData("educationalDetails", data)
+                  setActiveTab("addressDetails")
                 }}
                 initialData={formData.educationalDetails}
               />
@@ -249,10 +216,10 @@ export default function Page() {
             <TabsContent value="addressDetails">
               <AddressDetailsTab
                 onSubmit={(data) => {
-                  updateFormData('addressDetails', data);
-                  setActiveTab('socialIcons');
+                  updateFormData("addressDetails", data)
+                  setActiveTab("socialIcons")
                 }}
-                onBack={() => setActiveTab('educationalDetails')}
+                onBack={() => setActiveTab("educationalDetails")}
                 initialData={formData.addressDetails}
               />
             </TabsContent>
@@ -260,10 +227,10 @@ export default function Page() {
             <TabsContent value="socialIcons">
               <SocialLinksTab
                 onSubmit={(data) => {
-                  updateFormData('socialIcons', data);
-                  handleSubmitProfile();
+                  updateFormData("socialIcons", data)
+                  handleSubmitProfile()
                 }}
-                onBack={() => setActiveTab('addressDetails')}
+                onBack={() => setActiveTab("addressDetails")}
                 initialData={formData.socialIcons}
                 isSubmitting={isSubmitting}
               />
@@ -272,5 +239,5 @@ export default function Page() {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

@@ -5,94 +5,98 @@ import DocumentDetails from "@/app/models/individual_document_details";
 import IndividualDetails from "@/app/models/individual_details";
 import { generateAuditTrail } from "@/app/utils/audit-trail";
 import { dbConnect } from "@/app/utils/dbConnect";
-import { uploadToGoogleDrive } from "@/app/utils/googleDrive";
 import Notification from "@/app/models/Notification";
 
 /**
  * @swagger
  * /api/student/v1/hcjBrBt60451StudentDocumentCreate:
  *   post:
- *     summary: Upload a user document
- *     description: Uploads a document, stores it in Google Drive, and saves the URL in MongoDB.
- *     tags: [Document Upload]
+ *     summary: Save Student Document Details
+ *     description: Saves document metadata for a student, including verification status and audit trail. Triggers a notification to the Super Admin for verification.
+ *     tags: [Student Documents Data Save in Db]
  *     requestBody:
  *       required: true
  *       content:
- *         multipart/form-data:
+ *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - IDD_Individual_Id
+ *               - IDD_Document1_Domicile
+ *               - IDD_Document1_Type
+ *               - IDD_Document1_Unq_Identifier
+ *               - IDD_Individual1_Document
  *             properties:
  *               IDD_Individual_Id:
  *                 type: string
- *                 description: Individual's ID
+ *                 description: MongoDB ObjectId of the student’s individual record
  *               IDD_Document1_Domicile:
  *                 type: string
- *                 example: "USA"
+ *                 example: Uttar Pradesh
  *               IDD_Document1_Type:
  *                 type: string
- *                 example: "01"
+ *                 example: Aadhaar
  *               IDD_Document1_Unq_Identifier:
  *                 type: string
- *                 example: "ABC1234567"
- *               IDD_Document_File:
+ *                 example: 1234-5678-9012
+ *               IDD_Individual1_Document:
  *                 type: string
- *                 format: binary
+ *                 format: uri
+ *                 example: https://drive.google.com/document-url.pdf
  *     responses:
  *       201:
- *         description: Document uploaded successfully
+ *         description: Document details saved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 title:
+ *                   type: string
+ *                   example: Saved Successfully
+ *                 code:
+ *                   type: string
+ *                   example: 6046_7
+ *                 message:
+ *                   type: string
+ *                   example: 6046_7 Document details saved successfully!
  *       400:
- *         description: Validation error
+ *         description: Validation failed or invalid/missing fields
  *       404:
  *         description: User not found
  *       500:
  *         description: Internal Server Error
  */
 
-export const config = {
-  api: {
-    bodyParser: false, // Disable default body parser for file uploads
-  },
-};
-
-// Constants
-const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
-const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
-
-// Validation Schema
-const formSchema = z.object({
-  IDD_Individual_Id: z.string().min(1, "6046_0 Individual ID is required."),
-  IDD_Document1_Domicile: z.string().min(1, "6046_1 Please select a country."),
-  IDD_Document1_Type: z.string().min(1, "6046_2 Please select a document type."),
-  IDD_Document1_Unq_Identifier: z.string().min(1, "6046_3 Document number is required."),
-  IDD_Document_File: z
-    .any()
-    .refine((file) => file !== null, "6046_4 Document upload is required.")
-    .refine((file) => file?.size <= MAX_FILE_SIZE, `6046_5 Max file size is 2MB.`)
-    .refine((file) => ACCEPTED_FILE_TYPES.includes(file?.type), "6046_6 Only .jpg, .jpeg, .png, and .pdf formats are supported."),
-});
-
-// Status Constants
-const STATUS_NOT_VERIFIED = "02";
 
 export async function POST(req) {
   await dbConnect();
-
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    //  Parse Form Data
-    const formData = await req.formData();
-    const data = {
-      IDD_Individual_Id: formData.get("IDD_Individual_Id"),
-      IDD_Document_File: formData.get("IDD_Document_File"),
-      IDD_Document1_Domicile: formData.get("IDD_Document1_Domicile"),
-      IDD_Document1_Type: formData.get("IDD_Document1_Type"),
-      IDD_Document1_Unq_Identifier: formData.get("IDD_Document1_Unq_Identifier"),
-    };
+    const body = await req.json();
+    const {
+      IDD_Individual_Id,
+      IDD_Document1_Domicile,
+      IDD_Document1_Type,
+      IDD_Document1_Unq_Identifier,
+      IDD_Individual1_Document,
+    } = body;
 
-    //  Validate Form Data
-    const validation = formSchema.safeParse(data);
+    // Validate required fields
+    const schema = z.object({
+      IDD_Individual_Id: z.string().min(1),
+      IDD_Document1_Domicile: z.string().min(1),
+      IDD_Document1_Type: z.string().min(1),
+      IDD_Document1_Unq_Identifier: z.string().min(1),
+      IDD_Individual1_Document: z.string().url(),
+    });
+
+    const validation = schema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
         {
@@ -106,58 +110,43 @@ export async function POST(req) {
       );
     }
 
-  // console.log(data.IDD_Individual_Id, "IDD_Individual_Id")
+    // Check if valid MongoDB ID
+    if (!mongoose.Types.ObjectId.isValid(IDD_Individual_Id)) {
+      return NextResponse.json({ success: false, message: "Invalid User ID" }, { status: 400 });
+    }
 
-    //  Step 1: Find User in `individual_details` Collection
-    const user = await IndividualDetails.findOne({ _id: data.IDD_Individual_Id }).session(session);
-   
-  // console.log(user, "user")
-  // console.log(data.IDD_Individual_Id, "IDD_Individual_Id")
+    const user = await IndividualDetails.findById(IDD_Individual_Id).session(session);
     if (!user) {
-      await session.abortTransaction();
       return NextResponse.json({ success: false, message: "User not found" }, { status: 404 });
     }
 
-    //  Step 2: Upload Image to Google Drive
-    let fileUrl = null;
-    if (data.IDD_Document_File) {
-      const buffer = Buffer.from(await data.IDD_Document_File.arrayBuffer());
-      const fileName = data.IDD_Document_File.name.replaceAll(" ", "_");
-      const mimeType = data.IDD_Document_File.type;
-      fileUrl = await uploadToGoogleDrive(buffer, fileName, mimeType);
-    }
-
-    //  Step 3: Generate Audit Trail
     const auditTrail = await generateAuditTrail(req);
 
-    //  Step 4: Save Document Details Using Foreign Key
-    const documentDetails = new DocumentDetails({
+    const doc = new DocumentDetails({
       IDD_Individual_Id: user._id,
-      IDD_Username: user.ID_Email || user.ID_Phone, // Default to email, fallback to phone
+      IDD_Username: user.ID_Email || user.ID_Phone,
       IDD_Uploaded1_DtTym: new Date(),
       IDD_Uploaded1_By: user.ID_Email || user.ID_Phone,
-      IDD_Document1_Domicile: data.IDD_Document1_Domicile,
-      IDD_Document1_Type: data.IDD_Document1_Type,
-      IDD_Document1_Unq_Identifier: data.IDD_Document1_Unq_Identifier,
-      IDD_Individual1_Document: fileUrl || null,
-      IDD_Verified1_Status: "02", // Default status: Not verified
+      IDD_Document1_Domicile,
+      IDD_Document1_Type,
+      IDD_Document1_Unq_Identifier,
+      IDD_Individual1_Document,
+      IDD_Verified1_Status: "02",
       IDD_Audit_Trail: [auditTrail],
     });
 
-    await documentDetails.save({ session });
+    await doc.save({ session });
 
-    //  Save Notification
+    // Add notification to queue
     const notificationMessage = `User ${user.ID_Email || user.ID_Phone} uploaded a new document. Please verify the profile.`;
     await Notification.create({
-      recipientRole: STATUS_NOT_VERIFIED,
+      recipientRole: "02", // Not Verified
       message: notificationMessage,
     });
 
-    //  Commit MongoDB Transaction
     await session.commitTransaction();
     session.endSession();
 
-    //  Return Success Response
     return NextResponse.json(
       {
         success: true,
@@ -167,11 +156,11 @@ export async function POST(req) {
       },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (err) {
     await session.abortTransaction();
     session.endSession();
 
-    console.error("Error handling the request:", error);
+    console.error("📦 Save Error:", err);
     return NextResponse.json(
       {
         success: false,

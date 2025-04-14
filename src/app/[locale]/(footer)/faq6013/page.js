@@ -1,17 +1,23 @@
-"use client"
+"use client";
 
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import Image from "next/image"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
-const faqs = [
+const staticFaqs = [
   {
     category: "General",
     items: [
       {
         question: "Why do I need to upload my IDs on HCJ ?",
-        answer: "This is to have only verified and authentic users on our platform, keeping it free from spam.",
+        answer:
+          "This is to have only verified and authentic users on our platform, keeping it free from spam.",
       },
       {
         question: "How do I update my profile ?",
@@ -60,25 +66,39 @@ const faqs = [
       },
     ],
   },
-]
+];
 
-export default function FAQPage() {
-  const [activeIndex, setActiveIndex] = useState(null)
-  const router = useRouter()
+export default function Page() {
+  const [search, setSearch] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [selectedFaq, setSelectedFaq] = useState(null);
+  const router = useRouter();
 
-  const handleClick = () => {
-    router.push("/cntct6011")
-  }
+  useEffect(() => {
+    if (!search.trim()) {
+      setSuggestions([]);
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      fetch(`/api/hcj/v1/hcjArET60131fetchFaq?search=${search}`)
+        .then((res) => res.json())
+        .then((json) => setSuggestions(json.data || []));
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [search]);
+
+  const handleClick = () => router.push("/cntct6011");
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Gradient Section */}
+      {/* Search Bar Section */}
       <section
         className="text-white text-center py-12 px-4 relative"
         style={{
           backgroundImage: 'url("/image/info/faq/bacckground.svg")',
           backgroundSize: "cover",
-          backgroundPosition: "center",
         }}
       >
         <div className="absolute inset-0 bg-black/20 dark:bg-black/40" />
@@ -86,15 +106,13 @@ export default function FAQPage() {
           <h1 className="text-4xl font-bold mb-4">FAQs</h1>
           <h2 className="text-lg font-medium mb-6">How can we help you?</h2>
 
-          <div className="flex justify-center items-center max-w-md mx-auto relative">
+          <div className="relative max-w-md mx-auto">
             <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               type="text"
               placeholder="Search by keywords"
-              className="w-full pl-4 pr-12 py-3 rounded-full bg-white/10 dark:bg-black/10 
-                border-2 border-white/70 dark:border-white/50 
-                placeholder-white/70 dark:placeholder-white/50 
-                focus:ring focus:ring-white/30 dark:focus:ring-white/20 
-                text-white placeholder:text-lg"
+              className="w-full pl-4 pr-12 py-3 rounded-full bg-white/10 border-2 border-white/70 text-white"
             />
             <Image
               src="/image/info/faq/search.svg"
@@ -103,24 +121,71 @@ export default function FAQPage() {
               height={48}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 w-12 h-12"
             />
+            {suggestions.length > 0 && (
+              <div className="absolute top-full mt-1 w-full bg-white shadow-lg rounded-md z-50 text-left text-gray-800 max-h-64 overflow-y-auto">
+                {suggestions.map((faq, index) => (
+                  <div
+                    key={index}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => {
+                      setSelectedFaq(faq);
+                      setSearch("");
+                      setSuggestions([]);
+                    }}
+                  >
+                    {faq.question}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
 
-      {/* Contact Section */}
+      {/* Selected Dynamic FAQ */}
+      {selectedFaq && (
+        <section className="py-10 px-4">
+          <div className="container mx-auto max-w-3xl">
+            <h2 className="text-xl font-semibold mb-6 text-gray-800 dark:text-white">
+              Answer:
+            </h2>
+            <Accordion type="single" collapsible className="space-y-6">
+              <AccordionItem
+                value="selected-faq"
+                className="border rounded-lg shadow-sm overflow-hidden mb-4 bg-white dark:bg-gray-800 hover:shadow-lg transition-shadow"
+              >
+                <AccordionTrigger className="flex justify-between items-center px-4 py-3 text-left font-medium text-gray-800 dark:text-gray-100">
+                  {selectedFaq.question}
+                </AccordionTrigger>
+                <AccordionContent className="px-4 py-3 text-gray-600 dark:text-gray-300">
+                  <div
+                    dangerouslySetInnerHTML={{ __html: selectedFaq.answer }}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        </section>
+      )}
+
+      {/* Static Section */}
       <section className="py-10 px-4">
         <div className="container mx-auto max-w-3xl">
+          {/* Info Message */}
           <section className="py-8 px-4 text-center">
             <p className="text-gray-600 dark:text-gray-300 text-lg mb-4">
-              If you have questions that aren&apos;t answered below, please feel free to contact us!
+              If you have questions that aren&apos;t answered below, please feel free
+              to contact us!
             </p>
           </section>
 
           {/* Accordion Section */}
           <Accordion type="single" collapsible className="space-y-6">
-            {faqs.map((category, categoryIndex) => (
+            {staticFaqs.map((category, categoryIndex) => (
               <div key={categoryIndex}>
-                <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-100">{category.category}</h3>
+                <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-100">
+                  {category.category}
+                </h3>
                 {category.items.map((item, index) => (
                   <AccordionItem
                     key={index}
@@ -141,6 +206,7 @@ export default function FAQPage() {
         </div>
       </section>
 
+      {/* Contact Section */}
       <section className="py-10 px-4">
         <div className="container mx-auto flex flex-col lg:flex-row items-center lg:items-stretch">
           {/* Left Section (Image) */}
@@ -155,9 +221,10 @@ export default function FAQPage() {
           </div>
 
           {/* Right Section (Text and Button) */}
-          <div className="w-full lg:w-1/2 flex flex-col justify-center bg-teal-100/50 dark:bg-teal-900/20 p-6 md:p-12 lg:p-16 rounded-lg">
+          <div className="w-full lg:w-1/2 flex flex-col justify-center bg-teal-100/50 dark:bg-teal-900/20 p-6 md:p-12 lg:p-12 rounded-lg">
             <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-semibold leading-relaxed text-start sm:text-center lg:text-left text-gray-800 dark:text-gray-100">
-              If you have questions that aren&apos;t answered below, please feel free to contact us!
+              If you have questions that aren&apos;t answered below, please feel
+              free to contact us!
             </h2>
             <div className="mt-6 flex justify-start sm:justify-start">
               <button
@@ -173,6 +240,5 @@ export default function FAQPage() {
         </div>
       </section>
     </div>
-  )
+  );
 }
-

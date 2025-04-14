@@ -1,27 +1,33 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Modal } from "@/components/ui/modal"
+import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
+import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
 
-export default function AboutPopup({ isOpen, onClose, onSubmit }) {
-  const [description, setDescription] = useState("")
-  const [wordCount, setWordCount] = useState(0)
+export default function AboutPopup({
+  isOpen,
+  onClose,
+  onSubmit,
+  initialData = "",
+}) {
+  // console.log("AboutPopup rendered", initialData);
+  const [description, setDescription] = useState(initialData);
+  const [wordCount, setWordCount] = useState(0);
 
   const handleChange = (e) => {
-    const value = e.target.value
-    setDescription(value)
+    const value = e.target.value;
+    setDescription(value);
 
     // Calculate word count
-    const words = value.trim() ? value.trim().split(/\s+/).length : 0
-    setWordCount(words)
-  }
+    const words = value.trim() ? value.trim().split(/\s+/).length : 0;
+    setWordCount(words);
+  };
 
   const handleSubmit = () => {
-    if (onSubmit) onSubmit({ description })
-    onClose()
-  }
+    if (onSubmit) onSubmit({ description });
+    onClose();
+  };
 
   return (
     <Modal
@@ -33,11 +39,11 @@ export default function AboutPopup({ isOpen, onClose, onSubmit }) {
         <div className="flex flex-col gap-1">
           <h2 className="text-xl font-semibold">About You</h2>
           <p className="text-sm text-muted-foreground">
-            Enhance your profile by adding a brief about yourself, allowing employers to get to know you better.
+            Enhance your profile by adding a brief about yourself, allowing
+            employers to get to know you better.
           </p>
         </div>
-      }
-    >
+      }>
       <div className="p-6">
         <div className="space-y-4">
           <div className="space-y-2">
@@ -63,13 +69,14 @@ export default function AboutPopup({ isOpen, onClose, onSubmit }) {
             <Button variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button onClick={handleSubmit} disabled={wordCount > 1000 || wordCount === 0}>
+            <Button
+              onClick={handleSubmit}
+              disabled={wordCount > 1000 || wordCount === 0}>
               Save
             </Button>
           </div>
         </div>
       </div>
     </Modal>
-  )
+  );
 }
-

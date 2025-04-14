@@ -89,17 +89,19 @@ export async function POST(req) {
       "HCJ_ST_Student_Pincode",
       "HCJ_ST_Student_State",
       "HCJ_ST_Student_City",
-      "HCJ_ST_Address", // ✅ Added this attribute
+      "HCJ_ST_Address",
       "HCJ_ST_Enrollment_Year",
       "HCJ_ST_Student_Program_Name",
-      "HCJ_ST_Score_Grade_Type",
-      "HCJ_ST_Score_Grade",
-      "HCJ_ST_Student_Document_Domicile",
-      "HCJ_ST_Student_Document_Type",
-      "HCJ_ST_Student_Document_Number",
       "HCJ_ST_Class_Of_Year",
       "HCJ_ST_Student_Branch_Specialization",
     ];
+
+    // ?removed from teh  above list
+    //     "HCJ_ST_Score_Grade_Type",
+    // "HCJ_ST_Score_Grade",
+    // "HCJ_ST_Student_Document_Domicile",
+    // "HCJ_ST_Student_Document_Type",
+    // "HCJ_ST_Student_Document_Number",
 
     // console.log(data, "data")
 
@@ -155,14 +157,17 @@ export async function POST(req) {
       HCJ_ST_Student_Pincode: data.HCJ_ST_Student_Pincode,
       HCJ_ST_Student_State: data.HCJ_ST_Student_State,
       HCJ_ST_Student_City: data.HCJ_ST_Student_City,
-      HCJ_ST_Address: data.HCJ_ST_Address, // ✅ Added this attribute
+      HCJ_ST_Address: data.HCJ_ST_Address,
       HCJ_ST_Enrollment_Year: data.HCJ_ST_Enrollment_Year,
       HCJ_ST_Student_Program_Name: data.HCJ_ST_Student_Program_Name,
-      HCJ_ST_Score_Grade_Type: data.HCJ_ST_Score_Grade_Type,
-      HCJ_ST_Score_Grade: data.HCJ_ST_Score_Grade,
-      HCJ_ST_Student_Document_Domicile: data.HCJ_ST_Student_Document_Domicile,
-      HCJ_ST_Student_Document_Type: data.HCJ_ST_Student_Document_Type,
-      HCJ_ST_Student_Document_Number: data.HCJ_ST_Student_Document_Number,
+      HCJ_ST_Score_Grade_Type: data.HCJ_ST_Score_Grade_Type || "N/A",
+
+      HCJ_ST_Score_Grade: data.HCJ_ST_Score_Grade || "N/A",
+      HCJ_ST_Student_Document_Domicile:
+        data.HCJ_ST_Student_Document_Domicile || "N/A",
+      HCJ_ST_Student_Document_Type: data.HCJ_ST_Student_Document_Type || "N/A",
+      HCJ_ST_Student_Document_Number:
+        data.HCJ_ST_Student_Document_Number || "N/A",
       HCJ_ST_Educational_Alternate_Email:
         data.HCJ_ST_Educational_Alternate_Email || undefined,
       HCJ_ST_Alternate_Phone_Number:
@@ -214,9 +219,7 @@ export async function POST(req) {
             <li>Email: ${data.HCJ_ST_Educational_Email}</li>
             <li>Institution: ${data.HCJ_ST_Institution_Name}</li>
             <li>Program: ${data.HCJ_ST_Student_Program_Name}</li>
-            <li>Address: ${
-              data.HCJ_ST_Address
-            }</li>  // ✅ Added Address in Email
+            <li>Address: ${data.HCJ_ST_Address}</li>
             <li>Photo: ${photoUrl || "Not uploaded"}</li>
           </ul>
           <p>Please review the registration in the admin dashboard.</p>
@@ -271,4 +274,3 @@ export async function POST(req) {
     );
   }
 }
-

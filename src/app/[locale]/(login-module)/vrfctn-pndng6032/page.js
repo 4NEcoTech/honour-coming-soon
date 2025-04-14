@@ -1,68 +1,3 @@
-// 'use client';
-
-// import { Button } from '@/components/ui/button';
-// import {
-//   Card,
-//   CardContent,
-//   CardFooter,
-//   CardHeader,
-//   CardTitle,
-// } from '@/components/ui/card';
-// import { Link } from '@/i18n/routing';
-// import { IoArrowBack, IoInformationCircleOutline } from 'react-icons/io5';
-// function Page() {
-//   return (
-//     <div className="min-h-screen flex justify-center items-center bg-transparent px-4 sm:px-6 lg:px-8">
-//       <Card className="w-full max-w-lg p-6 rounded-lg shadow-lg">
-//         {/* Back Arrow */}
-//         <div className="flex justify-start mb-4">
-//           <Button
-//             variant="ghost"
-//             className="p-0 text-gray-600 hover:text-gray-900"
-//             onClick={() => console.log('Go back')}>
-//             <IoArrowBack size={24} />
-//           </Button>
-//         </div>
-
-//         {/* Verification Title */}
-//         <CardHeader className="text-center">
-//           <CardTitle className="text-2xl font-semibold text-yellow-600 flex items-center justify-center">
-//             Verification Pending{' '}
-//             <IoInformationCircleOutline size={24} className="ml-2" />
-//           </CardTitle>
-//         </CardHeader>
-
-//         {/* Message Content */}
-//         <CardContent className="text-center">
-//           <p className="text-gray-600 text-sm mb-4">
-//             Thank you for submitting your details. Your account is under review
-//             and pending verification. If we need any additional information, we
-//             will contact you within 48 hours.
-//           </p>
-//           <p className="font-semibold text-gray-700">
-//             You&apos;ll receive an email from us once your account gets
-//             verified.
-//           </p>
-//         </CardContent>
-
-//         {/* Footer with Button */}
-//         <CardFooter className="flex justify-center">
-//           <Link href="/">
-//             <Button
-//               href="/"
-//               className="w-full bg-primary text-white py-2 px-4 rounded-md">
-//               Go to homepage
-//             </Button>
-//           </Link>
-//         </CardFooter>
-//       </Card>
-//     </div>
-//   );
-// }
-
-// export default Page;
-
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -171,13 +106,13 @@ export default function VerificationPendingPage() {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
+                <Link href="cntct6011">
                 <Button
                   variant="outline"
                   className="w-full sm:w-auto"
-                  onClick={() => (window.location.href = "thehonourenterprise@gmail.com")}
                 >
                   Contact Support
-                </Button>
+                </Button></Link>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Have questions? We&apos;re here to help!</p>

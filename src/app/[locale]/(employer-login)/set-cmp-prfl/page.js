@@ -6,9 +6,9 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
-import CompanyDetails from "./cmp-dtls/CompanyDetails";
-import AddressDetails from "./addrss-dtls/AddressDetails";
-import SocialLinks from "./socl-lnks/SocialLinks";
+import CompanyDetails from "./cmp-dtls5153/CompanyDetails";
+import AddressDetails from "./addrss-dtls6154/AddressDetails";
+import SocialLinks from "./socl-lnks6155/SocialLinks";
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState("company");
@@ -66,9 +66,6 @@ export default function Page() {
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl">Complete Company Profile</CardTitle>
-            <Button variant="link" className="text-primary">
-              Skip for now <ChevronRight className="ml-1 h-4 w-4" />
-            </Button>
           </div>
           <Progress value={progress} className="h-2" />
         </CardHeader>

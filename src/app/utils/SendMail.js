@@ -39,8 +39,8 @@ export async function sendInstitutionVerificationEmail(
   toEmail,
   institutionName
 ) {
-  console.log("toEmail", toEmail);
-  console.log("institutionName", institutionName);
+  // console.log("toEmail", toEmail);
+  // console.log("institutionName", institutionName);
   try {
     // Configure the transporter
     const transporter = nodemailer.createTransport({
@@ -130,7 +130,7 @@ export async function sendUserVerificationEmail(toEmail, userName) {
   
       // Send the email
       const info = await transporter.sendMail(mailOptions);
-      console.log("User Verification Email Sent: ", info.messageId);
+    //  console.log("User Verification Email Sent: ", info.messageId);
       return true;
     } catch (error) {
       console.error("Error sending user verification email:", error);
@@ -169,7 +169,7 @@ export async function sendUserVerificationEmail(toEmail, userName) {
   
       // Send the email
       const info = await transporter.sendMail(mailOptions);
-      console.log("Student Update Email Sent: ", info.messageId);
+    //  console.log("Student Update Email Sent: ", info.messageId);
       return true;
     } catch (error) {
       console.error("Error sending student update email:", error);
@@ -208,7 +208,7 @@ export async function sendUserVerificationEmail(toEmail, userName) {
   
       // Send the email
       const info = await transporter.sendMail(mailOptions);
-      console.log("Staff Update Email Sent: ", info.messageId);
+    //  console.log("Staff Update Email Sent: ", info.messageId);
       return true;
     } catch (error) {
       console.error("Error sending staff update email:", error);

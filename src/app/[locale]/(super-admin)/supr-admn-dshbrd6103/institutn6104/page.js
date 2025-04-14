@@ -37,7 +37,8 @@ export default function InstitutionsPage() {
     goToPage,
     additionalFilters,
     setAdditionalFilters,
-    refresh
+    refetch,
+    // refresh
   } = usePagination(`/api/super-admin/v1/hcjArET61041FetchInstitutionVerificationData`, {
     pageSize: 10,
     batchSize: 100,
@@ -66,28 +67,28 @@ export default function InstitutionsPage() {
     if (institutions && institutions.length > 0) {
       const transformedData = institutions.map((institution) => {
         // Map verification status from the API response
-        const verificationStatus = institution.companyKYC?.CKD_Verification_Status === "verified" 
+        const verificationStatus = institution?.companyKYC?.CKD_Verification_Status === "verified" 
           ? "Verified" 
-          : institution.companyKYC?.CKD_Verification_Status === "pending" 
+          : institution?.companyKYC?.CKD_Verification_Status === "pending" 
             ? "Pending" 
             : "Not Verified";
         
         // Get admin name if available
         const adminName = institution.administrator 
-          ? `${institution.administrator.ID_First_Name || ''} ${institution.administrator.ID_Last_Name || ''}`.trim() 
+          ? `${institution?.administrator.ID_First_Name || ''} ${institution.administrator.ID_Last_Name || ''}`.trim() 
           : "No Admin";
         
         // Get documents array
         const documents = [
-          ...(institution.companyKYC?.CKD_Company_Registration_Documents ? [{ 
+          ...(institution?.companyKYC?.CKD_Company_Registration_Documents ? [{ 
             type: 'pdf', 
             name: 'Registration Document',
-            url: institution.companyKYC.CKD_Company_Registration_Documents 
+            url: institution?.companyKYC.CKD_Company_Registration_Documents 
           }] : []),
-          ...(institution.companyKYC?.CKD_Company_Tax_Documents ? [{ 
+          ...(institution?.companyKYC?.CKD_Company_Tax_Documents ? [{ 
             type: 'pdf', 
             name: 'Tax Document',
-            url: institution.companyKYC.CKD_Company_Tax_Documents 
+            url: institution?.companyKYC.CKD_Company_Tax_Documents 
           }] : [])
         ];
 
@@ -109,9 +110,9 @@ export default function InstitutionsPage() {
           documents: documents,
           verificationStatus: verificationStatus,
           verificationBadgeColor: getVerificationBadgeColor(verificationStatus),
-          verificationCode: institution.companyKYC?.CKD_Verification_Status || "pending",
-          address: institution.companyAddress ? 
-            `${institution.companyAddress.CAD_Address_Line1 || ''}, ${institution.companyAddress.CAD_City || ''}, ${institution.companyAddress.CAD_State || ''}, ${institution.companyAddress.CAD_Country || ''}` : 
+          verificationCode: institution?.companyKYC?.CKD_Verification_Status || "pending",
+          address: institution?.companyAddress ? 
+            `${institution?.companyAddress?.CAD_Address_Line1 || ''}, ${institution.companyAddress.CAD_City || ''}, ${institution.companyAddress.CAD_State || ''}, ${institution.companyAddress.CAD_Country || ''}` : 
             "N/A",
           createdAt: institution.createdAt,
           profileImage: institution.companyDetails?.CD_Company_Logo || "",
@@ -161,7 +162,8 @@ export default function InstitutionsPage() {
       );
       setIsDeleteDialogOpen(false);
       setIsProfileOpen(false);
-      refresh();
+      // refresh();
+      refetch();
     } catch (error) {
       console.error("Delete failed:", error);
       toast({
@@ -256,7 +258,8 @@ export default function InstitutionsPage() {
         })
       );
       
-      refresh();
+      // refresh();
+      refetch();
     } catch (error) {
       console.error("Update failed:", error);
       toast({

@@ -1,6 +1,5 @@
 "use client"
 
-import { getUserById } from "@/app/utils/indexDB"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -11,6 +10,8 @@ import { useEffect, useState } from "react"
 import AddressDetails from "./addrss-dtls/page"
 import PersonalDetails from "./prsnl-dtls/page"
 import SocialLinks from "./socl-lnks/page"
+import { getUserById } from "@/app/utils/indexDB"
+
 
 export default function Page() {
   const [activeTab, setActiveTab] = useState("personal")
@@ -18,7 +19,7 @@ export default function Page() {
   const [formData, setFormData] = useState({
     personal: null,
     address: null,
-    social: null,
+    social: [],
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -44,14 +45,14 @@ export default function Page() {
       profileHeadline: "", // Not available in token
       gender: ccpData.CCP_Contact_Person_Gender || "",
       dob: ccpData.CCP_Contact_Person_DOB ? new Date(ccpData.CCP_Contact_Person_DOB).toISOString().split("T")[0] : "",
-      department: ccpData.CCP_Contact_Person_Department || "",
+      photoUrl: ccpData.CCP_Contact_Person_Profile_Picture || "",
     }
 
     // Map address data
     const address = {
       addressLine1: ccpData.CCP_Contact_Person_Address_Line1 || "",
-      addressLine2: "", // Not available in token
-      landmark: "", // Not available in token
+      addressLine2: ccpData.CCP_Contact_Person_Address_Line2 || "",
+      landmark: ccpData.CCP_Contact_Person_Landmark || "",
       country: ccpData.CCP_Contact_Person_Country || "India",
       pincode: ccpData.CCP_Contact_Person_Pincode || "",
       state: ccpData.CCP_Contact_Person_State || "",
@@ -64,86 +65,57 @@ export default function Page() {
     return { personal, address, social }
   }
 
-  // Load data from localStorage first
+
   useEffect(() => {
     const savedData = localStorage.getItem("formData")
-    if (savedData) {
-      try {
-        const parsedData = JSON.parse(savedData)
-        setFormData(parsedData)
-        updateProgress(parsedData)
-      } catch (error) {
-        console.error("Error parsing saved form data:", error)
-      }
-    }
-  }, [])
-
-  // Check for CCP data in session or directly in formData
-  useEffect(() => {
-    // If formData already has CCP fields, map it to the correct structure
-    if (hasCCPFields(formData)) {
-      console.log("Found CCP data in formData, mapping to form structure")
-      const mappedData = mapCCPDataToFormStructure(formData)
-      setFormData(mappedData)
-      updateProgress(mappedData)
+    const parsedData = savedData ? JSON.parse(savedData) : null
+  
+    const tokenData = session?.user?.token
+    const fullSession = session?.user || session
+    const fullData =
+      hasCCPFields(formData) ? formData :
+      hasCCPFields(tokenData) ? tokenData :
+      hasCCPFields(fullSession) ? fullSession :
+      null
+  
+    if (fullData) {
+      console.log("Using CCP data from session or formData")
+      const mapped = mapCCPDataToFormStructure(fullData)
+      setFormData(mapped)
+      updateProgress(mapped)
       return
     }
-
-    // Check if session has token data
-    if (session?.user?.token && hasCCPFields(session.user.token)) {
-      console.log("Found CCP data in session token, mapping to form structure")
-      const mappedData = mapCCPDataToFormStructure(session.user.token)
-      setFormData(mappedData)
-      updateProgress(mappedData)
+  
+    if (parsedData && parsedData.personal && parsedData.address) {
+      console.log("Using data from localStorage")
+      setFormData(parsedData)
+      updateProgress(parsedData)
       return
     }
-
-    // Check if session itself has CCP fields
-    if (session && hasCCPFields(session)) {
-      console.log("Found CCP data in session, mapping to form structure")
-      const mappedData = mapCCPDataToFormStructure(session)
-      setFormData(mappedData)
-      updateProgress(mappedData)
-      return
-    }
-
-    // Check if session.user has CCP fields
-    if (session?.user && hasCCPFields(session.user)) {
-      console.log("Found CCP data in session.user, mapping to form structure")
-      const mappedData = mapCCPDataToFormStructure(session.user)
-      setFormData(mappedData)
-      updateProgress(mappedData)
-      return
-    }
-
-    // If no CCP data found, try to get from IndexDB
+  
+    // Fallback to IndexedDB
     const tempId = localStorage.getItem("temp_team_member_id")
     if (tempId) {
       getUserById(tempId)
         .then((data) => {
-          if (data) {
-            // Check if IndexDB data has CCP fields
-            if (hasCCPFields(data)) {
-              console.log("Found CCP data in IndexDB, mapping to form structure")
-              const mappedData = mapCCPDataToFormStructure(data)
-              setFormData(mappedData)
-              updateProgress(mappedData)
-            } else {
-              // Data is already in the correct structure
-              setFormData(data)
-              updateProgress(data)
-            }
+          if (hasCCPFields(data)) {
+            console.log("Using data from IndexedDB")
+            const mapped = mapCCPDataToFormStructure(data)
+            setFormData(mapped)
+            updateProgress(mapped)
+          } else {
+            setFormData(data)
+            updateProgress(data)
           }
-          console.log("data from IndexDB:", data)
         })
-        .catch((err) => console.error("Error fetching user:", err))
+        .catch((err) => console.error("IndexedDB fetch failed:", err))
         .finally(() => setIsSubmitting(false))
     } else {
       setIsSubmitting(false)
     }
   }, [session])
+  
 
-  console.log("formData", formData)
   const updateProgress = (data) => {
     const steps = ["personal", "address", "social"]
     const completedSteps = steps.filter((step) => data[step] !== null).length
@@ -152,7 +124,6 @@ export default function Page() {
 
   const updateFormData = (step, data) => {
     setFormData((prev) => {
-      // For social step, data is already an array of profiles
       const newFormData = { ...prev, [step]: data }
       localStorage.setItem("formData", JSON.stringify(newFormData))
       updateProgress(newFormData)
@@ -172,6 +143,7 @@ export default function Page() {
   }
 
   const handleSubmitProfile = async () => {
+    // Validate required fields
     if (!formData.personal || !formData.address) {
       toast({
         title: "Missing information",
@@ -184,92 +156,108 @@ export default function Page() {
     setIsSubmitting(true)
 
     try {
-      // Create FormData object for multipart/form-data submission
-      const submitData = new FormData()
+      // 1. Prepare the submission data
+      const submitData = {
+        // Basic personal info
+        ID_User_Id: session.user.id,
+        ID_First_Name: formData.personal.firstName,
+        ID_Last_Name: formData.personal.lastName,
+        ID_Phone: formData.personal.phone,
+        ID_Email: formData.personal.corporateEmail,
+        ID_Gender: formData.personal.gender || "01", // Default gender code
+        ID_DOB: formData.personal.dob || "",
+        ID_Profile_Picture: formData.personal.photoUrl || "",
 
-      // Add personal details
-      submitData.append("ID_User_Id", session.user.id)
-      submitData.append("ID_First_Name", formData.personal.firstName)
-      submitData.append("ID_Last_Name", formData.personal.lastName)
-      submitData.append("ID_Phone", formData.personal.phone)
-      submitData.append("ID_Email", formData.personal.corporateEmail)
-      submitData.append("ID_Gender", formData.personal.gender || "Not Specified")
-      submitData.append("ID_DOB", formData.personal.dob || "")
+        // Professional info
+        ID_Individual_Designation: formData.personal.designation || "",
+        ID_Profile_Headline: formData.personal.profileHeadline || "",
+        ID_About: formData.personal.about || "",
 
-      if (formData.personal.designation) {
-        submitData.append("ID_Individual_Designation", formData.personal.designation)
+        // Address info
+        IAD_Address_Line1: formData.address.addressLine1,
+        IAD_City: formData.address.city,
+        IAD_State: formData.address.state,
+        IAD_Country: formData.address.country,
+        IAD_Pincode: formData.address.pincode,
+        IAD_Address_Line2: formData.address.addressLine2 || "",
+        IAD_Landmark: formData.address.landmark || "",
+
+        // Social info - initialize all possible fields
+        SL_Social_Profile_Name: `${formData.personal.firstName} ${formData.personal.lastName}`,
+        SL_LinkedIn_Profile: "",
+        SL_Website_Url: "",
+        SL_Instagram_Url: "",
+        SL_Facebook_Url: "",
+        SL_Twitter_Url: "",
+        SL_Pinterest_Url: "",
+        SL_Custom_Url: "",
+        SL_Portfolio_Url: "",
+
+        // URL configuration
+        lang: router.locale || "en",
+        route: "ecolink",
       }
 
-      if (formData.personal.profileHeadline) {
-        submitData.append("ID_Profile_Headline", formData.personal.profileHeadline)
-      }
-
-      // Add profile picture if available
-      if (formData.personal.photo instanceof File) {
-        submitData.append("ID_Profile_Picture", formData.personal.photo)
-      }
-
-      // Add address details
-      submitData.append("IAD_Address_Line1", formData.address.addressLine1)
-      submitData.append("IAD_City", formData.address.city)
-      submitData.append("IAD_State", formData.address.state)
-      submitData.append("IAD_Country", formData.address.country)
-      submitData.append("IAD_Pincode", formData.address.pincode)
-
-      if (formData.address.addressLine2) {
-        submitData.append("IAD_Address_Line2", formData.address.addressLine2)
-      }
-
-      if (formData.address.landmark) {
-        submitData.append("IAD_Landmark", formData.address.landmark)
-      }
-
-      const profileObject = formData.social.reduce((acc, item) => {
-        acc[item.platform] = item.url // Set key as platform, value as URL
-        return acc
-      }, {})
-
-      // Add social links if available
-      if (Array.isArray(formData.social) && formData.social.length > 0) {
-        submitData.append("SL_Social_Profile_Name", "social Data")
-        Object.keys(profileObject).forEach((key) => {
-          submitData.append(key, profileObject[key])
+      // 2. Process social links if they exist
+      if (Array.isArray(formData.social) && formData.social.length) {
+        formData.social.forEach((item) => {
+          try {
+            if (item?.url && item?.platform) {
+              const platformKey = `SL_${item.platform}_Url`
+              if (Object.prototype.hasOwnProperty.call(submitData, platformKey)) {
+                submitData[platformKey] = item.url
+              }
+            }
+          } catch (error) {
+            console.warn("Error processing social link:", item, error)
+          }
         })
       }
 
-      // Submit to API
+      // 3. Submit to API
       const response = await fetch("/api/institution/v1/hcjBrBT60241CreateAdminProfile", {
         method: "POST",
-        body: submitData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(submitData),
       })
 
       const result = await response.json()
 
-      if (result.success) {
-        toast({
-          title: "Success!",
-          description: "Your profile has been created successfully.",
-        })
-
-        // Clear local storage after successful submission
-        localStorage.removeItem("formData")
-
-        // Optional: redirect to dashboard or another page
-
-        // Setting Individual_id in the session
-        update({
-          ...session,
-          user: { ...session.user, individualId: result.individualId },
-        })
-        router.push("/admin-dcmnt6027")
-      } else {
+      if (!response.ok) {
         throw new Error(result.message || "Failed to create profile")
       }
+
+      // 4. Handle success
+      toast({
+        title: "Success!",
+        description: "Your profile has been created successfully.",
+      })
+
+      // Clear form data from local storage
+      localStorage.removeItem("formData")
+
+      // Update session with the new individualId
+      await update({
+        ...session,
+        user: {
+          ...session.user,
+          individualId: result.individualId,
+          hasProfilePicture: !!formData.personal.photoUrl,
+          first_name: result.first_name,
+          last_name: result.last_name,
+        },
+      })
+
+      // 5. Redirect to next page
+      router.push("/admin-dcmnt6027")
     } catch (error) {
-      console.error("Error submitting profile:", error)
+      console.error("Profile submission error:", error)
+
       toast({
         title: "Error",
-        description: error.message || "There was a problem creating your profile. Please try again.",
+        description: error.message || "An error occurred while creating your profile.",
         variant: "destructive",
       })
     } finally {
@@ -283,9 +271,6 @@ export default function Page() {
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl">Complete Your Profile</CardTitle>
-            {/* <Button variant="link" className="text-primary">
-              Skip for now <ChevronRight className="ml-1 h-4 w-4" />
-            </Button> */}
           </div>
           <Progress value={progress} className="h-2" />
         </CardHeader>
@@ -344,4 +329,3 @@ export default function Page() {
     </div>
   )
 }
-

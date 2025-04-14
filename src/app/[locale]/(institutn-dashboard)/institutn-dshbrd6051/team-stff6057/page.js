@@ -25,7 +25,6 @@ import RegisteredTeamPopup from '../../components/cmpltd-team-prfl';
 export default function StaffPage() {
   const pathname = usePathname();
   const status = pathname.includes('invited') ? 'invited' : 'registered';
-  // const institutionNum = '5001'; // Replace with dynamic value if needed
 
   const [staffList, setStaffList] = useState([]);
   const [searchText, setSearchText] = useState('');
@@ -51,7 +50,7 @@ export default function StaffPage() {
   });
 
   useEffect(() => {
-    if (!institutionData) return; // ⛔ Skip if institutionData not ready
+    if (!institutionData) return; //  Skip if institutionData not ready
 
     const controller = new AbortController();
 
@@ -98,8 +97,8 @@ export default function StaffPage() {
 
     fetchStaff();
 
-    return () => controller.abort(); // ✅ Cleanup on unmount or change
-  }, [status, institutionData]); // 👈 Both `status` & `institutionData` as dependencies
+    return () => controller.abort(); //  Cleanup on unmount or change
+  }, [status, institutionData]); //  Both `status` & `institutionData` as dependencies
 
   const filteredStaff = searchText.trim()
     ? staffList.filter(

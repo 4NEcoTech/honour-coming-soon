@@ -73,6 +73,7 @@ export async function POST(req) {
       lastName: formData.get("lastName"),
       phoneNumber: formData.get("phoneNumber"),
       email: formData.get("email"),
+      pincode: formData.get("pincode"),
       country: formData.get("country"),
       state: formData.get("state"),
       city: formData.get("city"),

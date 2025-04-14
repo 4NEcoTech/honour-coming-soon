@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@casl/ability": "^6.7.3",
+    "@casl/react": "^5.0.0",
     "@fortawesome/fontawesome-free": "^6.7.1",
     "@fortawesome/fontawesome-svg-core": "^6.7.1",
     "@fortawesome/free-solid-svg-icons": "^6.7.1",
@@ -62,6 +64,7 @@
     "formidable": "^3.5.2",
     "framer-motion": "^12.0.6",
     "googleapis": "^144.0.0",
+    "html2canvas": "^1.4.1",
     "i18next": "^24.2.2",
     "idb": "^8.0.1",
     "input-otp": "^1.4.1",
@@ -69,6 +72,7 @@
     "jimp": "^0.16.1",
     "json2csv": "^6.0.0-alpha.2",
     "jsonwebtoken": "^9.0.2",
+    "jspdf": "^3.0.1",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.274.0",
     "mongoose": "^8.8.3",

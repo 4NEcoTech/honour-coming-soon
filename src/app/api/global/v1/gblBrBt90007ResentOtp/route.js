@@ -1,9 +1,9 @@
-import User from '@/app/models/user_table';
-import OTPVerification from '@/app/models/otp_verification';
-import { dbConnect } from '@/app/utils/dbConnect';
-import { sendEmail } from '@/app/utils/SendMail';
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
+import User from "@/app/models/user_table";
+import OTPVerification from "@/app/models/otp_verification";
+import { dbConnect } from "@/app/utils/dbConnect";
+import { sendEmail } from "@/app/utils/SendMail";
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 
 /**
  * @swagger
@@ -108,21 +108,20 @@ import { NextResponse } from 'next/server';
  *                       example: "6022_5 An unexpected error occurred. Please try again."
  */
 
-
 export async function POST(request) {
   try {
     const requestBody = await request.json();
     const { email: requestEmail, role: requestRole } = requestBody;
     const cookieStore = cookies();
-    const userEmails = await cookieStore.get('user_email');
+    const userEmails = await cookieStore.get("user_email");
     let email = userEmails ? userEmails.value : requestEmail;
 
     if (!email) {
       return NextResponse.json(
         {
-          code: '6022_1',
-          title: 'Email not found',
-          message: '6022_1 User email not found in cookies or request body.',
+          code: "6022_1",
+          title: "Email not found",
+          message: "6022_1 User email not found in cookies or request body.",
         },
         { status: 400 }
       );
@@ -135,12 +134,15 @@ export async function POST(request) {
       UT_Email: email,
       // UT_User_Role: requestRole,
     });
+
+    // console.log(existingUser);
+
     if (!existingUser) {
       return NextResponse.json(
         {
-          code: '6022_2',
-          title: 'User not found',
-          message: '6022_2 User not found. Please register first.',
+          code: "6022_2",
+          title: "User not found",
+          message: "6022_2 User not found. Please register first.",
         },
         { status: 404 }
       );
@@ -152,7 +154,9 @@ export async function POST(request) {
     otpExpiry.setMinutes(otpExpiry.getMinutes() + 10); // valid for 10 minutes
 
     // Find existing OTP record
-    let otpRecord = await OTPVerification.findOne({ OV_User_Id: existingUser._id });
+    let otpRecord = await OTPVerification.findOne({
+      OV_User_Id: existingUser._id,
+    });
 
     if (otpRecord) {
       // Update existing record
@@ -168,7 +172,7 @@ export async function POST(request) {
         OV_Email: email,
         OV_OTP: Number(otp),
         OV_OTP_Expiry: otpExpiry,
-        OV_Resend_Count: 1
+        OV_Resend_Count: 1,
       });
       await otpRecord.save();
     }
@@ -176,16 +180,16 @@ export async function POST(request) {
     // Send the new OTP via email
     const emailSent = await sendEmail({
       to: email,
-      subject: 'Your New OTP',
+      subject: "Your New OTP",
       text: `Your new One Time Password (OTP) is ${otp}. It is valid for 10 minutes.`,
     });
 
     if (!emailSent) {
       return NextResponse.json(
         {
-          code: '6022_3',
-          title: 'Failed to send OTP email',
-          message: '6022_3 Failed to send OTP email. Please try again later.',
+          code: "6022_3",
+          title: "Failed to send OTP email",
+          message: "6022_3 Failed to send OTP email. Please try again later.",
         },
         { status: 500 }
       );
@@ -193,19 +197,19 @@ export async function POST(request) {
 
     return NextResponse.json(
       {
-        code: '6022_4',
-        title: 'OTP Resent Successfully',
-        message: '6022_4 OTP resent successfully. Please check your email.',
+        code: "6022_4",
+        title: "OTP Resent Successfully",
+        message: "6022_4 OTP resent successfully. Please check your email.",
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error resending OTP:', error);
+    console.error("Error resending OTP:", error);
     return NextResponse.json(
       {
-        code: '6022_5',
-        title: 'Internal server error',
-        message: '6022_5 An unexpected error occurred. Please try again.',
+        code: "6022_5",
+        title: "Internal server error",
+        message: "6022_5 An unexpected error occurred. Please try again.",
       },
       { status: 500 }
     );

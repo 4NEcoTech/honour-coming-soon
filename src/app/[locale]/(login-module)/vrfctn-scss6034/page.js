@@ -1,46 +1,3 @@
-// "use client";
-
-// import React from "react";
-// import { Button } from "@/components/ui/button";
-// import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
-// import { IoCheckmarkCircleOutline } from "react-icons/io5";
-
-// function Page() {
-//   return (
-//     <div className="min-h-screen flex justify-center items-center bg-transparent px-4 sm:px-6 lg:px-8">
-//       <Card className="w-full max-w-lg p-6 rounded-lg shadow-lg">
-//         {/* Success Title */}
-//         <CardHeader className="text-center">
-//           <CardTitle className="text-2xl font-semibold text-green-600 flex items-center justify-center">
-//             Profile Verified Successfully <IoCheckmarkCircleOutline size={24} className="ml-2" />
-//           </CardTitle>
-//         </CardHeader>
-
-//         {/* Message Content */}
-//         <CardContent className="text-center">
-//           <p className="text-gray-700 text-sm">
-//             Congrats! Your profile is created. Welcome to HCJ.
-//           </p>
-//         </CardContent>
-
-//         {/* Footer with Button */}
-//         <CardFooter className="flex justify-center">
-//           <Button
-//             className="w-full bg-primary text-white py-2 px-4 rounded-md"
-//             onClick={() => console.log("Go to dashboard")}
-//           >
-//             Go to dashboard
-//           </Button>
-//         </CardFooter>
-//       </Card>
-//     </div>
-//   );
-// }
-
-// export default Page;
-
-
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -160,7 +117,7 @@ export default function VerificationSuccessPage() {
               </div>
               <div className="flex flex-col items-center p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
                 <Home className="h-5 w-5 mb-2 text-primary" />
-                <span className="text-xs text-center">Explore dashboard</span>
+                <span className="text-xs text-center">Login</span>
               </div>
             </div>
           </div>
@@ -173,9 +130,9 @@ export default function VerificationSuccessPage() {
             </Button>
           </Link>
 
-          <Link href="/institutn-dshbrd6051" className="w-full sm:w-auto sm:ml-auto">
+          <Link href="/login6035" className="w-full sm:w-auto sm:ml-auto">
             <Button className="w-full group">
-              Go to Dashboard
+              Login
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </Link>

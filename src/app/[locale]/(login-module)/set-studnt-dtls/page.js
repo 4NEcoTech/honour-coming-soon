@@ -41,28 +41,29 @@ export default function ProfilePage() {
             </TabsList>
 
             <TabsContent value={activeTab} forceMount>
-              {activeTab === 'personal' && (
+              {activeTab === "personal" && (
                 <PersonalDetails
                   initialData={formData}
                   onSubmit={handleStepSubmit}
                 />
               )}
-              {activeTab === 'address' && (
+              {activeTab === "address" && (
                 <AddressDetails
                   initialData={formData}
                   onSubmit={handleStepSubmit}
                 />
               )}
-              {activeTab === 'educational' && (
+              {activeTab === "educational" && (
                 <EducationalDetails
                   initialData={formData}
                   onSubmit={handleStepSubmit}
                 />
               )}
-              {activeTab === 'social' && (
+              {activeTab === "social" && (
                 <SocialLinks
                   initialData={formData}
                   onSubmit={handleStepSubmit}
+                  isSubmitting={isSubmitting}
                 />
               )}
             </TabsContent>

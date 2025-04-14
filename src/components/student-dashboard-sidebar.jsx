@@ -1,24 +1,21 @@
-
 "use client";
 
+import { Link } from "@/i18n/routing";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import React, { useState } from "react";
 import {
+  FaBriefcase,
   FaChevronDown,
   FaChevronUp,
-  FaUser,
+  FaFileAlt,
   FaGraduationCap,
-  FaLanguage,
-  FaProjectDiagram,
-  FaTools,
-  FaUserFriends,
-  FaBriefcase,
   FaHandsHelping,
   FaMapMarkerAlt,
-  FaFileAlt,
+  FaProjectDiagram,
+  FaTools,
+  FaUser,
 } from "react-icons/fa";
-import { Link } from '@/i18n/routing';
 import { LogoutButton } from "./logout";
 
 const menuItems = [
@@ -33,11 +30,11 @@ const menuItems = [
     icon: "/image/institutndashboard/dashboard/myprofile.svg",
     dropdown: true,
   },
-  {
-    name: "My Jobs",
-    href: "/stdnt-dshbrd6071/my-jobs",
-    icon: "/image/institutndashboard/dashboard/myprofile.svg",
-  },
+  // {
+  //   name: "My Jobs",
+  //   href: "/stdnt-dshbrd6071/my-jobs",
+  //   icon: "/image/institutndashboard/dashboard/myprofile.svg",
+  // },
   // {
   //   name: "Messages",
   //   href: "/stdnt-dshbrd6071/mssg6073",
@@ -88,16 +85,16 @@ const dropdownItems = {
       id: "resume",
       icon: <FaFileAlt className="text-gray-500" />,
     },
-    {
-      name: "Language",
-      id: "language",
-      icon: <FaLanguage className="text-gray-500" />,
-    },
-    {
-      name: "Social",
-      id: "social",
-      icon: <FaUserFriends className="text-gray-500" />,
-    },
+    //   {
+    //     name: "Language",
+    //     id: "language",
+    //     icon: <FaLanguage className="text-gray-500" />,
+    //   },
+    //   {
+    //     name: "Social",
+    //     id: "social",
+    //     icon: <FaUserFriends className="text-gray-500" />,
+    //   },
   ],
 };
 
@@ -140,43 +137,37 @@ export default function StudentDashboardSidebar() {
       <ul className="space-y-4">
         {menuItems.map((item) => (
           <React.Fragment key={item.name}>
-                 <Link href={item.href} scroll={false}>
-            <li
-              onClick={() => item.dropdown && toggleDropdown(item.name)}
-              className={`relative cursor-pointer text-gray-700 rounded-lg flex items-center p-2 ${
-                pathname === item.href ||
-                (item.dropdown && openDropdowns[item.name])
-                  ? "bg-gradient-to-r from-blue-500 to-green-500 text-white"
-                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-              }`}
-            >
-              <Image
-                src={item.icon}
-                alt={item.name}
-                width={24}
-                height={24}
-                className="mr-3"
-              />
+            <Link href={item.href} scroll={false}>
+              <li
+                onClick={() => item.dropdown && toggleDropdown(item.name)}
+                className={`relative cursor-pointer text-gray-700 rounded-lg flex items-center p-2 ${
+                  pathname === item.href ||
+                  (item.dropdown && openDropdowns[item.name])
+                    ? "bg-gradient-to-r from-blue-500 to-green-500 text-white"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                }`}>
+                <Image
+                  src={item.icon}
+                  alt={item.name}
+                  width={24}
+                  height={24}
+                  className="mr-3"
+                />
 
-              <span className="flex-grow">
+                <span className="flex-grow">{item.name}</span>
 
-              {item.name}
-
-                </span>
-
-              {item.dropdown && (
-                <button
-                  onClick={() => toggleDropdown(item.name)}
-                  className="ml-auto text-sm text-gray-500 dark:text-gray-400"
-                >
-                  {openDropdowns[item.name] ? (
-                    <FaChevronUp />
-                  ) : (
-                    <FaChevronDown />
-                  )}
-                </button>
-              )}
-            </li>
+                {item.dropdown && (
+                  <button
+                    onClick={() => toggleDropdown(item.name)}
+                    className="ml-auto text-sm text-gray-500 dark:text-gray-400">
+                    {openDropdowns[item.name] ? (
+                      <FaChevronUp />
+                    ) : (
+                      <FaChevronDown />
+                    )}
+                  </button>
+                )}
+              </li>
             </Link>
             {/* Dropdown Items */}
             {item.dropdown && openDropdowns[item.name] && (
@@ -185,8 +176,7 @@ export default function StudentDashboardSidebar() {
                   <li
                     key={subItem.name}
                     className="flex items-center cursor-pointer"
-                    onClick={() => scrollToSection(subItem.id)}
-                  >
+                    onClick={() => scrollToSection(subItem.id)}>
                     <span className="mr-3">{subItem.icon}</span>
                     <span className="hover:text-blue-500 dark:hover:text-blue-400 text-gray-600 dark:text-gray-300">
                       {subItem.name}

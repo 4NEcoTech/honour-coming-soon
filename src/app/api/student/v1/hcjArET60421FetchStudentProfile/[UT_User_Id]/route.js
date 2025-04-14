@@ -135,11 +135,9 @@ import mongoose from "mongoose";
 export async function GET(req, { params }) {
   try {
     await dbConnect();
+    const params1 = await params;
+    const {UT_User_Id} = params1;
 
-    // Extract user ID from route parameters correctly
-    const UT_User_Id = await params?.UT_User_Id; // Ensure it's extracted properly
-
-    // Validate if UT_User_Id is provided
     if (!UT_User_Id) {
       return new Response(
         JSON.stringify({ success: false, message: "User ID is required" }),
@@ -147,12 +145,11 @@ export async function GET(req, { params }) {
       );
     }
 
-    // If `UT_User_Id` is an email, use it directly, otherwise check for ObjectId format
     let queryCondition = {};
     if (UT_User_Id.includes("@")) {
-      queryCondition = { UT_User_Id }; // Search by email
+      queryCondition = { UT_User_Id };
     } else if (mongoose.Types.ObjectId.isValid(UT_User_Id)) {
-      queryCondition = { _id: new mongoose.Types.ObjectId(UT_User_Id) }; // Search by ObjectId
+      queryCondition = { _id: new mongoose.Types.ObjectId(UT_User_Id) };
     } else {
       return new Response(
         JSON.stringify({ success: false, message: "Invalid user ID format" }),
@@ -181,7 +178,7 @@ export async function GET(req, { params }) {
       );
     }
 
-    const profile = userProfile[0].profile; // Get `individual_details`
+    const profile = userProfile[0].profile;
     if (!profile) {
       return new Response(
         JSON.stringify({
@@ -193,10 +190,10 @@ export async function GET(req, { params }) {
       );
     }
 
-    const individualId = profile._id; // Use `individual_details._id` for foreign key
+    const individualId = profile._id;
 
-    // Step 2: Fetch Address and Social Profiles (Removed Education)
-    const [address, socialProfiles] = await Promise.all([
+    // Step 2: Fetch Address and Social Profiles
+    const [addressArr, socialArr] = await Promise.all([
       mongoose.connection
         .collection("individual_address_details")
         .find({ IAD_Individual_Id: new mongoose.Types.ObjectId(individualId) })
@@ -207,15 +204,19 @@ export async function GET(req, { params }) {
         .toArray(),
     ]);
 
-    // Merge data and return response
+    // Convert arrays to objects (use first item or null)
+    const address = addressArr.length > 0 ? addressArr[0] : null;
+    const socialProfiles = socialArr.length > 0 ? socialArr[0] : null;
+
+    // Final response
     return new Response(
       JSON.stringify({
         success: true,
         data: {
-          ...userProfile[0], // User data from `user_table`
-          profile, // Profile data from `individual_details`
-          address, // Address details from `individual_address_detail`
-          socialProfiles, // Social profiles from `social_link`
+          ...userProfile[0],
+          profile,
+          address,
+          socialProfiles,
         },
       }),
       { status: 200 }

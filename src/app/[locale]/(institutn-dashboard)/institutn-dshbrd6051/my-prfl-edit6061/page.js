@@ -517,6 +517,7 @@ export default function Page() {
   const onAddressSubmit = async (data) => {
     setSavingSection('address');
     try {
+      console.log(profileData)
       if (!profileData?.address?._id) {
         toast({
           title: 'Error',
@@ -835,7 +836,7 @@ export default function Page() {
             {coverImagePreview ? (
               <div className="w-full h-full relative">
                 <Image
-                  src={coverImagePreview || '/placeholder.svg'}
+                  src={coverImagePreview || "/placeholder.svg"}
                   alt="Cover"
                   layout="fill"
                   objectFit="cover"
@@ -844,7 +845,7 @@ export default function Page() {
                   variant="ghost"
                   className="absolute top-2 right-2 bg-white/80 hover:bg-white"
                   onClick={() =>
-                    document.getElementById('cover-upload').click()
+                    document.getElementById("cover-upload").click()
                   }>
                   <Camera className="h-4 w-4 mr-2" />
                   Change Cover
@@ -855,7 +856,7 @@ export default function Page() {
                 <Image
                   src={
                     profileData.individualDetails.ID_Cover_Photo ||
-                    '/placeholder.svg'
+                    "/placeholder.svg"
                   }
                   alt="Cover"
                   layout="fill"
@@ -865,7 +866,7 @@ export default function Page() {
                   variant="ghost"
                   className="absolute top-2 right-2 bg-white/80 hover:bg-white"
                   onClick={() =>
-                    document.getElementById('cover-upload').click()
+                    document.getElementById("cover-upload").click()
                   }>
                   <Camera className="h-4 w-4 mr-2" />
                   Change Cover
@@ -877,7 +878,7 @@ export default function Page() {
                   variant="ghost"
                   className="text-primary"
                   onClick={() =>
-                    document.getElementById('cover-upload').click()
+                    document.getElementById("cover-upload").click()
                   }>
                   <Camera className="mr-2 h-4 w-4" />
                   Add cover photo
@@ -898,7 +899,7 @@ export default function Page() {
                   {profileImagePreview ? (
                     <div className="relative w-full h-full">
                       <Image
-                        src={profileImagePreview || '/placeholder.svg'}
+                        src={profileImagePreview || "/placeholder.svg"}
                         alt="Profile"
                         layout="fill"
                         objectFit="cover"
@@ -909,7 +910,7 @@ export default function Page() {
                       <Image
                         src={
                           profileData.individualDetails.ID_Profile_Picture ||
-                          '/placeholder.svg'
+                          "/placeholder.svg"
                         }
                         alt="Profile"
                         layout="fill"
@@ -927,7 +928,7 @@ export default function Page() {
                     variant="link"
                     className="text-primary p-0 h-auto font-normal"
                     onClick={() =>
-                      document.getElementById('profile-upload').click()
+                      document.getElementById("profile-upload").click()
                     }>
                     Change Profile Picture
                   </Button>
@@ -946,9 +947,9 @@ export default function Page() {
           <div className="mt-16 p-4 flex justify-end">
             <Button
               onClick={handleImageUpload}
-              disabled={savingSection === 'photos'}
+              disabled={savingSection === "photos"}
               className="bg-primary text-white hover:bg-primary/90">
-              {savingSection === 'photos' ? (
+              {savingSection === "photos" ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Saving Images...
@@ -1074,10 +1075,10 @@ export default function Page() {
                           onChange={(value) => field.onChange(value)}
                           disabled
                           inputStyle={{
-                            width: '100%',
-                            height: '40px',
-                            borderRadius: '5px',
-                            border: '1px solid #ccc',
+                            width: "100%",
+                            height: "40px",
+                            borderRadius: "5px",
+                            border: "1px solid #ccc",
                           }}
                         />
                       </FormControl>
@@ -1108,9 +1109,9 @@ export default function Page() {
               <div className="flex justify-end">
                 <Button
                   type="submit"
-                  disabled={savingSection === 'personal'}
+                  disabled={savingSection === "personal"}
                   className="bg-primary text-white hover:bg-primary/90">
-                  {savingSection === 'personal' ? (
+                  {savingSection === "personal" ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Saving Personal Information...
@@ -1160,8 +1161,8 @@ export default function Page() {
                         <div className="text-sm text-muted-foreground">
                           {getProficiencyLabel(
                             language.HCJ_JSL_Language_Proficiency_Level
-                          )}{' '}
-                          •{' '}
+                          )}{" "}
+                          •{" "}
                           {getProficiencyTypes(
                             language.HCJ_JSL_Language_Proficiency
                           )}
@@ -1203,7 +1204,13 @@ export default function Page() {
                     </SelectTrigger>
                     <SelectContent>
                       {languagesList.map((language) => (
-                        <SelectItem key={language.value} value={language.value}>
+                        <SelectItem
+                          key={language.value}
+                          value={language.value}
+                          disabled={languages.some(
+                            (profile) =>
+                              profile.HCJ_JSL_Language === language.value
+                          )}>
                           {language.label}
                         </SelectItem>
                       ))}
@@ -1213,7 +1220,7 @@ export default function Page() {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-primary">
-                    Proficiency Level{' '}
+                    Proficiency Level{" "}
                     <span className="text-destructive">*</span>
                   </label>
                   <Select
@@ -1308,7 +1315,7 @@ export default function Page() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-primary">
-                        Address Line 1{' '}
+                        Address Line 1{" "}
                         <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormControl>
@@ -1430,9 +1437,9 @@ export default function Page() {
               <div className="flex justify-end">
                 <Button
                   type="submit"
-                  disabled={savingSection === 'address'}
+                  disabled={savingSection === "address"}
                   className="bg-primary text-white hover:bg-primary/90">
-                  {savingSection === 'address' ? (
+                  {savingSection === "address" ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Saving Address Information...
@@ -1607,9 +1614,9 @@ export default function Page() {
               <div className="flex justify-end">
                 <Button
                   type="submit"
-                  disabled={savingSection === 'social'}
+                  disabled={savingSection === "social"}
                   className="bg-primary text-white hover:bg-primary/90">
-                  {savingSection === 'social' ? (
+                  {savingSection === "social" ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Saving Social Links...

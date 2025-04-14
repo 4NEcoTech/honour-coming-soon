@@ -181,7 +181,7 @@ export async function PATCH(req) {
     // Step 7: Send Verification Email
     const emailSent = await sendUserVerificationEmail(
       user.UT_Email,
-      user.UT_Name
+      `${individualDetails.ID_First_Name} ${individualDetails.ID_Last_Name}`.trim()
     );
 
     if (!emailSent) {

@@ -1,5 +1,5 @@
-'use client';
-import { Button } from '@/components/ui/button';
+"use client";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -7,7 +7,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -15,26 +15,26 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
-import { Link, useRouter } from '@/i18n/routing';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
-import { signIn } from 'next-auth/react';
-import { useTranslations } from 'next-intl';
-import Image from 'next/image';
-import { useParams } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { Link, useRouter } from "@/i18n/routing";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
+import Image from "next/image";
+import { useParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 // Define the form schema
 const formSchema = (t) =>
   z.object({
-    email: z.string().email({ message: t('6021_1') }),
+    email: z.string().email({ message: t("6021_1") }),
   });
 
 function RegistrationWithCredentialForm({ goToNextStep }) {
-  const t = useTranslations('ErrorCode');
+  const t = useTranslations("ErrorCode");
   let { locale } = useParams();
   // console.log(locale);
   const router = useRouter();
@@ -42,17 +42,17 @@ function RegistrationWithCredentialForm({ goToNextStep }) {
   const form = useForm({
     resolver: zodResolver(formSchema(t)),
     defaultValues: {
-      email: '',
+      email: "",
     },
   });
 
   const onSubmit = async (data) => {
     try {
-      const res = await fetch('/api/auth/institution/signup', {
-        method: 'POST',
+      const res = await fetch("/api/auth/institution/signup", {
+        method: "POST",
         headers: {
-          'Accept-Language': locale,
-          'Content-Type': 'application/json',
+          "Accept-Language": locale,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
@@ -63,36 +63,36 @@ function RegistrationWithCredentialForm({ goToNextStep }) {
         // Handle specific status codes
         switch (res.status) {
           case 400: // Bad Request
-            console.error('Validation Error:', responseData.message);
+            console.error("Validation Error:", responseData.message);
             // Show a specific error to the user (e.g., invalid input)
             // console.error('Error in onSubmit:', error.message);
             toast({
-              title: responseData.title || 'Validation Error',
+              title: responseData.title || "Validation Error",
               description:
-                responseData.message || 'Validation error. Please try again.',
+                responseData.message || "Validation error. Please try again.",
             });
             break;
 
           case 409: // Conflict
             toast({
-              title: responseData.title || 'Conflict',
+              title: responseData.title || "Conflict",
               description: t(responseData.code),
               // responseData.message || 'Validation error. Please try again.',
               action: (
-                <Button onClick={() => router.push('/login6035')}>Login</Button>
+                <Button onClick={() => router.push("/login6035")}>Login</Button>
               ),
             });
-            form.setError('email', {
-              type: 'server',
+            form.setError("email", {
+              type: "server",
               message: responseData.message,
             });
             break;
 
           case 500: // Internal Server Error
-            console.error('Server Error:', responseData.message);
+            console.error("Server Error:", responseData.message);
             // alert("Something went wrong on the server. Please try again later.");// Conflict
             toast({
-              title: responseData.title || 'Server Error',
+              title: responseData.title || "Server Error",
               description: t(responseData.code),
               // responseData.message ||
               // 'Something went wrong on the server. Please try again later.',
@@ -100,10 +100,10 @@ function RegistrationWithCredentialForm({ goToNextStep }) {
             break;
 
           default:
-            console.error('Unexpected Error:', responseData.message);
+            console.error("Unexpected Error:", responseData.message);
             // alert("An unexpected error occurred. Please try again.");
             toast({
-              title: 'An unexpected error occurred.',
+              title: "An unexpected error occurred.",
               description: t(responseData.code),
               // responseData.message || 'Please try again.',
             });
@@ -113,15 +113,15 @@ function RegistrationWithCredentialForm({ goToNextStep }) {
         // Success case
         // console.log("User registered successfully:", responseData);
         // alert("User registered successfully! Check your email for further instructions.");
-        localStorage.setItem('email', JSON.stringify(form.getValues('email')));
-        localStorage.setItem('_id', JSON.stringify(responseData.user._id));
+        localStorage.setItem("email", JSON.stringify(form.getValues("email")));
+        localStorage.setItem("_id", JSON.stringify(responseData.user._id));
         localStorage.setItem(
-          'role',
+          "role",
           JSON.stringify(responseData.user.UT_User_Role)
         );
-
+        //console.log("aditya", JSON.stringify(responseData.user.UT_User_Role));
         toast({
-          title: 'User registered successfully!.',
+          title: "User registered successfully!.",
           description: t(responseData.code),
           // responseData.message ||
           // 'Check your email for further instructions.',
@@ -131,7 +131,7 @@ function RegistrationWithCredentialForm({ goToNextStep }) {
     } catch (error) {
       // Catch network or unexpected errors
       toast({
-        title: 'An error occurred:',
+        title: "An error occurred:",
         description: t(responseData.code),
         // error.message ||
         // 'Network error or unexpected issue. Please try again later.',
@@ -157,8 +157,9 @@ function RegistrationWithCredentialForm({ goToNextStep }) {
           {/* LinkedIn Button */}
           <div>
             <Button
-              onClick={() => signIn('linkedin')}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-md">
+              onClick={() => signIn("linkedin")}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-md"
+            >
               <Image
                 src="/image/authmodule/linkedin.svg"
                 alt="LinkedIn"
@@ -184,7 +185,7 @@ function RegistrationWithCredentialForm({ goToNextStep }) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium text-primary">
-                        Educational Institution Email{' '}
+                        Educational Institution Email{" "}
                         <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormControl>
@@ -212,7 +213,8 @@ function RegistrationWithCredentialForm({ goToNextStep }) {
                     form.formState.isSubmitting || !form.formState.isValid
                   }
                   type="submit"
-                  className="w-full py-2 bg-primary text-white rounded-md">
+                  className="w-full py-2 bg-primary text-white rounded-md"
+                >
                   {form.formState.isSubmitting && (
                     <Loader2 className="animate-spin" />
                   )}
@@ -227,26 +229,29 @@ function RegistrationWithCredentialForm({ goToNextStep }) {
         <CardFooter className="flex flex-col items-start sm:items-start text-sm text-gray-400 text-start sm:text-left w-full text-pretty">
           {/* Login Link */}
           <span className="text-sm mb-0 text-muted-foreground">
-            Already have an account?{' '}
+            Already have an account?{" "}
             <Link
               href="/login6035"
-              className="text-primary hover:underline ml-1">
+              className="text-primary hover:underline ml-1"
+            >
               Click here to log in
             </Link>
           </span>
 
           {/* Terms Agreement */}
           <span className="text-start sm:text-left text-sm block">
-            By creating an account or logging in, you agree with HCJ&apos;{' '}
+            By creating an account or logging in, you agree with HCJ&apos;{" "}
             <Link
               href="/prvcy-plcy6014"
-              className="text-primary hover:underline">
+              className="text-primary hover:underline"
+            >
               Privacy Policy
-            </Link>{' '}
+            </Link>{" "}
             <span>and&nbsp;</span>
             <Link
               href="/trmsnd-cndtn6015"
-              className="text-primary hover:underline">
+              className="text-primary hover:underline"
+            >
               Terms & Conditions
             </Link>
           </span>

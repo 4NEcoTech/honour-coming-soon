@@ -22,11 +22,12 @@ import {
 } from "@/components/ui/card";
 import { Link } from "@/i18n/routing";
 import { useToast } from "@/hooks/use-toast";
-
+import { Loader2 } from "lucide-react";
 export default function RegistrationWithCredentialForm({ goToNextStep }) {
   const { toast } = useToast();
   const [role, setRole] = useState("");
-  const [formData, setFormData] = useState({ email: "" });
+  const [ formData, setFormData ] = useState({ email: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
@@ -34,6 +35,7 @@ export default function RegistrationWithCredentialForm({ goToNextStep }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     if (!formData.email || !role) {
       toast({
@@ -52,6 +54,7 @@ export default function RegistrationWithCredentialForm({ goToNextStep }) {
 
       const result = await response.json();
       if (!response.ok) {
+        setIsSubmitting(false);
         toast({ title: result.title || "Error", description: result.message });
         return;
       }
@@ -59,8 +62,12 @@ export default function RegistrationWithCredentialForm({ goToNextStep }) {
       localStorage.setItem("email", JSON.stringify(formData.email));
       localStorage.setItem("_id", JSON.stringify(result.user._id));
       toast({ title: "Success", description: "OTP Sent. Check your email." });
+      setIsSubmitting(false);
       goToNextStep();
     } catch (error) {
+      console.error("Error during registration:", error);
+setIsSubmitting(false);
+
       toast({ title: "Network Error", description: "Please try again later." });
     }
   };
@@ -118,8 +125,17 @@ export default function RegistrationWithCredentialForm({ goToNextStep }) {
             <Button
               type="submit"
               className="w-full dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-white"
+              disabled={isSubmitting}
+
             >
-              Next
+               {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-6 w-6 animate-spin mr-2 text-white" />
+                    Next...
+                  </>
+                ) : (
+              "Next"
+                )}
             </Button>
           </form>
         </CardContent>

@@ -1,26 +1,47 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Textarea } from "@/components/ui/textarea"
-import { toast } from "@/hooks/use-toast"
-import { Link } from "@/i18n/routing"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { ArrowLeft, Camera, Check, Loader2, Plus, Save, Trash, X } from "lucide-react"
-import { useSession } from "next-auth/react"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
-import PhoneInput from "react-phone-input-2"
-import "react-phone-input-2/lib/style.css"
-import { z } from "zod"
-import { VisibilitySheet } from "./visibility-popover"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { Link } from "@/i18n/routing";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  ArrowLeft,
+  Camera,
+  Check,
+  Loader2,
+  Plus,
+  Save,
+  Trash,
+  X,
+} from "lucide-react";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import { z } from "zod";
 
 // Define schemas for form validation
 const personalInfoSchema = z.object({
@@ -34,9 +55,18 @@ const personalInfoSchema = z.object({
     .max(50, "Last name cannot exceed 50 characters")
     .regex(/^[a-zA-Z\s]*$/, "Last name can only contain letters and spaces")
     .optional(),
-  profileHeadline: z.string().max(100, "Profile headline cannot exceed 100 characters").optional(),
-  designation: z.string().max(100, "Designation cannot exceed 100 characters").optional(),
-  about: z.string().max(500, "About section cannot exceed 500 characters").optional(),
+  profileHeadline: z
+    .string()
+    .max(100, "Profile headline cannot exceed 100 characters")
+    .optional(),
+  designation: z
+    .string()
+    .max(100, "Designation cannot exceed 100 characters")
+    .optional(),
+  about: z
+    .string()
+    .max(500, "About section cannot exceed 500 characters")
+    .optional(),
   email: z
     .string()
     .email("Invalid email address")
@@ -46,30 +76,76 @@ const personalInfoSchema = z.object({
     .string()
     .min(10, "Phone number must be at least 10 digits")
     .max(15, "Phone number cannot exceed 15 digits")
-    .regex(/^\+?[0-9\s-]+$/, "Phone number can only contain numbers, spaces, or dashes"),
-})
+    .regex(
+      /^\+?[0-9\s-]+$/,
+      "Phone number can only contain numbers, spaces, or dashes"
+    ),
+});
 
 const addressSchema = z.object({
-  addressLine1: z.string().min(1, "Address line 1 is required").max(100, "Address line 1 cannot exceed 100 characters"),
-  addressLine2: z.string().max(100, "Address line 2 cannot exceed 100 characters").optional(),
-  landmark: z.string().max(100, "Landmark cannot exceed 100 characters").optional(),
-  country: z.string().min(1, "Country is required").max(50, "Country cannot exceed 50 characters"),
-  state: z.string().min(1, "State is required").max(50, "State cannot exceed 50 characters"),
-  city: z.string().min(1, "City is required").max(50, "City cannot exceed 50 characters"),
+  addressLine1: z
+    .string()
+    .min(1, "Address line 1 is required")
+    .max(100, "Address line 1 cannot exceed 100 characters"),
+  addressLine2: z
+    .string()
+    .max(100, "Address line 2 cannot exceed 100 characters")
+    .optional(),
+  landmark: z
+    .string()
+    .max(100, "Landmark cannot exceed 100 characters")
+    .optional(),
+  country: z
+    .string()
+    .min(1, "Country is required")
+    .max(50, "Country cannot exceed 50 characters"),
+  state: z
+    .string()
+    .min(1, "State is required")
+    .max(50, "State cannot exceed 50 characters"),
+  city: z
+    .string()
+    .min(1, "City is required")
+    .max(50, "City cannot exceed 50 characters"),
   pincode: z
     .string()
     .min(5, "Pincode must be at least 5 characters")
     .max(10, "Pincode cannot exceed 10 characters")
     .regex(/^\d+$/, "Pincode must contain only numbers"),
-})
+});
 
 const socialLinksSchema = z.object({
-  website: z.string().trim().url("Invalid URL format for Website").optional().or(z.literal("")),
-  linkedin: z.string().trim().url("Invalid URL format for LinkedIn").optional().or(z.literal("")),
-  facebook: z.string().trim().url("Invalid URL format for Facebook").optional().or(z.literal("")),
-  instagram: z.string().trim().url("Invalid URL format for Instagram").optional().or(z.literal("")),
-  portfolio: z.string().trim().url("Invalid URL format for Portfolio").optional().or(z.literal("")),
-})
+  website: z
+    .string()
+    .trim()
+    .url("Invalid URL format for Website")
+    .optional()
+    .or(z.literal("")),
+  linkedin: z
+    .string()
+    .trim()
+    .url("Invalid URL format for LinkedIn")
+    .optional()
+    .or(z.literal("")),
+  facebook: z
+    .string()
+    .trim()
+    .url("Invalid URL format for Facebook")
+    .optional()
+    .or(z.literal("")),
+  instagram: z
+    .string()
+    .trim()
+    .url("Invalid URL format for Instagram")
+    .optional()
+    .or(z.literal("")),
+  portfolio: z
+    .string()
+    .trim()
+    .url("Invalid URL format for Portfolio")
+    .optional()
+    .or(z.literal("")),
+});
 
 // Language proficiency options
 const proficiencyOptions = [
@@ -77,14 +153,14 @@ const proficiencyOptions = [
   { value: "02", label: "Intermediate" },
   { value: "03", label: "Fluent" },
   { value: "04", label: "Native" },
-]
+];
 
 // Language proficiency types
 const proficiencyTypes = [
   { id: "01", label: "Reading" },
   { id: "02", label: "Writing" },
   { id: "03", label: "Speaking" },
-]
+];
 
 // Languages list
 const languagesList = [
@@ -98,27 +174,43 @@ const languagesList = [
   { value: "marathi", label: "Marathi" },
   { value: "gujarati", label: "Gujarati" },
   { value: "punjabi", label: "Punjabi" },
-]
+];
 
-export default function Page() {
-  const router = useRouter()
-  const { data: session, status } = useSession()
-  const [loading, setLoading] = useState(true)
-  const [profileData, setProfileData] = useState(null)
-  const [profileImage, setProfileImage] = useState(null)
-  const [coverImage, setCoverImage] = useState(null)
-  const [profileImagePreview, setProfileImagePreview] = useState(null)
-  const [coverImagePreview, setCoverImagePreview] = useState(null)
-  const [savingSection, setSavingSection] = useState("")
+export default function StudentProfileEdit() {
+  const router = useRouter();
+  const { toast } = useToast();
+  const { data: session, status } = useSession();
+  const [loading, setLoading] = useState(true);
+  const [profileData, setProfileData] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
+  const [coverImage, setCoverImage] = useState(null);
+  const [profileImagePreview, setProfileImagePreview] = useState(null);
+  const [coverImagePreview, setCoverImagePreview] = useState(null);
+  const [savingSection, setSavingSection] = useState("");
 
   // Language state
-  const [languages, setLanguages] = useState([])
-  const [selectedLanguage, setSelectedLanguage] = useState("")
-  const [selectedProficiency, setSelectedProficiency] = useState("")
-  const [selectedProficiencyTypes, setSelectedProficiencyTypes] = useState([])
-  const [loadingLanguages, setLoadingLanguages] = useState(false)
-  const [addingLanguage, setAddingLanguage] = useState(false)
-  const [languageError, setLanguageError] = useState("")
+  const [languages, setLanguages] = useState([]);
+  console.log("languages", languages);
+  const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [selectedProficiency, setSelectedProficiency] = useState("");
+  const [selectedProficiencyTypes, setSelectedProficiencyTypes] = useState([]);
+  const [loadingLanguages, setLoadingLanguages] = useState(false);
+  const [addingLanguage, setAddingLanguage] = useState(false);
+  const [languageError, setLanguageError] = useState("");
+
+  // State for managing popups - simplified to a single state
+  const [popup, setPopup] = useState({
+    type: null,
+    isOpen: false,
+    data: null,
+  });
+
+  // Generic update handler for popups
+  const handleUpdate = async (data) => {
+    // This function will be implemented based on the popup type
+    // For now, just close the popup
+    closePopup();
+  };
 
   // Initialize forms with default values
   const personalForm = useForm({
@@ -132,7 +224,7 @@ export default function Page() {
       email: "",
       phone: "",
     },
-  })
+  });
 
   const addressForm = useForm({
     resolver: zodResolver(addressSchema),
@@ -145,7 +237,7 @@ export default function Page() {
       city: "",
       pincode: "",
     },
-  })
+  });
 
   const socialLinksForm = useForm({
     resolver: zodResolver(socialLinksSchema),
@@ -156,84 +248,106 @@ export default function Page() {
       instagram: "",
       portfolio: "",
     },
-  })
+  });
+
+  // Handlers for popups - optimized to prevent unnecessary re-renders
+  const openPopup = (type, item = null) => {
+    setPopup({
+      type,
+      isOpen: true,
+      data: item,
+    });
+  };
+
+  const closePopup = () => {
+    setPopup({
+      type: null,
+      isOpen: false,
+      data: null,
+    });
+  };
 
   // Fetch profile data when component mounts
   useEffect(() => {
-    if (status !== "authenticated") return
+    if (status !== "authenticated") return;
 
     const fetchProfileData = async () => {
       try {
         if (!session || !session.user) {
-          setLoading(false)
-          return
+          setLoading(false);
+          return;
         }
 
-        const userId = session.user.id
+        const userId = session.user.id;
 
         if (!userId) {
-          setLoading(false)
-          return
+          setLoading(false);
+          return;
         }
 
-        const response = await fetch(`/api/hcjArET60421FetchStudentProfile/${userId}`)
-
-        const data = await response.json()
+        const response = await fetch(
+          `/api/student/v1/hcjArET60421FetchStudentProfile/${userId}`
+        );
+        const data = await response.json();
+        console.log("data", data);
 
         if (!response.ok) {
           toast({
             title: "Error",
             description: data.message || "Failed to load profile data",
             variant: "destructive",
-          })
+          });
         } else {
-          setProfileData(data.data)
-          populateFormsWithData(data.data)
+          setProfileData(data.data);
+          populateFormsWithData(data.data);
 
           // Fetch languages after profile data is loaded
           if (data.data.profile && data.data.profile._id) {
-            fetchLanguages(data.data.profile._id)
+            fetchLanguages(data.data.profile._id);
           }
         }
       } catch (err) {
-        console.error("Error fetching profile data:", err)
+        console.error("Error fetching profile data:", err);
         toast({
           title: "Error",
           description: "Failed to load profile data",
           variant: "destructive",
-        })
+        });
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchProfileData()
-  }, [session, status])
+    fetchProfileData();
+  }, [session, status]);
 
   // Fetch languages
   const fetchLanguages = async (individualId) => {
-    setLoadingLanguages(true)
+    setLoadingLanguages(true);
     try {
-      const response = await fetch(`/api/student/v1/hcjBrTo60615UserLanguage/${individualId}`)
-      const data = await response.json()
+      const response = await fetch(
+        `/api/institution/v1/hcjBrTo60615UserLanguage/${individualId}`
+      );
+      const data = await response.json();
 
       if (response.ok && data.success) {
-        setLanguages(data.data || [])
+        setLanguages(data.data || []);
       } else {
-        console.log("No languages found or error:", data.message)
-        setLanguages([])
+        console.log("No languages found or error:", data.message);
+        setLanguages([]);
       }
     } catch (error) {
-      console.error("Error fetching languages:", error)
-      setLanguages([])
+      console.error("Error fetching languages:", error);
+      setLanguages([]);
     } finally {
-      setLoadingLanguages(false)
+      setLoadingLanguages(false);
     }
-  }
+  };
 
   // Populate forms with fetched data
   const populateFormsWithData = (data) => {
-    const { profile, address, socialProfiles } = data || {}
+    const { profile, address, socialProfiles } = data || {};
+    console.log("socialProfiles", socialProfiles);
 
     // Set personal form values
     personalForm.reset({
@@ -244,7 +358,7 @@ export default function Page() {
       about: profile?.ID_About || "",
       email: profile?.ID_Email || "",
       phone: profile?.ID_Phone || "",
-    })
+    });
 
     // Set address form values
     addressForm.reset({
@@ -255,50 +369,50 @@ export default function Page() {
       state: address?.IAD_State || "",
       city: address?.IAD_City || "",
       pincode: address?.IAD_Pincode || "",
-    })
+    });
 
     // Set social links form values
-    if (socialProfiles && socialProfiles.length > 0) {
+    if (socialProfiles) {
       socialLinksForm.reset({
-        website: socialProfiles[0]?.SL_Website_Url || "",
-        linkedin: socialProfiles[0]?.SL_LinkedIn_Profile || "",
-        facebook: socialProfiles[0]?.SL_Facebook_Url || "",
-        instagram: socialProfiles[0]?.SL_Instagram_Url || "",
-        portfolio: socialProfiles[0]?.SL_Portfolio_Url || "",
-      })
+        website: socialProfiles?.SL_Website_Url || "",
+        linkedin: socialProfiles?.SL_LinkedIn_Profile || "",
+        facebook: socialProfiles?.SL_Facebook_Url || "",
+        instagram: socialProfiles?.SL_Instagram_Url || "",
+        portfolio: socialProfiles?.SL_Portfolio_Url || "",
+      });
     }
-  }
+  };
 
   // Handle profile image change
   const handleProfileImageChange = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file) {
-      setProfileImage(file)
-      setProfileImagePreview(URL.createObjectURL(file))
+      setProfileImage(file);
+      setProfileImagePreview(URL.createObjectURL(file));
     }
-  }
+  };
 
   // Handle cover image change
   const handleCoverImageChange = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file) {
-      setCoverImage(file)
-      setCoverImagePreview(URL.createObjectURL(file))
+      setCoverImage(file);
+      setCoverImagePreview(URL.createObjectURL(file));
     }
-  }
+  };
 
   // Handle image uploads
   const handleImageUpload = async () => {
-    setSavingSection("photos")
+    setSavingSection("photos");
 
     try {
       if (!profileImage && !coverImage) {
         toast({
           title: "No changes",
           description: "No images selected for upload",
-        })
-        setSavingSection("")
-        return
+        });
+        setSavingSection("");
+        return;
       }
 
       if (!profileData?.profile?._id) {
@@ -306,79 +420,85 @@ export default function Page() {
           title: "Error",
           description: "Individual ID not found",
           variant: "destructive",
-        })
-        setSavingSection("")
-        return
+        });
+        setSavingSection("");
+        return;
       }
 
-      const formData = new FormData()
-      if (profileImage) formData.append("profilePicture", profileImage)
-      if (coverImage) formData.append("coverPhoto", coverImage)
+      const formData = new FormData();
+      if (profileImage) formData.append("profilePicture", profileImage);
+      if (coverImage) formData.append("coverPhoto", coverImage);
 
       console.log("Uploading images:", {
         hasProfileImage: !!profileImage,
         hasCoverImage: !!coverImage,
         individualId: profileData.profile._id,
-      })
+      });
 
-      const response = await fetch(`/api/student/v1/hcjBrTo60614UpdateProfileImages/${profileData.profile._id}`, {
-        method: "PATCH",
-        body: formData,
-      })
+      const response = await fetch(
+        `/api/institution/v1/hcjBrTo60614UpdateProfileImages/${profileData.profile._id}`,
+        {
+          method: "PATCH",
+          body: formData,
+        }
+      );
 
-      const data = await response.json()
-      console.log("Upload response:", data)
+      const data = await response.json();
+      console.log("Upload response:", data);
 
       if (response.ok && data.success) {
         toast({
           title: "Success",
           description: "Profile images updated successfully",
-        })
+        });
 
         // Refresh profile data to get updated image URLs
-        const refreshResponse = await fetch(`/api/hcjArET60421FetchStudentProfile/${session.user.id}`)
-        const refreshData = await refreshResponse.json()
+        const refreshResponse = await fetch(
+          `/api/student/v1/hcjArET60421FetchStudentProfile/${session.user.id}`
+        );
+        const refreshData = await refreshResponse.json();
 
         if (refreshResponse.ok) {
-          setProfileData(refreshData.data)
+          setProfileData(refreshData.data);
         }
 
         // Clear image previews
-        setProfileImagePreview(null)
-        setCoverImagePreview(null)
-        setProfileImage(null)
-        setCoverImage(null)
+        setProfileImagePreview(null);
+        setCoverImagePreview(null);
+        setProfileImage(null);
+        setCoverImage(null);
       } else {
         toast({
           title: "Error",
           description: data.message || "Failed to upload images",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
-      console.error("Error uploading images:", error)
+      console.error("Error uploading images:", error);
       toast({
         title: "Error",
         description: "Failed to upload images",
         variant: "destructive",
-      })
+      });
     } finally {
-      setSavingSection("")
+      setSavingSection("");
     }
-  }
+  };
 
   // Handle personal info submission
   const onPersonalSubmit = async (data) => {
-    setSavingSection("personal")
+    setSavingSection("personal");
+    // console.log(data)
     try {
       if (!profileData?.profile?._id) {
         toast({
           title: "Error",
           description: "Individual ID not found",
           variant: "destructive",
-        })
-        setSavingSection("")
-        return
+        });
+        setSavingSection("");
+        return;
       }
 
       const updateData = {
@@ -389,54 +509,58 @@ export default function Page() {
         ID_Email: data.email,
         ID_Phone: data.phone,
         ID_About: data.about,
-      }
+      };
 
-      const response = await fetch(`/api/student/v1/hcjBrTo60611UpdateIndividual/${profileData.profile._id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateData),
-      })
+      const response = await fetch(
+        `/api/institution/v1/hcjBrTo60611UpdateIndividual/${profileData.profile._id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updateData),
+        }
+      );
 
-      const responseData = await response.json()
+      const responseData = await response.json();
 
       if (response.ok && responseData.success) {
         toast({
           title: "Success",
           description: "Personal information updated successfully",
-        })
+        });
       } else {
         toast({
           title: "Error",
-          description: responseData.message || "Failed to update personal information",
+          description:
+            responseData.message || "Failed to update personal information",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
-      console.error("Error updating personal info:", error)
+      console.error("Error updating personal info:", error);
       toast({
         title: "Error",
         description: "Failed to update personal information",
         variant: "destructive",
-      })
+      });
     } finally {
-      setSavingSection("")
+      setSavingSection("");
     }
-  }
+  };
 
   // Handle address submission
   const onAddressSubmit = async (data) => {
-    setSavingSection("address")
+    setSavingSection("address");
     try {
       if (!profileData?.address?._id) {
         toast({
           title: "Error",
           description: "Address ID not found",
           variant: "destructive",
-        })
-        setSavingSection("")
-        return
+        });
+        setSavingSection("");
+        return;
       }
 
       const updateData = {
@@ -447,47 +571,52 @@ export default function Page() {
         IAD_State: data.state,
         IAD_City: data.city,
         IAD_Pincode: data.pincode,
-      }
+      };
 
-      const response = await fetch(`/api/student/v1/hcjBrTo60612UpdateAddress/${profileData.address._id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateData),
-      })
+      const response = await fetch(
+        `/api/institution/v1/hcjBrTo60612UpdateAddress/${profileData.address._id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updateData),
+        }
+      );
 
-      const responseData = await response.json()
+      const responseData = await response.json();
 
       if (response.ok && responseData.success) {
         toast({
           title: "Success",
           description: "Address information updated successfully",
-        })
+        });
       } else {
         toast({
-          title: "Error",
-          description: responseData.message || "Failed to update address information",
+          title: "Error!",
+          description:
+            responseData.message || "Failed to update address information",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
-      console.error("Error updating address:", error)
+      console.error("Error updating address:", error);
       toast({
         title: "Error",
         description: "Failed to update address information",
         variant: "destructive",
-      })
+      });
     } finally {
-      setSavingSection("")
+      setSavingSection("");
     }
-  }
+  };
 
   // Handle social links submission
   const onSocialLinksSubmit = async (data) => {
-    setSavingSection("social")
+    setSavingSection("social");
     try {
-      const socialLinkId = profileData?.socialProfiles?.[0]?._id
+      const socialLinkId = profileData?.socialProfiles?._id;
+      // console.log("socialLinkId", socialLinkId);
 
       const updateData = {
         SL_Website_Url: data.website,
@@ -495,19 +624,22 @@ export default function Page() {
         SL_Facebook_Url: data.facebook,
         SL_Instagram_Url: data.instagram,
         SL_Portfolio_Url: data.portfolio,
-      }
+      };
 
-      let response
+      let response;
 
       if (socialLinkId) {
         // Update existing social links
-        response = await fetch(`/api/student/v1/hcjBrTo60613UpdateSocialLinks/${socialLinkId}`, {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updateData),
-        })
+        response = await fetch(
+          `/api/institution/v1/hcjBrTo60613UpdateSocialLinks/${socialLinkId}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(updateData),
+          }
+        );
       } else {
         // Create new social links
         if (!profileData?.profile?._id) {
@@ -515,9 +647,9 @@ export default function Page() {
             title: "Error",
             description: "Individual ID not found",
             variant: "destructive",
-          })
-          setSavingSection("")
-          return
+          });
+          setSavingSection("");
+          return;
         }
 
         const createData = {
@@ -527,80 +659,85 @@ export default function Page() {
           SL_Product_Identifier: "10000",
           SL_Individual_Role: "05",
           SL_Social_Profile_Name: "Social Profiles",
-        }
+        };
 
-        response = await fetch(`/api/student/v1/hcjBrTo60613UpdateSocialLinks`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(createData),
-        })
+        response = await fetch(
+          `/api/student/v1/hcjBrTo60613UpdateSocialLinks`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(createData),
+          }
+        );
       }
 
-      const responseData = await response.json()
+      const responseData = await response.json();
 
       if (response.ok && responseData.success) {
         toast({
           title: "Success",
           description: "Social links updated successfully",
-        })
+        });
       } else {
         toast({
           title: "Error",
           description: responseData.message || "Failed to update social links",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
-      console.error("Error updating social links:", error)
+      console.error("Error updating social links:", error);
       toast({
         title: "Error",
         description: "Failed to update social links",
-      })
+      });
     } finally {
-      setSavingSection("")
+      setSavingSection("");
     }
-  }
+  };
 
   // Handle language proficiency type selection
   const handleProficiencyTypeChange = (id) => {
     setSelectedProficiencyTypes((prev) => {
       if (prev.includes(id)) {
-        return prev.filter((item) => item !== id)
+        return prev.filter((item) => item !== id);
       } else {
-        return [...prev, id]
+        return [...prev, id];
       }
-    })
-    setLanguageError("")
-  }
+    });
+    setLanguageError("");
+  };
 
   // Add a new language
   const handleAddLanguage = async () => {
-    setLanguageError("")
+    setLanguageError("");
 
     // Validate inputs
     if (!selectedLanguage) {
-      setLanguageError("Please select a language")
-      return
+      setLanguageError("Please select a language");
+      return;
     }
 
     if (!selectedProficiency) {
-      setLanguageError("Please select proficiency level")
-      return
+      setLanguageError("Please select proficiency level");
+      return;
     }
 
     if (selectedProficiencyTypes.length === 0) {
-      setLanguageError("Please select at least one proficiency type (Reading, Writing, Speaking)")
-      return
+      setLanguageError(
+        "Please select at least one proficiency type (Reading, Writing, Speaking)"
+      );
+      return;
     }
 
     if (!profileData?.profile?._id) {
-      setLanguageError("Individual ID not found")
-      return
+      setLanguageError("Individual ID not found");
+      return;
     }
 
-    setAddingLanguage(true)
+    setAddingLanguage(true);
 
     try {
       const languageData = {
@@ -611,95 +748,101 @@ export default function Page() {
         HCJ_JSL_Language_Proficiency: selectedProficiencyTypes,
         HCJ_JSL_Ref: "IndividualDetails",
         HCJ_JSL_Creation_DtTym: new Date().toISOString(),
-      }
+      };
 
-      const response = await fetch(`/api/student/v1/hcjBrTo60615UserLanguage/${profileData.profile._id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(languageData),
-      })
+      const response = await fetch(
+        `/api/institution/v1/hcjBrTo60615UserLanguage/${profileData.profile._id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(languageData),
+        }
+      );
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (response.ok && data.success) {
         toast({
           title: "Success",
           description: "Language added successfully",
-        })
+        });
 
         // Reset form
-        setSelectedLanguage("")
-        setSelectedProficiency("")
-        setSelectedProficiencyTypes([])
+        setSelectedLanguage("");
+        setSelectedProficiency("");
+        setSelectedProficiencyTypes([]);
 
         // Refresh languages list
-        fetchLanguages(profileData.profile._id)
+        fetchLanguages(profileData.profile._id);
       } else {
-        setLanguageError(data.message || "Failed to add language")
+        setLanguageError(data.message || "Failed to add language");
       }
     } catch (error) {
-      console.error("Error adding language:", error)
-      setLanguageError("Failed to add language")
+      console.error("Error adding language:", error);
+      setLanguageError("Failed to add language");
     } finally {
-      setAddingLanguage(false)
+      setAddingLanguage(false);
     }
-  }
+  };
 
   // Delete a language
   const handleDeleteLanguage = async (languageId) => {
-    if (!languageId) return
+    if (!languageId) return;
 
     try {
-      const response = await fetch(`/api/student/v1/hcjBrTo60616UpdateUserLanguage/${languageId}`, {
-        method: "DELETE",
-      })
+      const response = await fetch(
+        `/api/student/v1/hcjBrTo60616UpdateUserLanguage/${languageId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (response.ok && data.success) {
         toast({
           title: "Success",
           description: "Language deleted successfully",
-        })
+        });
 
         // Update languages list
-        setLanguages((prev) => prev.filter((lang) => lang._id !== languageId))
+        setLanguages((prev) => prev.filter((lang) => lang._id !== languageId));
       } else {
         toast({
           title: "Error",
           description: data.message || "Failed to delete language",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
-      console.error("Error deleting language:", error)
+      console.error("Error deleting language:", error);
       toast({
         title: "Error",
         description: "Failed to delete language",
-      })
+      });
     }
-  }
+  };
 
   // Get proficiency level label
   const getProficiencyLabel = (code) => {
-    const proficiency = proficiencyOptions.find((p) => p.value === code)
-    return proficiency ? proficiency.label : "Unknown"
-  }
+    const proficiency = proficiencyOptions.find((p) => p.value === code);
+    return proficiency ? proficiency.label : "Unknown";
+  };
 
   // Get proficiency types as string
   const getProficiencyTypes = (types) => {
-    if (!types || !Array.isArray(types)) return ""
+    if (!types || !Array.isArray(types)) return "";
 
     return types
       .map((type) => {
-        const profType = proficiencyTypes.find((p) => p.id === type)
-        return profType ? profType.label : ""
+        const profType = proficiencyTypes.find((p) => p.id === type);
+        return profType ? profType.label : "";
       })
       .filter(Boolean)
-      .join(", ")
-  }
+      .join(", ");
+  };
 
   if (loading) {
     return (
@@ -725,7 +868,7 @@ export default function Page() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -740,34 +883,21 @@ export default function Page() {
           </Link>
           <h1 className="text-2xl font-bold">Edit Profile</h1>
         </div>
-        <div className="flex items-end">
-          <VisibilitySheet position="top-right" />
-        </div>
       </div>
 
       {/* Images Section */}
       <Card className="mb-8 overflow-hidden shadow-md border border-gray-200">
         <CardHeader className="bg-primary/5 pb-0">
-          <CardTitle className="text-xl font-semibold text-primary">Profile Images</CardTitle>
+          <CardTitle className="text-xl font-semibold text-primary">
+            Profile Images
+          </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="relative h-[200px] bg-gray-100">
             {coverImagePreview ? (
               <div className="w-full h-full relative">
-                <Image src={coverImagePreview || "/placeholder.svg"} alt="Cover" layout="fill" objectFit="cover" />
-                <Button
-                  variant="ghost"
-                  className="absolute top-2 right-2 bg-white/80 hover:bg-white"
-                  onClick={() => document.getElementById("cover-upload").click()}
-                >
-                  <Camera className="h-4 w-4 mr-2" />
-                  Change Cover
-                </Button>
-              </div>
-            ) : profileData?.profile?.ID_Cover_Photo ? (
-              <div className="w-full h-full relative">
                 <Image
-                  src={profileData.profile.ID_Cover_Photo || "/placeholder.svg" || "/placeholder.svg"}
+                  src={coverImagePreview || "/placeholder.svg"}
                   alt="Cover"
                   layout="fill"
                   objectFit="cover"
@@ -775,8 +905,27 @@ export default function Page() {
                 <Button
                   variant="ghost"
                   className="absolute top-2 right-2 bg-white/80 hover:bg-white"
-                  onClick={() => document.getElementById("cover-upload").click()}
-                >
+                  onClick={() =>
+                    document.getElementById("cover-upload").click()
+                  }>
+                  <Camera className="h-4 w-4 mr-2" />
+                  Change Cover
+                </Button>
+              </div>
+            ) : profileData?.profile?.ID_Cover_Photo ? (
+              <div className="w-full h-full relative">
+                <Image
+                  src={profileData.profile.ID_Cover_Photo || "/placeholder.svg"}
+                  alt="Cover"
+                  layout="fill"
+                  objectFit="cover"
+                />
+                <Button
+                  variant="ghost"
+                  className="absolute top-2 right-2 bg-white/80 hover:bg-white"
+                  onClick={() =>
+                    document.getElementById("cover-upload").click()
+                  }>
                   <Camera className="h-4 w-4 mr-2" />
                   Change Cover
                 </Button>
@@ -786,8 +935,9 @@ export default function Page() {
                 <Button
                   variant="ghost"
                   className="text-primary"
-                  onClick={() => document.getElementById("cover-upload").click()}
-                >
+                  onClick={() =>
+                    document.getElementById("cover-upload").click()
+                  }>
                   <Camera className="mr-2 h-4 w-4" />
                   Add cover photo
                 </Button>
@@ -816,7 +966,10 @@ export default function Page() {
                   ) : profileData?.profile?.ID_Profile_Picture ? (
                     <div className="relative w-full h-full">
                       <Image
-                        src={profileData.profile.ID_Profile_Picture || "/placeholder.svg" || "/placeholder.svg"}
+                        src={
+                          profileData.profile.ID_Profile_Picture ||
+                          "/placeholder.svg"
+                        }
                         alt="Profile"
                         layout="fill"
                         objectFit="cover"
@@ -832,8 +985,9 @@ export default function Page() {
                   <Button
                     variant="link"
                     className="text-primary p-0 h-auto font-normal"
-                    onClick={() => document.getElementById("profile-upload").click()}
-                  >
+                    onClick={() =>
+                      document.getElementById("profile-upload").click()
+                    }>
                     Change Profile Picture
                   </Button>
                 </div>
@@ -852,8 +1006,7 @@ export default function Page() {
             <Button
               onClick={handleImageUpload}
               disabled={savingSection === "photos"}
-              className="bg-primary text-white hover:bg-primary/90"
-            >
+              className="bg-primary text-white hover:bg-primary/90">
               {savingSection === "photos" ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -873,11 +1026,15 @@ export default function Page() {
       {/* Personal Information Section */}
       <Card className="mb-8 shadow-md border border-gray-200">
         <CardHeader className="bg-primary/5">
-          <CardTitle className="text-xl font-semibold text-primary">Personal Information</CardTitle>
+          <CardTitle className="text-xl font-semibold text-primary">
+            Personal Information
+          </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <Form {...personalForm}>
-            <form onSubmit={personalForm.handleSubmit(onPersonalSubmit)} className="space-y-6">
+            <form
+              onSubmit={personalForm.handleSubmit(onPersonalSubmit)}
+              className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={personalForm.control}
@@ -914,7 +1071,9 @@ export default function Page() {
                   name="profileHeadline"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-primary">Profile Headline</FormLabel>
+                      <FormLabel className="text-primary">
+                        Profile Headline
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="Student at IIT Delhi" {...field} />
                       </FormControl>
@@ -928,7 +1087,9 @@ export default function Page() {
                   name="designation"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-primary">Designation</FormLabel>
+                      <FormLabel className="text-primary">
+                        Designation
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="Student" {...field} />
                       </FormControl>
@@ -987,7 +1148,11 @@ export default function Page() {
                   <FormItem>
                     <FormLabel className="text-primary">About</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Tell us about yourself" className="min-h-[150px]" {...field} />
+                      <Textarea
+                        placeholder="Tell us about yourself"
+                        className="min-h-[150px]"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -998,8 +1163,7 @@ export default function Page() {
                 <Button
                   type="submit"
                   disabled={savingSection === "personal"}
-                  className="bg-primary text-white hover:bg-primary/90"
-                >
+                  className="bg-primary text-white hover:bg-primary/90">
                   {savingSection === "personal" ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1021,7 +1185,9 @@ export default function Page() {
       {/* Language Section */}
       <Card className="mb-8 shadow-md border border-gray-200">
         <CardHeader className="bg-primary/5">
-          <CardTitle className="text-xl font-semibold text-primary">Languages</CardTitle>
+          <CardTitle className="text-xl font-semibold text-primary">
+            Languages
+          </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <div className="space-y-6">
@@ -1040,21 +1206,26 @@ export default function Page() {
                   {languages.map((language) => (
                     <div
                       key={language._id}
-                      className="flex items-center justify-between p-4 border rounded-md bg-muted/30"
-                    >
+                      className="flex items-center justify-between p-4 border rounded-md bg-muted/30">
                       <div className="space-y-1">
-                        <div className="font-medium capitalize">{language.HCJ_JSL_Language}</div>
+                        <div className="font-medium capitalize">
+                          {language.HCJ_JSL_Language}
+                        </div>
                         <div className="text-sm text-muted-foreground">
-                          {getProficiencyLabel(language.HCJ_JSL_Language_Proficiency_Level)} •{" "}
-                          {getProficiencyTypes(language.HCJ_JSL_Language_Proficiency)}
+                          {getProficiencyLabel(
+                            language.HCJ_JSL_Language_Proficiency_Level
+                          )}{" "}
+                          •{" "}
+                          {getProficiencyTypes(
+                            language.HCJ_JSL_Language_Proficiency
+                          )}
                         </div>
                       </div>
                       <Button
                         variant="ghost"
                         size="sm"
                         className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDeleteLanguage(language._id)}
-                      >
+                        onClick={() => handleDeleteLanguage(language._id)}>
                         <Trash className="h-4 w-4" />
                       </Button>
                     </div>
@@ -1062,7 +1233,9 @@ export default function Page() {
                 </div>
               ) : (
                 <div className="text-center p-6 border rounded-md bg-muted/30">
-                  <p className="text-muted-foreground">No languages added yet</p>
+                  <p className="text-muted-foreground">
+                    No languages added yet
+                  </p>
                 </div>
               )}
             </div>
@@ -1076,13 +1249,21 @@ export default function Page() {
                   <label className="text-sm font-medium text-primary">
                     Language <span className="text-destructive">*</span>
                   </label>
-                  <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                  <Select
+                    value={selectedLanguage}
+                    onValueChange={setSelectedLanguage}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select language" />
                     </SelectTrigger>
                     <SelectContent>
                       {languagesList.map((language) => (
-                        <SelectItem key={language.value} value={language.value}>
+                        <SelectItem
+                          key={language.value}
+                          value={language.value}
+                          disabled={languages.some(
+                            (profile) =>
+                              profile.HCJ_JSL_Language === language.value
+                          )}>
                           {language.label}
                         </SelectItem>
                       ))}
@@ -1092,9 +1273,12 @@ export default function Page() {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-primary">
-                    Proficiency Level <span className="text-destructive">*</span>
+                    Proficiency Level{" "}
+                    <span className="text-destructive">*</span>
                   </label>
-                  <Select value={selectedProficiency} onValueChange={setSelectedProficiency}>
+                  <Select
+                    value={selectedProficiency}
+                    onValueChange={setSelectedProficiency}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select proficiency" />
                     </SelectTrigger>
@@ -1113,7 +1297,9 @@ export default function Page() {
                 <label className="text-sm font-medium text-primary">
                   Proficiency Types <span className="text-destructive">*</span>
                 </label>
-                <p className="text-sm text-muted-foreground mb-2">Select at least one</p>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Select at least one
+                </p>
 
                 <div className="flex flex-wrap gap-4">
                   {proficiencyTypes.map((type) => (
@@ -1121,12 +1307,13 @@ export default function Page() {
                       <Checkbox
                         id={`type-${type.id}`}
                         checked={selectedProficiencyTypes.includes(type.id)}
-                        onCheckedChange={() => handleProficiencyTypeChange(type.id)}
+                        onCheckedChange={() =>
+                          handleProficiencyTypeChange(type.id)
+                        }
                       />
                       <label
                         htmlFor={`type-${type.id}`}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                         {type.label}
                       </label>
                     </div>
@@ -1134,15 +1321,16 @@ export default function Page() {
                 </div>
               </div>
 
-              {languageError && <div className="text-sm text-destructive">{languageError}</div>}
+              {languageError && (
+                <div className="text-sm text-destructive">{languageError}</div>
+              )}
 
               <div className="flex justify-end">
                 <Button
                   type="button"
                   onClick={handleAddLanguage}
                   disabled={addingLanguage}
-                  className="bg-primary text-white hover:bg-primary/90"
-                >
+                  className="bg-primary text-white hover:bg-primary/90">
                   {addingLanguage ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1164,11 +1352,15 @@ export default function Page() {
       {/* Address Section */}
       <Card className="mb-8 shadow-md border border-gray-200">
         <CardHeader className="bg-primary/5">
-          <CardTitle className="text-xl font-semibold text-primary">Address Details</CardTitle>
+          <CardTitle className="text-xl font-semibold text-primary">
+            Address Details
+          </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <Form {...addressForm}>
-            <form onSubmit={addressForm.handleSubmit(onAddressSubmit)} className="space-y-6">
+            <form
+              onSubmit={addressForm.handleSubmit(onAddressSubmit)}
+              className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={addressForm.control}
@@ -1176,7 +1368,8 @@ export default function Page() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-primary">
-                        Address Line 1 <span className="text-destructive">*</span>
+                        Address Line 1{" "}
+                        <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormControl>
                         <Input {...field} />
@@ -1191,7 +1384,9 @@ export default function Page() {
                   name="addressLine2"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-primary">Address Line 2</FormLabel>
+                      <FormLabel className="text-primary">
+                        Address Line 2
+                      </FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -1222,7 +1417,9 @@ export default function Page() {
                       <FormLabel className="text-primary">
                         Country <span className="text-destructive">*</span>
                       </FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select country" />
@@ -1294,8 +1491,7 @@ export default function Page() {
                 <Button
                   type="submit"
                   disabled={savingSection === "address"}
-                  className="bg-primary text-white hover:bg-primary/90"
-                >
+                  className="bg-primary text-white hover:bg-primary/90">
                   {savingSection === "address" ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1317,11 +1513,15 @@ export default function Page() {
       {/* Social Links Section */}
       <Card className="mb-8 shadow-md border border-gray-200">
         <CardHeader className="bg-primary/5">
-          <CardTitle className="text-xl font-semibold text-primary">Social Links</CardTitle>
+          <CardTitle className="text-xl font-semibold text-primary">
+            Social Links
+          </CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           <Form {...socialLinksForm}>
-            <form onSubmit={socialLinksForm.handleSubmit(onSocialLinksSubmit)} className="space-y-6">
+            <form
+              onSubmit={socialLinksForm.handleSubmit(onSocialLinksSubmit)}
+              className="space-y-6">
               <div className="space-y-4">
                 <FormField
                   control={socialLinksForm.control}
@@ -1339,7 +1539,11 @@ export default function Page() {
                               height={24}
                             />
                           </div>
-                          <Input placeholder="https://yourwebsite.com" {...field} className="flex-grow" />
+                          <Input
+                            placeholder="https://yourwebsite.com"
+                            {...field}
+                            className="flex-grow"
+                          />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -1363,7 +1567,11 @@ export default function Page() {
                               height={24}
                             />
                           </div>
-                          <Input placeholder="https://linkedin.com/in/yourprofile" {...field} className="flex-grow" />
+                          <Input
+                            placeholder="https://linkedin.com/in/yourprofile"
+                            {...field}
+                            className="flex-grow"
+                          />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -1387,7 +1595,11 @@ export default function Page() {
                               height={24}
                             />
                           </div>
-                          <Input placeholder="https://facebook.com/yourprofile" {...field} className="flex-grow" />
+                          <Input
+                            placeholder="https://facebook.com/yourprofile"
+                            {...field}
+                            className="flex-grow"
+                          />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -1411,7 +1623,11 @@ export default function Page() {
                               height={24}
                             />
                           </div>
-                          <Input placeholder="https://instagram.com/yourprofile" {...field} className="flex-grow" />
+                          <Input
+                            placeholder="https://instagram.com/yourprofile"
+                            {...field}
+                            className="flex-grow"
+                          />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -1435,7 +1651,11 @@ export default function Page() {
                               height={24}
                             />
                           </div>
-                          <Input placeholder="https://yourportfolio.com" {...field} className="flex-grow" />
+                          <Input
+                            placeholder="https://yourportfolio.com"
+                            {...field}
+                            className="flex-grow"
+                          />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -1448,8 +1668,7 @@ export default function Page() {
                 <Button
                   type="submit"
                   disabled={savingSection === "social"}
-                  className="bg-primary text-white hover:bg-primary/90"
-                >
+                  className="bg-primary text-white hover:bg-primary/90">
                   {savingSection === "social" ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1471,19 +1690,25 @@ export default function Page() {
       {/* Bottom Action Buttons */}
       <div className="mt-8 flex flex-wrap gap-4">
         <Link href="/stdnt-dshbrd6071/my-prfl6072">
-          <Button variant="outline" className="border-2 border-primary text-primary">
+          <Button
+            variant="outline"
+            className="border-2 border-primary text-primary">
             <X className="mr-2 h-4 w-4" />
             Cancel
           </Button>
         </Link>
         <Link href="/stdnt-dshbrd6071/my-prfl6072">
-          <Button variant="outline" className="border-2 border-green-500 text-green-500">
+          <Button
+            variant="outline"
+            className="border-2 border-green-500 text-green-500">
             <Check className="mr-2 h-4 w-4" />
             Preview Profile
           </Button>
         </Link>
       </div>
-    </div>
-  )
-}
 
+      {/* Render the appropriate popup component */}
+      {popup.type && popupComponents[popup.type]}
+    </div>
+  );
+}

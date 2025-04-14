@@ -24,10 +24,10 @@ export default function Footer() {
       href: "https://www.linkedin.com/company/106391158/admin/dashboard/",
       label: "LinkedIn",
     },
-    { 
-      src: "/image/institute/footer/youtube.svg", 
-      href: "https://www.youtube.com/@HonourHCJ", 
-      label: "YouTube" 
+    {
+      src: "/image/institute/footer/youtube.svg",
+      href: "https://www.youtube.com/@HonourHCJ",
+      label: "YouTube",
     },
   ];
 
@@ -57,6 +57,7 @@ export default function Footer() {
 
   const companyLinks = [
     { name: "About us", href: `/#about` },
+    { name: "Achiever's Central", href: `/achvr-cntrl6007` },
     { name: "How it works", href: `/hwit-wrks6004` },
     { name: "Contact us", href: `/cntct6011` },
     { name: "FAQ", href: `/faq6013` },
@@ -96,15 +97,28 @@ export default function Footer() {
       <div className="container mx-auto px-4 py-8 flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:justify-between lg:items-start">
         {/* Left Section */}
         <div className="flex flex-col space-y-4 lg:ml-[50px] xl:ml-[100px]">
-          {/* <h2 className="text-4xl font-bold text-gray-900 dark:text-white">
-            HCJ
-          </h2> */}
-          <Image
+          {/* <Image
             src="/image/logo/footerlogo.png"
             alt="HCJ Footer Logo"
             width={100}
             height={40}
             className="ml-0" // changed from mx-auto
+          /> */}
+          <Image
+            src="/image/logo/footerlogo.png"
+            alt="HCJ Footer Logo"
+            width={100}
+            height={40}
+            className="ml-0 block dark:hidden"
+          />
+
+          {/* Dark Mode Logo */}
+          <Image
+            src="/image/logo/darkfooterlogo.png" // Your dark mode logo
+            alt="HCJ Footer Logo Dark"
+            width={100}
+            height={40}
+            className="ml-0 hidden dark:block"
           />
 
           <div className="flex space-x-4">

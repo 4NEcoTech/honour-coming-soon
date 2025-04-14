@@ -216,7 +216,6 @@ export async function POST(request) {
 
     const existingUser = await User.findOne({
       UT_Email: email,
-      UT_User_Role: role,
     });
 
     if (!existingUser) {
@@ -232,7 +231,7 @@ export async function POST(request) {
 
     // Get OTP record from verification table
     const otpRecord = await OTPVerification.findOne({
-      OV_User_Id: existingUser._id
+      OV_Email: email,
     });
 
     if (!otpRecord) {

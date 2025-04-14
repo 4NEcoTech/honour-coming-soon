@@ -1,6 +1,6 @@
-'use client';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+"use client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -8,32 +8,34 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import Swal from 'sweetalert2';
-import { z } from 'zod';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import Otp from '@/components/otp';
-import PasswordResetSuccess from '@/components/password-reset-success';
-import ResetPassword from '@/components/reset-password';
-import { useSearchParams } from 'next/navigation';
-import { useRouter } from '@/i18n/routing';
+import Otp from "@/components/otp";
+import PasswordResetSuccess from "@/components/password-reset-success";
+import ResetPassword from "@/components/reset-password";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "@/i18n/routing";
+import { Loader2 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 const schema = z.object({
-  email: z.string().email({ message: '6036_1 Invalid email address.' }),
+  email: z.string().email({ message: "6036_1 Invalid email address." }),
 });
 function ForgotPasswordPage() {
   const searchParams = useSearchParams();
+  const { toast } = useToast();
   const router = useRouter();
-  console.log(searchParams.get('step'));
-  const step = Number(searchParams.get('step') || 0);
+  console.log(searchParams.get("step"));
+  const step = Number(searchParams.get("step") || 0);
 
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      email: '',
+      email: "",
     },
   });
 
@@ -45,10 +47,10 @@ function ForgotPasswordPage() {
   const onSubmit = async (data) => {
     console.log(data);
     try {
-      const res = await fetch('/api/global/v1/gblBrBTForgotPasswordSendMail', {
-        method: 'POST',
+      const res = await fetch("/api/global/v1/gblBrBTForgotPasswordSendMail", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
@@ -58,36 +60,57 @@ function ForgotPasswordPage() {
       if (!res.ok) {
         switch (res.status) {
           case 400: // Bad Request
-            console.error('Validation Error:', responseData.message);
-            console.error('Error in onSubmit:', error.message);
-            Swal.fire({
-              icon: 'error',
-              title: 'Validation error.',
-              text:
-                responseData.message || 'Validation error. Please try again.',
+            // console.error("Validation Error:", responseData.message);
+            // console.error("Error in onSubmit:", error.message);
+            form.setError("email", {
+              type: "manual",
+              message: responseData.message || "Invalid email address.",
+            });
+            // Swal.fire({
+            //   icon: "error",
+            //   title: "Validation error.",
+            //   text:
+            //     responseData.message || "Validation error. Please try again.",
+            // });
+            toast({
+              title:
+                responseData.message || "Validation error. Please try again.",
+              variant: "destructive",
             });
 
             break;
 
           case 500: // Internal Server Error
-            console.error('Server Error:', responseData.message);
+            console.error("Server Error:", responseData.message);
             // alert("Something went wrong on the server. Please try again later.");
             // Conflict
-            Swal.fire({
-              icon: 'error',
-              title: 'Server Error!',
-              text:
+            // Swal.fire({
+            //   icon: "error",
+            //   title: "Server Error!",
+            //   text:
+            //     responseData.message ||
+            //     "Something went wrong on the server. Please try again later.",
+            // });
+            toast({
+              title:
                 responseData.message ||
-                'Something went wrong on the server. Please try again later.',
+                "Something went wrong on the server. Please try again later.",
+              variant: "destructive",
             });
             break;
 
           default:
-            console.error('Unexpected Error:', responseData.message);
-            Swal.fire({
-              icon: 'error',
-              title: 'An unexpected error occurred.',
-              text: responseData.message || 'Please try again.',
+            console.error("Unexpected Error:", responseData.message);
+            // Swal.fire({
+            //   icon: "error",
+            //   title: "An unexpected error occurred.",
+            //   text: responseData.message || "Please try again.",
+            // });
+            toast({
+              title:
+                responseData.message ||
+                "An unexpected error occurred. Please try again.",
+              variant: "destructive",
             });
             break;
         }
@@ -97,18 +120,23 @@ function ForgotPasswordPage() {
           { shallow: true }
         );
 
-        Swal.fire({
-          icon: 'success',
-          title: 'OTP sent successfully.',
-          text: 'Please check your email for OTP.',
+        // Swal.fire({
+        //   icon: "success",
+        //   title: "OTP sent successfully.",
+        //   text: "Please check your email for OTP.",
+        // });
+        toast({
+          title: "OTP sent successfully. Please check your email for OTP.",
+          variant: "default",
         });
+        // Reset the form after successful submission
       }
     } catch (error) {
-      console.error('Error in onSubmit:', error.message);
+      console.error("Error in onSubmit:", error.message);
     }
   };
 
-  console.log('step', step);
+  // console.log("step", step);
   return (
     <>
       {step === 0 && (
@@ -133,8 +161,8 @@ function ForgotPasswordPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-sm font-medium text-primary">
-                            {' '}
-                            Educational Institution Email ID{' '}
+                            {" "}
+                            Educational Institution Email ID{" "}
                             <span className="text-destructive">*</span>
                           </FormLabel>
                           <FormControl>
@@ -153,8 +181,14 @@ function ForgotPasswordPage() {
                   </div>
                   <div>
                     <Button
+                      disabled={
+                        form.formState.isSubmitting || !form.formState.isValid
+                      }
                       type="submit"
-                      className="w-full py-2 bg-primary text-white rounded-md ">
+                      className="w-full py-2 bg-primary text-white rounded-md">
+                      {form.formState.isSubmitting && (
+                        <Loader2 className="animate-spin" />
+                      )}
                       Submit
                     </Button>
                   </div>

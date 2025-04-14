@@ -1,8 +1,8 @@
-import CompanyContactPerson from '@/app/models/company_contact_person';
-import { dbConnect } from '@/app/utils/dbConnect';
-import { uploadToGoogleDrive } from '@/app/utils/googleDrive';
-import jwt from 'jsonwebtoken';
-import nodemailer from 'nodemailer';
+import CompanyContactPerson from "@/app/models/company_contact_person";
+import { dbConnect } from "@/app/utils/dbConnect";
+import { uploadToGoogleDrive } from "@/app/utils/googleDrive";
+import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
 
 /**
  * @swagger
@@ -128,60 +128,60 @@ export async function POST(req) {
     await dbConnect();
     const formData = await req.formData();
     const data = Object.fromEntries(formData.entries());
-    const userLang = data.language || 'en';
+    const userLang = data.language || "en";
 
     // Extract form data
-    const CCP_Admin_Invitee_Id = formData.get('CCP_Admin_Invitee_Id'); // New field
-    const CCP_Institute_Num = formData.get('CCP_Institute_Num'); // New field
-    const CCP_Institute_Name = formData.get('CCP_Institute_Name'); // New field
+    const CCP_Admin_Invitee_Id = formData.get("CCP_Admin_Invitee_Id"); // New field
+    const CCP_Institute_Num = formData.get("CCP_Institute_Num"); // New field
+    const CCP_Institute_Name = formData.get("CCP_Institute_Name"); // New field
     const CCP_Contact_Person_First_Name = formData.get(
-      'CCP_Contact_Person_First_Name'
+      "CCP_Contact_Person_First_Name"
     );
     const CCP_Contact_Person_Last_Name = formData.get(
-      'CCP_Contact_Person_Last_Name'
+      "CCP_Contact_Person_Last_Name"
     );
-    const CCP_Contact_Person_Phone = formData.get('CCP_Contact_Person_Phone');
+    const CCP_Contact_Person_Phone = formData.get("CCP_Contact_Person_Phone");
     const CCP_Contact_Person_Alternate_Phone = formData.get(
-      'CCP_Contact_Person_Alternate_Phone'
+      "CCP_Contact_Person_Alternate_Phone"
     );
-    const CCP_Contact_Person_Email = formData.get('CCP_Contact_Person_Email');
+    const CCP_Contact_Person_Email = formData.get("CCP_Contact_Person_Email");
     const CCP_Contact_Person_Alternate_Email = formData.get(
-      'CCP_Contact_Person_Alternate_Email'
+      "CCP_Contact_Person_Alternate_Email"
     );
-    const CCP_Contact_Person_Role = formData.get('CCP_Contact_Person_Role');
-    const CCP_Contact_Person_Gender = formData.get('CCP_Contact_Person_Gender');
-    const CCP_Contact_Person_DOB = formData.get('CCP_Contact_Person_DOB');
+    const CCP_Contact_Person_Role = formData.get("CCP_Contact_Person_Role");
+    const CCP_Contact_Person_Gender = formData.get("CCP_Contact_Person_Gender");
+    const CCP_Contact_Person_DOB = formData.get("CCP_Contact_Person_DOB");
     const CCP_Contact_Person_Country = formData.get(
-      'CCP_Contact_Person_Country'
+      "CCP_Contact_Person_Country"
     );
     const CCP_Contact_Person_Pincode = formData.get(
-      'CCP_Contact_Person_Pincode'
+      "CCP_Contact_Person_Pincode"
     );
-    const CCP_Contact_Person_State = formData.get('CCP_Contact_Person_State');
-    const CCP_Contact_Person_City = formData.get('CCP_Contact_Person_City');
+    const CCP_Contact_Person_State = formData.get("CCP_Contact_Person_State");
+    const CCP_Contact_Person_City = formData.get("CCP_Contact_Person_City");
     const CCP_Contact_Person_Address_Line1 = formData.get(
-      'CCP_Contact_Person_Address_Line1'
+      "CCP_Contact_Person_Address_Line1"
     );
     const CCP_Contact_Person_Joining_Year = formData.get(
-      'CCP_Contact_Person_Joining_Year'
+      "CCP_Contact_Person_Joining_Year"
     );
     const CCP_Contact_Person_Department = formData.get(
-      'CCP_Contact_Person_Department'
+      "CCP_Contact_Person_Department"
     );
     const CCP_Contact_Person_Designation = formData.get(
-      'CCP_Contact_Person_Designation'
+      "CCP_Contact_Person_Designation"
     );
     const CCP_Contact_Person_Document_Domicile = formData.get(
-      'CCP_Contact_Person_Document_Domicile'
+      "CCP_Contact_Person_Document_Domicile"
     );
     const CCP_Contact_Person_Document_Type = formData.get(
-      'CCP_Contact_Person_Document_Type'
+      "CCP_Contact_Person_Document_Type"
     );
     const CCP_Contact_Person_Document_Number = formData.get(
-      'CCP_Contact_Person_Document_Number'
+      "CCP_Contact_Person_Document_Number"
     );
-    const CCP_Company_Id = formData.get('CCP_Company_Id');
-    const CCP_Individual_Id = formData.get('CCP_Individual_Id');
+    const CCP_Company_Id = formData.get("CCP_Company_Id");
+    const CCP_Individual_Id = formData.get("CCP_Individual_Id");
 
     // Convert DOB to Date format
     const formattedDOB = CCP_Contact_Person_DOB
@@ -193,7 +193,7 @@ export async function POST(req) {
       CCP_Contact_Person_Email,
     });
     if (existingUser) {
-      return new Response(JSON.stringify({ error: 'User already exists' }), {
+      return new Response(JSON.stringify({ error: "User already exists" }), {
         status: 400,
       });
     }
@@ -211,14 +211,14 @@ export async function POST(req) {
 
     // Handle file upload (document image)
     let documentUrl = null;
-    if (formData.has('CCP_Contact_Person_Document_Picture')) {
+    if (formData.has("CCP_Contact_Person_Document_Picture")) {
       const documentBuffer = Buffer.from(
-        await formData.get('CCP_Contact_Person_Document_Picture').arrayBuffer()
+        await formData.get("CCP_Contact_Person_Document_Picture").arrayBuffer()
       );
       documentUrl = await uploadToGoogleDrive(
         documentBuffer,
         `document_${Date.now()}.png`,
-        'image/png'
+        "image/png"
       );
     }
 
@@ -288,12 +288,19 @@ export async function POST(req) {
         CCP_Contact_PersonNum: nextContactPersonNum,
       },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: "7d" }
     );
+
+    const roleMap = {
+      "07": "Team Member",
+      "08": "Support Staff",
+    };
+    const roleName =
+      roleMap[CCP_Contact_Person_Role] || CCP_Contact_Person_Role;
 
     // Send email invitation
     const transporter = nodemailer.createTransport({
-      service: 'Gmail',
+      service: "Gmail",
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -305,28 +312,28 @@ export async function POST(req) {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: CCP_Contact_Person_Email,
-      subject: 'Invitation to Join Honour Career Junction',
+      subject: "Invitation to Join Honour Career Junction",
       html: `
         <p>Dear <b>${CCP_Contact_Person_First_Name} ${CCP_Contact_Person_Last_Name}</b>,</p>
-        <p>We are inviting you to join Honour Career Junction (HCJ). Your role as a <b>${CCP_Contact_Person_Role}</b> will be valuable.</p>
-        <p>To get started, please follow the steps below:</p>
-        <ol>
-          <li>Click on the invitation link: <a href="${signupUrl}">here</a></li>
-          <li>Use your institutional email ID to sign up.</li>
-          <li>Complete your profile setup.</li>
-        </ol>
-        <p>Best regards,<br/>[Institution Name]</p>
+  <p>We are inviting you to join Honour Career Junction (HCJ). Your role as a <b>${roleName}</b> will be valuable.</p>
+  <p>To get started, please follow the steps below:</p>
+  <ol>
+    <li>Click on the invitation link: <a href="${signupUrl}">here</a></li>
+    <li>Use your institutional email ID to sign up.</li>
+    <li>Complete your profile setup.</li>
+  </ol>
+  <p>Best regards,<br/>${CCP_Institute_Name}</p>
       `,
     });
 
     return new Response(
-      JSON.stringify({ message: 'Invitation sent successfully' }),
+      JSON.stringify({ message: "Invitation sent successfully" }),
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error in invite API:', error);
+    console.error("Error in invite API:", error);
     return new Response(
-      JSON.stringify({ error: 'Failed to send invitation' }),
+      JSON.stringify({ error: "Failed to send invitation" }),
       { status: 500 }
     );
   }

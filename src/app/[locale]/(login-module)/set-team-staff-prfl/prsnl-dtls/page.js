@@ -1,61 +1,31 @@
-"use client";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
-import * as React from "react";
-import { useForm } from "react-hook-form";
-import { Upload } from "lucide-react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { useSession } from "next-auth/react";
-import { AdminPersonalSchema } from "@/app/validation/adminSchema";
+import { Button } from "@/components/ui/button"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import PhoneInput from "react-phone-input-2"
+import "react-phone-input-2/lib/style.css"
+import * as React from "react"
+import { useForm } from "react-hook-form"
+import { Loader2, Upload } from "lucide-react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useSession } from "next-auth/react"
+import { AdminPersonalSchema } from "@/app/validation/adminSchema"
+import Swal from "sweetalert2"
 
-// const personalSchema = z.object({
-//   photo: z.any().optional(),
-//   firstName: z.string().min(1, "First name is required"),
-//   lastName: z.string().min(1, "Last name is required"),
-//   corporateEmail: z.string().email("Invalid email format"),
-//   alternateEmail: z.string().email("Invalid email format").optional(),
-//   phone: z.string().min(10, "Phone number is required"),
-//   alternatePhone: z.string().optional(),
-//   designation: z.string().optional(),
-//   profileHeadline: z.string().optional(),
-//   gender: z.enum(["01", "02", "03"], { required_error: "Gender is required" }),
-//   dob: z.string().min(1, "Date of birth is required"),
-// });
-export default function PersonalDetails({
-  initialData,
-  isSubmitting,
-  onSubmit,
-}) {
-  const [uploadedFile, setUploadedFile] = React.useState(null);
-  const [previewUrl, setPreviewUrl] = React.useState(
-    initialData?.photoUrl || null
-  );
+export default function PersonalDetails({ initialData, isSubmitting, onSubmit }) {
+  const [uploadedFile, setUploadedFile] = React.useState(null)
+  const [previewUrl, setPreviewUrl] = React.useState(initialData?.photoUrl || null)
+  const [uploadingPhoto, setUploadingPhoto] = React.useState(false)
 
-  const { data: session } = useSession();
+  const { data: session } = useSession()
 
   const form = useForm({
     resolver: zodResolver(AdminPersonalSchema),
     defaultValues: {
       photo: initialData?.photo || null,
+      photoUrl: initialData?.photoUrl || "",
       firstName: initialData?.firstName || "",
       lastName: initialData?.lastName || "",
       corporateEmail: session?.user?.email || initialData?.corporateEmail || "",
@@ -67,28 +37,18 @@ export default function PersonalDetails({
       gender: initialData?.gender || "",
       dob: initialData?.dob || "",
     },
-  });
+  })
 
-  React.useEffect(() => {
-    if (initialData) {
-      form.reset({
-        ...initialData,
-        corporateEmail:
-          session?.user?.email || initialData?.corporateEmail || "",
-      });
-    }
-  }, [initialData, session?.user?.email]);
-
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0]
     if (file) {
       // Check file size (less than 2MB)
       if (file.size > 2 * 1024 * 1024) {
         form.setError("photo", {
           type: "manual",
           message: "File size should be less than 2MB",
-        });
-        return;
+        })
+        return
       }
 
       // Check file type
@@ -96,74 +56,126 @@ export default function PersonalDetails({
         form.setError("photo", {
           type: "manual",
           message: "Only JPG, JPEG, and PNG files are allowed",
-        });
-        return;
+        })
+        return
       }
 
-      setUploadedFile(file);
-      form.setValue("photo", file);
+      setUploadedFile(file)
 
       // Create preview URL
-      const reader = new FileReader();
+      const reader = new FileReader()
       reader.onload = () => {
-        setPreviewUrl(reader.result);
-      };
-      reader.readAsDataURL(file);
+        setPreviewUrl(reader.result)
+      }
+      reader.readAsDataURL(file)
+
+      // Upload the image immediately
+      await handleImageUpload(file)
     }
-  };
+  }
+
+  const handleImageUpload = async (file) => {
+    setUploadingPhoto(true)
+    try {
+      const formData = new FormData()
+      formData.append("userId", session?.user?.id || "")
+      formData.append("file", file)
+
+      const response = await fetch("/api/institution/v1/hcjBrBT60242AdminProfileImage", {
+        method: "POST",
+        body: formData,
+      })
+
+      const result = await response.json()
+      if (result.success && result.url) {
+        // Set the URL in the form
+        form.setValue("photoUrl", result.url)
+
+        Swal.fire({
+          title: "Success",
+          text: "Profile image uploaded successfully",
+          icon: "success",
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 3000,
+        })
+
+        return result.url
+      } else {
+        throw new Error(result.message || "Upload failed")
+      }
+    } catch (error) {
+      console.error("Profile image upload error:", error)
+      Swal.fire({
+        title: "Error",
+        text: error.message || "Failed to upload profile image",
+        icon: "error",
+        confirmButtonText: "OK",
+      })
+      return null
+    } finally {
+      setUploadingPhoto(false)
+    }
+  }
 
   React.useEffect(() => {
-    form.setValue("corporateEmail", session?.user?.email);
-  }, [session]);
+    form.setValue("corporateEmail", session?.user?.email)
+  }, [session, form])
+
+  const handleFormSubmit = (data) => {
+    // Make sure the photoUrl is included in the submission
+    const dataWithPhotoUrl = {
+      ...data,
+      photoUrl: form.getValues("photoUrl"),
+    }
+    onSubmit(dataWithPhotoUrl)
+  }
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 p-2 sm:p-4 max-w-xl mx-auto">
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6 p-2 sm:p-4 max-w-xl mx-auto">
         {/* Upload Profile Photo */}
         <FormField
           control={form.control}
           name="photo"
           render={({ field }) => (
             <FormItem>
-              <FormLabel
-                htmlFor="uploadPhoto"
-                className="text-primary font-medium">
-                Upload Profile Photo{' '}
-                <span className="text-gray-400">(Optional)</span>
+              <FormLabel htmlFor="uploadPhoto" className="text-primary font-medium">
+                Upload Profile Photo
               </FormLabel>
               <FormControl>
                 <div
                   className="relative border-2 border-dashed border-blue-200 rounded-lg p-6 cursor-pointer text-center hover:bg-blue-50 transition-colors"
-                  onClick={() =>
-                    document.getElementById('uploadPhoto')?.click()
-                  }>
+                  onClick={() => document.getElementById("uploadPhoto")?.click()}
+                >
                   {previewUrl ? (
                     <div className="flex flex-col items-center">
-                      <div className="w-24 h-24 rounded-full overflow-hidden mb-3 border-2 border-blue-300">
+                      <div className="w-24 h-24 rounded-full overflow-hidden mb-3 border-2 border-blue-300 relative">
+                        {uploadingPhoto && (
+                          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                            <Loader2 className="h-8 w-8 text-white animate-spin" />
+                          </div>
+                        )}
                         <img
-                          src={previewUrl || '/placeholder.svg'}
+                          src={previewUrl || "/placeholder.svg"}
                           alt="Profile Preview"
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <p className="text-primary text-sm">
-                        Click to change photo
-                      </p>
+                      <p className="text-primary text-sm">Click to change photo</p>
                     </div>
                   ) : (
                     <>
-                      <Upload className="mx-auto mb-2 w-10 h-10 text-primary" />
+                      {uploadingPhoto ? (
+                        <Loader2 className="mx-auto mb-2 w-10 h-10 text-primary animate-spin" />
+                      ) : (
+                        <Upload className="mx-auto mb-2 w-10 h-10 text-primary" />
+                      )}
                       <p className="text-gray-600">
-                        <span className="text-primary font-medium">
-                          Click to upload
-                        </span>{' '}
-                        or drag and drop
+                        <span className="text-primary font-medium">Click to upload</span> or drag and drop
                       </p>
-                      <p className="text-gray-400 text-xs mt-1">
-                        JPG, JPEG, PNG less than 2MB
-                      </p>
+                      <p className="text-gray-400 text-xs mt-1">JPG, JPEG, PNG less than 2MB</p>
                     </>
                   )}
                   <input
@@ -172,6 +184,7 @@ export default function PersonalDetails({
                     accept=".jpg,.jpeg,.png"
                     onChange={handleFileChange}
                     className="hidden"
+                    disabled={uploadingPhoto}
                   />
                 </div>
               </FormControl>
@@ -179,6 +192,9 @@ export default function PersonalDetails({
             </FormItem>
           )}
         />
+
+        {/* Hidden field for photo URL */}
+        <FormField control={form.control} name="photoUrl" render={({ field }) => <input type="hidden" {...field} />} />
 
         {/* Form Fields */}
         <FormField
@@ -227,13 +243,13 @@ export default function PersonalDetails({
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-primary font-medium">
-                Corporate Email ID <span className="text-red-500">*</span>
+                Institution Email ID <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   type="email"
-                  placeholder="Corporate email ID"
+                  placeholder="Institution email ID"
                   className="rounded-md border-gray-300 focus:border-blue-400 focus:ring-blue-400"
                   readOnly
                 />
@@ -249,8 +265,7 @@ export default function PersonalDetails({
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-primary font-medium">
-                Alternate Email ID{' '}
-                <span className="text-gray-400">(Optional)</span>
+                Alternate Email ID <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
                 <Input
@@ -274,30 +289,27 @@ export default function PersonalDetails({
                 <FormLabel className="text-primary font-medium">
                   Phone Number <span className="text-red-500">*</span>
                 </FormLabel>
-                <Button
-                  type="button"
-                  variant="link"
-                  className="text-primary p-0 h-auto text-xs">
+                {/* <Button type="button" variant="link" className="text-primary p-0 h-auto text-xs">
                   Verify with OTP
-                </Button>
+                </Button> */}
               </div>
               <FormControl>
                 <PhoneInput
-                  country={'in'}
+                  country={"in"}
                   value={field.value}
                   onChange={(value) => field.onChange(value)}
                   inputStyle={{
-                    width: '100%',
-                    height: '40px',
-                    borderRadius: '5px',
-                    border: '1px solid #ccc',
+                    width: "100%",
+                    height: "40px",
+                    borderRadius: "5px",
+                    border: "1px solid #ccc",
                   }}
                   buttonStyle={{
-                    borderRadius: '5px 0 0 5px',
-                    border: '1px solid #ccc',
+                    borderRadius: "5px 0 0 5px",
+                    border: "1px solid #ccc",
                   }}
                   dropdownStyle={{
-                    width: '300px',
+                    width: "300px",
                   }}
                 />
               </FormControl>
@@ -312,26 +324,25 @@ export default function PersonalDetails({
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-primary font-medium">
-                Alternate Phone Number{' '}
-                <span className="text-gray-400">(Optional)</span>
+                Alternate Phone Number <span className="text-gray-400">(Optional)</span>
               </FormLabel>
               <FormControl>
                 <PhoneInput
-                  country={'in'}
+                  country={"in"}
                   value={field.value}
                   onChange={(value) => field.onChange(value)}
                   inputStyle={{
-                    width: '100%',
-                    height: '40px',
-                    borderRadius: '5px',
-                    border: '1px solid #ccc',
+                    width: "100%",
+                    height: "40px",
+                    borderRadius: "5px",
+                    border: "1px solid #ccc",
                   }}
                   buttonStyle={{
-                    borderRadius: '5px 0 0 5px',
-                    border: '1px solid #ccc',
+                    borderRadius: "5px 0 0 5px",
+                    border: "1px solid #ccc",
                   }}
                   dropdownStyle={{
-                    width: '300px',
+                    width: "300px",
                   }}
                 />
               </FormControl>
@@ -339,33 +350,6 @@ export default function PersonalDetails({
             </FormItem>
           )}
         />
-
-        {/*  <FormField
-          control={form.control}
-          name="gender"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-primary font-medium">
-                Gender <span className="text-red-500">*</span>
-              </FormLabel>
-              <FormControl>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="01">Male</SelectItem>
-                    <SelectItem value="02">Female</SelectItem>
-                    <SelectItem value="03">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
 
         <FormField
           control={form.control}
@@ -376,9 +360,7 @@ export default function PersonalDetails({
                 Gender <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
-                <Select
-                  value={field.value}
-                  onValueChange={(value) => field.onChange(value)}>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
@@ -440,8 +422,7 @@ export default function PersonalDetails({
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-primary font-medium">
-                Profile Headline{' '}
-                <span className="text-gray-400">(Optional)</span>
+                Profile Headline <span className="text-gray-400">(Optional)</span>
               </FormLabel>
               <FormControl>
                 <Input
@@ -459,10 +440,11 @@ export default function PersonalDetails({
         <Button
           type="submit"
           className="w-full text-white py-2 rounded-md transition-colors"
-          disabled={isSubmitting}>
-          {isSubmitting ? 'Submitting...' : 'Next'}
+          disabled={isSubmitting || uploadingPhoto}
+        >
+          {isSubmitting ? "Submitting..." : "Next"}
         </Button>
       </form>
     </Form>
-  );
+  )
 }

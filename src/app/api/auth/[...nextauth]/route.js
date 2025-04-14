@@ -8,7 +8,6 @@ import bcrypt from "bcrypt";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import LinkedInProvider from "next-auth/providers/linkedin";
- 
 
 /**
  * @swagger
@@ -162,9 +161,9 @@ export const authOptions = {
               : null, //  Store individualId if exists
             companyId: companyDetails ? companyDetails?._id.toString() : null, //  Store companyId if exists
             jobSeekerId: jobSeeker ? jobSeeker?._id.toString() : null,
-            profileUrl: ecoLink?.ECL_EL_Profile_Url || null,
-            qrCodeUrl: ecoLink?.ECL_EL_EcoLink_QR_Code || null,
             hasProfilePicture: ecoLink?.ECL_EL_Photo_ViewPermission || false,
+            first_name: individualDetails?.ID_First_Name || "",
+            last_name: individualDetails?.ID_Last_Name || "",
           };
         } catch (error) {
           console.error("Authorization error:", error.message);
@@ -208,9 +207,9 @@ export const authOptions = {
         token.individualId = user.individualId || null; //  Store individualId
         token.companyId = user.companyId || null; // Store companyId
         token.jobSeekerId = user.jobSeekerId || null;
-        token.profileUrl = user.profileUrl || null;
-        token.qrCodeUrl = user.qrCodeUrl || null;
         token.hasProfilePicture = user.hasProfilePicture || false;
+        token.first_name = user.first_name;
+        token.last_name = user.last_name;
       }
       if (trigger === "update") {
         return {
@@ -218,9 +217,9 @@ export const authOptions = {
           ...session.user,
           companyId: session.user.companyId,
           jobSeekerId: session.user.jobSeekerId,
-          profileUrl: session.user.profileUrl,
-          qrCodeUrl: session.user.qrCodeUrl,
           hasProfilePicture: session.user.hasProfilePicture,
+          first_name: session.user.first_name,
+          last_name: session.user.last_name,
         };
       }
       return { ...token, ...user };
@@ -233,9 +232,9 @@ export const authOptions = {
         session.user.individualId = token.individualId; // Store individualId
         session.user.companyId = token.companyId; // Store Company Id
         session.user.jobSeekerId = token.jobSeekerId;
-        session.user.profileUrl = token.profileUrl;
-        session.user.qrCodeUrl = token.qrCodeUrl;
         session.user.hasProfilePicture = token.hasProfilePicture;
+        session.user.first_name = token.first_name;
+        session.user.last_name = token.last_name;
       }
       return session;
     },

@@ -1,278 +1,327 @@
-'use client';
+"use client"
 
-import { FormMultiSelect } from '@/components/extension/multi-select';
-import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { zodResolver } from '@hookform/resolvers/zod';
-import Image from 'next/image';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
-import * as z from 'zod';
+import { FormMultiSelect } from "@/components/extension/multi-select"
+import { Button } from "@/components/ui/button"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Loader2 } from "lucide-react"
+import Image from "next/image"
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import PhoneInput from "react-phone-input-2"
+import "react-phone-input-2/lib/style.css"
+import Swal from "sweetalert2"
+import * as z from "zod"
+import { useSession } from "next-auth/react"
 
 const formSchema = z.object({
-  institutionName: z.string().min(2, 'Institution name is required'),
-  mission: z
-    .string()
-    .max(1000, 'Mission statement must be less than 1000 characters'),
-  specialization: z
-    .array(z.string().min(1))
-    .min(1, 'Select at least one specialization'),
-  institutionType: z.string().min(1, 'Institution type is required'),
-  institutionEmail: z.string().email('Invalid email address'),
-  alternateEmail: z
-    .string()
-    .email('Invalid email address')
-    .optional()
-    .or(z.literal('')),
-  phoneNumber: z.string().min(10, 'Phone number is required'),
+  institutionName: z.string().min(2, "Institution name is required"),
+  mission: z.string().max(1000, "Mission statement must be less than 1000 characters"),
+  specialization: z.array(z.string().min(1)).min(1, "Select at least one specialization"),
+  institutionType: z.string().min(1, "Institution type is required"),
+  institutionEmail: z.string().email("Invalid email address"),
+  alternateEmail: z.string().email("Invalid email address").optional().or(z.literal("")),
+  phoneNumber: z.string().min(10, "Phone number is required"),
   alternatePhoneNumber: z.string().optional(),
-  websiteUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
+  websiteUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
   establishmentYear: z.number().optional(),
-});
+  logoUrl: z.string().optional(),
+})
 
 const specializations = [
   {
-    category: 'Engineering and Technology',
+    category: "Engineering and Technology",
     specializations: [
-      { label: 'Computer Science Engineering (CSE)', value: 'cse' },
-      { label: 'Information Technology (IT)', value: 'it' },
+      { label: "Computer Science Engineering (CSE)", value: "cse" },
+      { label: "Information Technology (IT)", value: "it" },
       {
-        label: 'Electronics and Communication Engineering (ECE)',
-        value: 'ece',
+        label: "Electronics and Communication Engineering (ECE)",
+        value: "ece",
       },
-      { label: 'Electrical and Electronics Engineering (EEE)', value: 'eee' },
-      { label: 'Mechanical Engineering', value: 'mechanical-engineering' },
-      { label: 'Civil Engineering', value: 'civil-engineering' },
-      { label: 'Chemical Engineering', value: 'chemical-engineering' },
-      { label: 'Biotechnology', value: 'biotechnology' },
+      { label: "Electrical and Electronics Engineering (EEE)", value: "eee" },
+      { label: "Mechanical Engineering", value: "mechanical-engineering" },
+      { label: "Civil Engineering", value: "civil-engineering" },
+      { label: "Chemical Engineering", value: "chemical-engineering" },
+      { label: "Biotechnology", value: "biotechnology" },
       {
-        label: 'Artificial Intelligence and Machine Learning (AI/ML)',
-        value: 'ai-ml',
+        label: "Artificial Intelligence and Machine Learning (AI/ML)",
+        value: "ai-ml",
       },
-      { label: 'Data Science and Analytics', value: 'data-science' },
-      { label: 'Robotics and Automation', value: 'robotics' },
-      { label: 'Cybersecurity', value: 'cybersecurity' },
-      { label: 'Cloud Computing', value: 'cloud-computing' },
-      { label: 'Blockchain', value: 'blockchain' },
-      { label: 'UI/UX Design', value: 'ui-ux' },
-      { label: 'DevOps', value: 'devops' },
+      { label: "Data Science and Analytics", value: "data-science" },
+      { label: "Robotics and Automation", value: "robotics" },
+      { label: "Cybersecurity", value: "cybersecurity" },
+      { label: "Cloud Computing", value: "cloud-computing" },
+      { label: "Blockchain", value: "blockchain" },
+      { label: "UI/UX Design", value: "ui-ux" },
+      { label: "DevOps", value: "devops" },
     ],
   },
   {
-    category: 'Management and Business Administration',
+    category: "Management and Business Administration",
     specializations: [
-      { label: 'Finance', value: 'finance' },
-      { label: 'Marketing', value: 'marketing' },
-      { label: 'Human Resource Management (HRM)', value: 'hrm' },
+      { label: "Finance", value: "finance" },
+      { label: "Marketing", value: "marketing" },
+      { label: "Human Resource Management (HRM)", value: "hrm" },
       {
-        label: 'Operations and Supply Chain Management',
-        value: 'operations-supply-chain',
+        label: "Operations and Supply Chain Management",
+        value: "operations-supply-chain",
       },
-      { label: 'International Business', value: 'international-business' },
-      { label: 'Business Analytics', value: 'business-analytics' },
-      { label: 'Entrepreneurship', value: 'entrepreneurship' },
-      { label: 'Digital Marketing', value: 'digital-marketing' },
+      { label: "International Business", value: "international-business" },
+      { label: "Business Analytics", value: "business-analytics" },
+      { label: "Entrepreneurship", value: "entrepreneurship" },
+      { label: "Digital Marketing", value: "digital-marketing" },
     ],
   },
   {
-    category: 'Arts, Humanities, and Social Sciences',
+    category: "Arts, Humanities, and Social Sciences",
     specializations: [
-      { label: 'Psychology', value: 'psychology' },
-      { label: 'Sociology', value: 'sociology' },
-      { label: 'Political Science', value: 'political-science' },
-      { label: 'History', value: 'history' },
-      { label: 'Geography', value: 'geography' },
-      { label: 'Economics', value: 'economics' },
-      { label: 'English Literature', value: 'english-literature' },
+      { label: "Psychology", value: "psychology" },
+      { label: "Sociology", value: "sociology" },
+      { label: "Political Science", value: "political-science" },
+      { label: "History", value: "history" },
+      { label: "Geography", value: "geography" },
+      { label: "Economics", value: "economics" },
+      { label: "English Literature", value: "english-literature" },
     ],
   },
   {
-    category: 'Science',
+    category: "Science",
     specializations: [
-      { label: 'Physics', value: 'physics' },
-      { label: 'Chemistry', value: 'chemistry' },
-      { label: 'Mathematics', value: 'mathematics' },
-      { label: 'Biology', value: 'biology' },
-      { label: 'Microbiology', value: 'microbiology' },
-      { label: 'Environmental Science', value: 'environmental-science' },
+      { label: "Physics", value: "physics" },
+      { label: "Chemistry", value: "chemistry" },
+      { label: "Mathematics", value: "mathematics" },
+      { label: "Biology", value: "biology" },
+      { label: "Microbiology", value: "microbiology" },
+      { label: "Environmental Science", value: "environmental-science" },
     ],
   },
   {
-    category: 'Commerce and Finance',
+    category: "Commerce and Finance",
     specializations: [
-      { label: 'Accounting and Auditing', value: 'accounting' },
-      { label: 'Taxation', value: 'taxation' },
-      { label: 'Banking and Insurance', value: 'banking-insurance' },
-      { label: 'Corporate Law', value: 'corporate-law' },
+      { label: "Accounting and Auditing", value: "accounting" },
+      { label: "Taxation", value: "taxation" },
+      { label: "Banking and Insurance", value: "banking-insurance" },
+      { label: "Corporate Law", value: "corporate-law" },
     ],
   },
   {
-    category: 'Medical and Health Sciences',
+    category: "Medical and Health Sciences",
     specializations: [
-      { label: 'Medicine (MBBS)', value: 'mbbs' },
-      { label: 'Nursing', value: 'nursing' },
-      { label: 'Pharmacy (BPharm)', value: 'pharmacy' },
-      { label: 'Physiotherapy', value: 'physiotherapy' },
-      { label: 'Public Health and Epidemiology', value: 'public-health' },
+      { label: "Medicine (MBBS)", value: "mbbs" },
+      { label: "Nursing", value: "nursing" },
+      { label: "Pharmacy (BPharm)", value: "pharmacy" },
+      { label: "Physiotherapy", value: "physiotherapy" },
+      { label: "Public Health and Epidemiology", value: "public-health" },
     ],
   },
   {
-    category: 'Design and Creative Arts',
+    category: "Design and Creative Arts",
     specializations: [
-      { label: 'Fashion Design', value: 'fashion-design' },
-      { label: 'Interior Design', value: 'interior-design' },
-      { label: 'Graphic Design', value: 'graphic-design' },
-      { label: 'Animation and Multimedia', value: 'animation' },
+      { label: "Fashion Design", value: "fashion-design" },
+      { label: "Interior Design", value: "interior-design" },
+      { label: "Graphic Design", value: "graphic-design" },
+      { label: "Animation and Multimedia", value: "animation" },
     ],
   },
   {
-    category: 'Law',
+    category: "Law",
     specializations: [
-      { label: 'Corporate Law', value: 'corporate-law' },
-      { label: 'Criminal Law', value: 'criminal-law' },
+      { label: "Corporate Law", value: "corporate-law" },
+      { label: "Criminal Law", value: "criminal-law" },
     ],
   },
   {
-    category: 'Other Specialized Fields',
+    category: "Other Specialized Fields",
     specializations: [
-      { label: 'Journalism and Mass Communication', value: 'journalism' },
-      { label: 'Film and Television Production', value: 'film-production' },
-      { label: 'Event Management', value: 'event-management' },
-      { label: 'Sports Management', value: 'sports-management' },
+      { label: "Journalism and Mass Communication", value: "journalism" },
+      { label: "Film and Television Production", value: "film-production" },
+      { label: "Event Management", value: "event-management" },
+      { label: "Sports Management", value: "sports-management" },
     ],
   },
-];
+]
 
-const currentYear = new Date().getFullYear();
-const years = Array.from({ length: 100 }, (_, i) => currentYear - i);
+const currentYear = new Date().getFullYear()
+const years = Array.from({ length: 100 }, (_, i) => currentYear - i)
 
 const debounce = (func, delay) => {
-  let timer;
+  let timer
   return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => func(...args), delay);
-  };
-};
+    clearTimeout(timer)
+    timer = setTimeout(() => func(...args), delay)
+  }
+}
 
 export default function EducationalDetailsTab({ initialData, onSubmit }) {
-  const [logo, setLogo] = useState(initialData?.logo || null);
-  const [uploadedFile, setUploadedFile] = useState(null);
-  const [searchResults, setSearchResults] = useState([]);
-  const [customEntry, setCustomEntry] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [logo, setLogo] = useState(initialData?.logo || null)
+  const [uploadedFile, setUploadedFile] = useState(null)
+  const [searchResults, setSearchResults] = useState([])
+  const [customEntry, setCustomEntry] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [uploadingLogo, setUploadingLogo] = useState(false)
 
-  const [selected, setSelected] = useState([]);
-
-  // const [selectedValues, setSelectedValues] = useState([]);
-
-  // const handleSelect = (value) => {
-  //   const newValues = selectedValues.includes(value)
-  //     ? selectedValues.filter((v) => v !== value)
-  //     : [...selectedValues, value];
-
-  //   setSelectedValues(newValues);
-  //   form.setValue("specialization", newValues);
-  // };
+  const { data: session } = useSession()
 
   const fetchInstitutions = async (query) => {
-    if (query.length < 4) return;
-    setLoading(true);
+    if (query.length < 4) return
+    setLoading(true)
     try {
-      const res = await fetch(
-        `/api/global/v1/gblArET90011FtchInstitutnDtls?institutionName=${query}`
-      );
-      const data = await res.json();
-      setSearchResults(data.data || []);
+      const res = await fetch(`/api/global/v1/gblArET90011FtchInstitutnDtls?institutionName=${query}`)
+      const data = await res.json()
+      setSearchResults(data.data || [])
     } catch {
-      setSearchResults([]);
+      setSearchResults([])
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
-  const handleSearch = debounce(fetchInstitutions, 500);
+  const handleSearch = debounce(fetchInstitutions, 500)
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      institutionName: initialData?.institutionName || '',
-      mission: initialData?.mission || '',
-      specialization: initialData?.specialization?.split(',') || [],
-      institutionType: initialData?.institutionType || '',
-      institutionEmail: initialData?.institutionEmail || '',
-      alternateEmail: initialData?.alternateEmail || '',
-      phoneNumber: initialData?.phoneNumber || '',
-      alternatePhoneNumber: initialData?.alternatePhoneNumber || '',
-      websiteUrl: initialData?.websiteUrl || '',
+      institutionName: initialData?.institutionName || "",
+      mission: initialData?.mission || "",
+      specialization: initialData?.specialization?.split(",") || [],
+      institutionType: initialData?.institutionType || "",
+      institutionEmail: initialData?.institutionEmail || "",
+      alternateEmail: initialData?.alternateEmail || "",
+      phoneNumber: initialData?.phoneNumber || "",
+      alternatePhoneNumber: initialData?.alternatePhoneNumber || "",
+      websiteUrl: initialData?.websiteUrl || "",
       establishmentYear: initialData?.establishmentYear || currentYear,
+      logoUrl: initialData?.logoUrl || "",
     },
-  });
+  })
 
-  const handleFileChange = (e, onChange) => {
-    const file = e.target.files[0];
-    if (file) {
-      setUploadedFile(file); // Store file info for display and submission
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setLogo(e.target.result);
-        onChange(e.target.result);
-      };
-      reader.readAsDataURL(file);
+  const handleLogoUpload = async (file) => {
+    if (!file) return null
+
+    setUploadingLogo(true)
+    try {
+      const formData = new FormData()
+      formData.append("individualId", session?.user?.individualId || "")
+      formData.append("file", file)
+
+      const response = await fetch("/api/institution/v1/hcjBrBT60282InstitutionProfileImage", {
+        method: "POST",
+        body: formData,
+      })
+
+      const result = await response.json()
+      if (result.success && result.url) {
+        // Set the URL in the form
+        form.setValue("logoUrl", result.url)
+
+        Swal.fire({
+          title: "Success",
+          text: "Institution logo uploaded successfully",
+          icon: "success",
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 3000,
+        })
+
+        return result.url
+      } else {
+        throw new Error(result.message || "Upload failed")
+      }
+    } catch (error) {
+      console.error("Logo upload error:", error)
+      Swal.fire({
+        title: "Error",
+        text: error.message || "Failed to upload institution logo",
+        icon: "error",
+        confirmButtonText: "OK",
+      })
+      return null
+    } finally {
+      setUploadingLogo(false)
     }
-  };
+  }
+
+  const handleFileChange = async (e, onChange) => {
+    const file = e.target.files[0]
+    if (file) {
+      // Check file size (less than 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        Swal.fire({
+          title: "Error",
+          text: "File size should be less than 2MB",
+          icon: "error",
+          confirmButtonText: "OK",
+        })
+        return
+      }
+
+      // Check file type
+      if (!["image/jpeg", "image/jpg", "image/png"].includes(file.type)) {
+        Swal.fire({
+          title: "Error",
+          text: "Only JPG, JPEG, and PNG files are allowed",
+          icon: "error",
+          confirmButtonText: "OK",
+        })
+        return
+      }
+
+      setUploadedFile(file)
+
+      // Create preview URL
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setLogo(e.target.result)
+        onChange(e.target.result)
+      }
+      reader.readAsDataURL(file)
+
+      // Upload the logo immediately
+      await handleLogoUpload(file)
+    }
+  }
 
   const handleSubmit = (data) => {
     const formattedSpecialization = Array.isArray(data.specialization)
-      ? data.specialization.join(',')
-      : data.specialization;
+      ? data.specialization.join(",")
+      : data.specialization
 
     onSubmit({
       ...data,
       logo,
       specialization: formattedSpecialization,
-      uploadedFile,
-    });
+      logoUrl: form.getValues("logoUrl") || "",
+    })
+  }
+
+  const capitalize = (str) => {
+    return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
   };
+
+  const toTitleCase = (str) => {
+    return str
+      .toLowerCase()
+      .split(" ")
+      .map((word) => {
+        // Handle words in parentheses or with punctuation
+        if (word.length === 0) return "";
+        if (word.startsWith("(")) {
+          return "(" + word[1].toUpperCase() + word.slice(2);
+        }
+        return word[0].toUpperCase() + word.slice(1);
+      })
+      .join(" ");
+  };
+  
+  
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className="space-y-4 p-2 sm:p-4 max-w-xl mx-auto">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 p-2 sm:p-4 max-w-xl mx-auto">
         {/* Institution Name */}
-        {/* <FormField
-          control={form.control}
-          name="institutionName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-primary">
-                Institution Name <span className="text-destructive">*</span>
-              </FormLabel>
-              <FormControl>
-                <Input {...field} placeholder="Institution Name" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
-
         <FormField
           control={form.control}
           name="institutionName"
@@ -287,16 +336,12 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
                     {...field}
                     placeholder="Search Institution"
                     onChange={(e) => {
-                      field.onChange(e.target.value);
-                      handleSearch(e.target.value);
-                      setCustomEntry(false);
+                      field.onChange(e.target.value)
+                      handleSearch(e.target.value)
+                      setCustomEntry(false)
                     }}
                   />
-                  {loading && (
-                    <span className="absolute right-3 top-3 text-gray-500">
-                      Loading...
-                    </span>
-                  )}
+                  {loading && <span className="absolute right-3 top-3 text-gray-500">Loading...</span>}
                 </div>
               </FormControl>
               <FormMessage />
@@ -307,32 +352,30 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
                   {searchResults.map((inst) => (
                     <li
                       key={inst.AISHE_Code}
-                      className="p-2 cursor-pointer hover:bg-gray-100"
+                      className="p-2 cursor-pointer hover:bg-gray-100 capitalize"
                       onClick={() => {
-                        field.onChange(inst.Institute_Name);
-                        setSearchResults([]);
-                      }}>
-                      {inst.Institute_Name}
+                        field.onChange(toTitleCase(inst.Institute_Name)) 
+                        setSearchResults([])
+                      }}
+                    >
+                       {toTitleCase(inst.Institute_Name)}
                     </li>
                   ))}
                 </ul>
               )}
 
               {/* Manual Entry Option */}
-              {!loading &&
-                searchResults.length === 0 &&
-                !customEntry &&
-                field.value.length >= 4 && (
-                  <p
-                    className="mt-2 text-sm text-blue-600 cursor-pointer"
-                    onClick={() => setCustomEntry(true)}>
-                    Can&apos;t find your institution? Click here to enter
-                    manually.
-                  </p>
-                )}
+              {!loading && searchResults.length === 0 && !customEntry && field.value.length >= 4 && (
+                <p className="mt-2 text-sm text-blue-600 cursor-pointer" onClick={() => setCustomEntry(true)}>
+                  Can&apos;t find your institution? Click here to enter manually.
+                </p>
+              )}
             </FormItem>
           )}
         />
+
+        {/* Hidden field for logo URL */}
+        <FormField control={form.control} name="logoUrl" render={({ field }) => <input type="hidden" {...field} />} />
 
         {/* Upload Logo */}
         <FormField
@@ -347,23 +390,23 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
                 <div>
                   <div
                     className="relative border-2 border-dashed border-gray-300 rounded-lg p-4 cursor-pointer text-center"
-                    onClick={() =>
-                      document.getElementById('uploadLogo')?.click()
-                    }>
-                    <Image
-                      src={logo || '/image/info/upload.svg'}
-                      alt="Upload Icon"
-                      width={32}
-                      height={32}
-                      className="mx-auto mb-2 w-8 h-8"
-                    />
+                    onClick={() => document.getElementById("uploadLogo")?.click()}
+                  >
+                    {uploadingLogo ? (
+                      <Loader2 className="mx-auto mb-2 w-8 h-8 animate-spin text-primary" />
+                    ) : (
+                      <Image
+                        src={logo || "/image/info/upload.svg"}
+                        alt="Upload Icon"
+                        width={32}
+                        height={32}
+                        className="mx-auto mb-2 w-8 h-8"
+                      />
+                    )}
                     <p className="text-gray-600">
-                      <span className="text-blue-600">Click to upload</span> or
-                      drag and drop
+                      <span className="text-blue-600">Click to upload</span> or drag and drop
                     </p>
-                    <p className="text-gray-400 text-xs mt-1">
-                      JPG, JPEG, PNG less than 2MB
-                    </p>
+                    <p className="text-gray-400 text-xs mt-1">JPG, JPEG, PNG less than 2MB</p>
                   </div>
                   <Input
                     type="file"
@@ -371,12 +414,11 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
                     accept=".jpg,.jpeg,.png"
                     onChange={(e) => handleFileChange(e, onChange)}
                     className="hidden"
+                    disabled={uploadingLogo}
                     {...field}
                   />
-                  {uploadedFile && (
-                    <p className="text-green-600 mt-2">
-                      File uploaded: {uploadedFile.name}
-                    </p>
+                  {uploadedFile && !uploadingLogo && (
+                    <p className="text-green-600 mt-2">File uploaded: {uploadedFile.name}</p>
                   )}
                 </div>
               </FormControl>
@@ -394,11 +436,7 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
               <FormLabel className="text-primary">
                 Establishment Year<span className="text-destructive">*</span>
               </FormLabel>
-              <Select
-                onValueChange={(value) =>
-                  field.onChange(Number.parseInt(value))
-                }
-                value={field.value?.toString()}>
+              <Select onValueChange={(value) => field.onChange(Number.parseInt(value))} value={field.value?.toString()}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select year" />
                 </SelectTrigger>
@@ -438,116 +476,12 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
         />
 
         {/* Specialization */}
-
-        {/* <FormField
-          control={form.control}
-          name="specialization"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-primary">
-                Specializations <span className="text-destructive">*</span>
-              </FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select specialization" />
-                </SelectTrigger>
-                <SelectContent>
-                  {specializations.map((item) => (
-                    <SelectItem key={item.value} value={item.value}>
-                      {item.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
-
-        {/* <FormField
-          control={form.control}
-          name="specialization"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-primary">
-                Specializations <span className="text-destructive">*</span>
-              </FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select specialization" />
-                </SelectTrigger>
-                <SelectContent>
-                  {specializations.map((category) => (
-                    <div key={category.category}>
-
-                      <div className="px-3 py-1 text-sm font-semibold text-primary">
-                        {category.category}
-                      </div>
-                      {category.specializations.map((item) => (
-                        <SelectItem key={item.value} value={item.value}>
-                          {item.label}
-                        </SelectItem>
-                      ))}
-                    </div>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
         <FormMultiSelect
           name="specialization"
           label="Specializations"
           options={specializations}
           placeholder="Select specializations..."
-          // description="Select between 1 and 5 specializations"
         />
-
-        {/* <FormField
-          control={form.control}
-          name="specialization"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-primary">
-                Specializations <span className="text-destructive">*</span>
-              </FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between">
-                    {selectedValues.length > 0
-                      ? selectedValues.join(", ")
-                      : "Select Specializations"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-full max-h-60 overflow-y-auto p-2">
-                  <ScrollArea className="h-60">
-                    {specializations.map((category) => (
-                      <div key={category.category}>
-                        <div className="text-muted-foreground px-2 py-1 font-semibold">
-                          {category.category}
-                        </div>
-                        {category.specializations.map((item) => (
-                          <div
-                            key={item.value}
-                            className="flex items-center gap-2 px-2 py-1 cursor-pointer hover:bg-gray-100 rounded"
-                            onClick={() => handleSelect(item.value)}
-                          >
-                            <Checkbox
-                              checked={selectedValues.includes(item.value)}
-                            />
-                            <span>{item.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                  </ScrollArea>
-                </PopoverContent>
-              </Popover>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
 
         {/* Institution Type */}
         <FormField
@@ -564,8 +498,8 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
                     type="radio"
                     id="private"
                     value="private"
-                    checked={field.value === 'private'}
-                    onChange={() => field.onChange('private')}
+                    checked={field.value === "private"}
+                    onChange={() => field.onChange("private")}
                     className="mr-2"
                   />
                   <label htmlFor="private">Private</label>
@@ -575,8 +509,8 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
                     type="radio"
                     id="public"
                     value="public"
-                    checked={field.value === 'public'}
-                    onChange={() => field.onChange('public')}
+                    checked={field.value === "public"}
+                    onChange={() => field.onChange("public")}
                     className="mr-2"
                   />
                   <label htmlFor="public">Public</label>
@@ -597,11 +531,7 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
                 Institution Email ID <span className="text-destructive">*</span>
               </FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  type="email"
-                  placeholder="example@institution.com"
-                />
+                <Input {...field} type="email" placeholder="example@institution.com" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -615,15 +545,10 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-primary">
-                Alternate Email ID{' '}
-                <span className="text-gray-400">(Optional)</span>
+                Alternate Email ID <span className="text-gray-400">(Optional)</span>
               </FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  type="email"
-                  placeholder="alternate@institution.com"
-                />
+                <Input {...field} type="email" placeholder="alternate@institution.com" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -641,14 +566,14 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
               </FormLabel>
               <FormControl>
                 <PhoneInput
-                  country={'in'}
+                  country={"in"}
                   value={field.value}
                   onChange={(value) => field.onChange(value)}
                   inputStyle={{
-                    width: '100%',
-                    height: '40px',
-                    borderRadius: '5px',
-                    border: '1px solid #ccc',
+                    width: "100%",
+                    height: "40px",
+                    borderRadius: "5px",
+                    border: "1px solid #ccc",
                   }}
                 />
               </FormControl>
@@ -664,19 +589,18 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-primary">
-                Alternate Phone Number{' '}
-                <span className="text-gray-400">(Optional)</span>
+                Alternate Phone Number <span className="text-gray-400">(Optional)</span>
               </FormLabel>
               <FormControl>
                 <PhoneInput
-                  country={'in'}
+                  country={"in"}
                   value={field.value}
                   onChange={(value) => field.onChange(value)}
                   inputStyle={{
-                    width: '100%',
-                    height: '40px',
-                    borderRadius: '5px',
-                    border: '1px solid #ccc',
+                    width: "100%",
+                    height: "40px",
+                    borderRadius: "5px",
+                    border: "1px solid #ccc",
                   }}
                 />
               </FormControl>
@@ -692,8 +616,7 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-primary">
-                Institution Website URL{' '}
-                <span className="text-gray-400">(Optional)</span>
+                Institution Website URL <span className="text-gray-400">(Optional)</span>
               </FormLabel>
               <FormControl>
                 <Input {...field} placeholder="https://your-website.com" />
@@ -704,10 +627,11 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
         />
 
         {/* Submit Button */}
-        <Button type="submit" className="w-full bg-primary">
-          Next
+        <Button type="submit" className="w-full bg-primary" disabled={uploadingLogo}>
+          {uploadingLogo ? "Uploading Logo..." : "Next"}
         </Button>
       </form>
     </Form>
-  );
+  )
 }
+

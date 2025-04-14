@@ -1,10 +1,12 @@
-import { getUserById, updateUser } from '@/app/utils/indexDB';
-import { useRouter } from '@/i18n/routing';
-import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
+"use client";
 
-export function useMultiStepForm(initialStep = 'personal') {
+import { getUserById, updateUser } from "@/app/utils/indexDB";
+import { useRouter } from "@/i18n/routing";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+
+export function useMultiStepForm(initialStep = "personal") {
   const [activeTab, setActiveTab] = useState(initialStep);
   const [formData, setFormData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -13,11 +15,11 @@ export function useMultiStepForm(initialStep = 'personal') {
   const router = useRouter();
 
   useEffect(() => {
-    const tempId = localStorage.getItem('temp_student_id');
+    const tempId = localStorage.getItem("temp_student_id");
     if (tempId) {
       getUserById(tempId)
         .then((data) => data && setFormData(data))
-        .catch((err) => console.error('Error fetching user:', err))
+        .catch((err) => console.error("Error fetching user:", err))
         .finally(() => setIsLoading(false));
     } else {
       setIsLoading(false);
@@ -28,22 +30,26 @@ export function useMultiStepForm(initialStep = 'personal') {
     setIsSubmitting(true);
     try {
       const updatedData = { ...formData, ...data };
+
+      //  Ensure profile picture is not lost
+      if (!updatedData.ID_Profile_Picture && data.ID_Profile_Picture) {
+        updatedData.ID_Profile_Picture = data.ID_Profile_Picture;
+      }
+      
       setFormData(updatedData);
 
       await updateUser(updatedData);
-      // console.log('Updated User Data:', updatedData);
 
       const nextStep = getNextStep(step);
       if (nextStep) {
         setActiveTab(nextStep);
       } else {
-        // console.log('Final Submit:', updatedData);
         await handleFinalSubmit(updatedData);
       }
     } catch (error) {
-      console.error('Error submitting step:', error);
-      toast.error('Submission Error', {
-        description: error.message || 'Something went wrong',
+      console.error("Error submitting step:", error);
+      toast.error("Submission Error", {
+        description: error.message || "Something went wrong",
       });
     } finally {
       setIsSubmitting(false);
@@ -53,86 +59,56 @@ export function useMultiStepForm(initialStep = 'personal') {
   const handleFinalSubmit = async (formData) => {
     setIsLoading(true);
     try {
-      const multipartFormData = new FormData();
+      // Create a JSON object for submission
+      const jsonData = {};
 
       // Exclude these fields
-      const excludedKeys = ['exp', 'iat', 'id', 'photo'];
+      const excludedKeys = ["exp", "iat", "id", "photo"];
 
       // Map frontend field names to API field names
       const fieldMappings = {
         // Personal Details
-        HCJ_ST_Student_First_Name: 'ID_First_Name',
-        HCJ_ST_Student_Last_Name: 'ID_Last_Name',
-        HCJ_ST_Phone_Number: 'ID_Phone',
-        HCJ_ST_Alternate_Phone_Number: 'ID_Alternate_Phone',
-        HCJ_ST_Educational_Email: 'ID_Email',
-        HCJ_ST_Educational_Alternate_Email: 'ID_Alternate_Email',
-        HCJ_ST_DOB: 'ID_DOB',
-        HCJ_ST_Gender: 'ID_Gender',
-        ID_About: 'ID_Profile_Headline',
+        HCJ_ST_Student_First_Name: "ID_First_Name",
+        HCJ_ST_Student_Last_Name: "ID_Last_Name",
+        HCJ_ST_Phone_Number: "ID_Phone",
+        HCJ_ST_Alternate_Phone_Number: "ID_Alternate_Phone",
+        HCJ_ST_Educational_Email: "ID_Email",
+        HCJ_ST_Educational_Alternate_Email: "ID_Alternate_Email",
+        HCJ_ST_DOB: "ID_DOB",
+        HCJ_ST_Gender: "ID_Gender",
+        ID_About: "ID_Profile_Headline",
+        ID_Profile_Picture: "ID_Profile_Picture", // This will now be a URL
 
         // Address Details
-        HCJ_ST_Student_Country: 'IAD_Country',
-        HCJ_ST_Student_State: 'IAD_State',
-        HCJ_ST_Student_City: 'IAD_City',
-        HCJ_ST_Student_Pincode: 'IAD_Pincode',
-        HCJ_ST_Address: 'IAD_Address_Line1',
+        HCJ_ST_Student_Country: "IAD_Country",
+        HCJ_ST_Student_State: "IAD_State",
+        HCJ_ST_Student_City: "IAD_City",
+        HCJ_ST_Student_Pincode: "IAD_Pincode",
+        HCJ_ST_Address: "IAD_Address_Line1",
 
         // Educational Details
-        HCJ_ST_Institution_Name: 'IE_Institute_Name',
-        HCJ_ST_Student_Program_Name: 'IE_Program_Name',
-        HCJ_ST_Student_Branch_Specialization: 'IE_Specialization',
-        HCJ_ST_Enrollment_Year: 'IE_Start_Date',
-        HCJ_ST_Class_Of_Year: 'IE_End_Date',
-        year: 'IE_Year',
-        HCJ_ST_Score_Grade_Type: 'IE_Score_Grades',
-        HCJ_ST_Score_Grade: 'IE_Score_Grades_Value',
+        HCJ_ST_Institution_Name: "IE_Institute_Name",
+        HCJ_ST_Student_Program_Name: "IE_Program_Name",
+        HCJ_ST_Student_Branch_Specialization: "IE_Specialization",
+        HCJ_ST_Enrollment_Year: "IE_Start_Date",
+        HCJ_ST_Class_Of_Year: "IE_End_Date",
+        year: "IE_Year",
+        HCJ_ST_Score_Grade_Type: "IE_Score_Grades",
+        HCJ_ST_Score_Grade: "IE_Score_Grades_Value",
       };
 
       // Add User ID
-      multipartFormData.append('UT_User_Id', session?.user?.id || '');
+      jsonData["UT_User_Id"] = session?.user?.id || "";
 
-      // Add User ID
-      multipartFormData.append('ID_Individual_Role', session?.user?.role || '');
+      // Add User Role
+      jsonData["ID_Individual_Role"] = session?.user?.role || "";
 
-      // // Add custom address name
-      // multipartFormData.append("IAD_Address_Custom_Name", "Home");
+      // Add program status for education
+      jsonData["IE_Program_Status"] = "02";
 
-      // // Add program status for education
-      multipartFormData.append('IE_Program_Status', '02');
-
-      // Process profile picture if available
-      if (formData.ID_Profile_Picture) {
-        // If it's a base64 string, convert to blob
-        if (
-          typeof formData.ID_Profile_Picture === 'string' &&
-          formData.ID_Profile_Picture.startsWith('data:')
-        ) {
-          const response = await fetch(formData.ID_Profile_Picture);
-          const blob = await response.blob();
-          multipartFormData.append('ID_Profile_Picture', blob, 'profile.png');
-        } else {
-          // If it's already a file object
-          multipartFormData.append(
-            'ID_Profile_Picture',
-            formData.ID_Profile_Picture
-          );
-        }
-      }
-
-      // Handle cover photo if available
-      if (formData.ID_Cover_Photo) {
-        if (
-          typeof formData.ID_Cover_Photo === 'string' &&
-          formData.ID_Cover_Photo.startsWith('data:')
-        ) {
-          const response = await fetch(formData.ID_Cover_Photo);
-          const blob = await response.blob();
-          multipartFormData.append('ID_Cover_Photo', blob, 'cover.png');
-        } else {
-          multipartFormData.append('ID_Cover_Photo', formData.ID_Cover_Photo);
-        }
-      }
+      // Add EcoLink parameters
+      jsonData["lang"] = "en"; // Default language
+      jsonData["route"] = "student-ecolink"; // Specific route for student EcoLinks
 
       // Map fields using the mapping
       Object.entries(formData).forEach(([key, value]) => {
@@ -140,40 +116,33 @@ export function useMultiStepForm(initialStep = 'personal') {
           // Check if this key has a mapping
           if (fieldMappings[key]) {
             // Format date values properly
-            if (key === 'HCJ_ST_DOB' && value instanceof Date) {
-              multipartFormData.append(
-                fieldMappings[key],
-                value.toISOString().split('T')[0]
-              );
+            if (key === "HCJ_ST_DOB" && value instanceof Date) {
+              jsonData[fieldMappings[key]] = value.toISOString().split("T")[0];
             } else {
-              multipartFormData.append(fieldMappings[key], value);
+              jsonData[fieldMappings[key]] = value;
             }
           }
           // Handle social links separately (they already have the correct prefix)
-          else if (key.startsWith('SL_')) {
-            multipartFormData.append(key, value);
+          else if (key.startsWith("SL_")) {
+            jsonData[key] = value;
           }
         }
       });
 
       // Add social profile name if any social links exist
-      if (Object.keys(formData).some((key) => key.startsWith('SL_'))) {
-        multipartFormData.append('SL_Social_Profile_Name', 'Social Profiles');
+      if (Object.keys(formData).some((key) => key.startsWith("SL_"))) {
+        jsonData["SL_Social_Profile_Name"] = "Social Profiles";
       }
 
-      // console.clear();
-
-      // // **Console log the form data**
-      // console.log("📝 Form Data Before Submission:");
-      // for (let pair of multipartFormData.entries()) {
-      //   console.log(`${pair[0]}:`, pair[1]);
-      // }
-
+      // Make the API call with JSON data
       const res = await fetch(
-        '/api/student/v1/hcjBrBT60421StudentProfileCreate',
+        "/api/student/v1/hcjBrBT60421StudentProfileCreate",
         {
-          method: 'POST',
-          body: multipartFormData,
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(jsonData),
         }
       );
 
@@ -181,31 +150,37 @@ export function useMultiStepForm(initialStep = 'personal') {
 
       if (!res.ok) {
         handleApiError(res.status, data.message || data.error);
-        throw new Error(data.message || data.error || 'Upload failed');
+        throw new Error(data.message || data.error || "Upload failed");
       } else {
-        toast.success('Profile Created Successfully', {
-          description: 'Your profile has been created successfully!',
+        toast.success("Profile Created Successfully", {
+          description: "Your profile has been created successfully!",
         });
-        //  console.log("194", session)
-        //  update({individualId: data.individualId})
-        update({
+
+        // Update session with new IDs
+        const updatedSession = {
           ...session,
-          user: { ...session.user, 
+          user: {
+            ...session.user,
             individualId: data.individualId,
-            jobSeekerId:data.jobSeekerId,
+            jobSeekerId: data.jobSeekerId,
+            // Add EcoLink specific fields if needed
+            hasEcoLink: true,
+            ecoLinkType: "student",
           },
-        });
-        //  console.log("196", session)
+        };
 
-        router.push('/stdnt-dcmnt6046');
+        await update(updatedSession);
 
-        //   console.log(data.individualId)
-        //   console.log(session)
+        // Store in localStorage if needed
+        localStorage.setItem("student_profile_created", "true");
+        localStorage.removeItem("temp_student_id");
+
+        router.push("/stdnt-dcmnt6046");
       }
     } catch (error) {
-      console.error('Upload Error:', error);
-      toast.error('Upload Failed', {
-        description: error.message || 'Something went wrong during upload.',
+      console.error("Upload Error:", error);
+      toast.error("Upload Failed", {
+        description: error.message || "Something went wrong during upload.",
       });
     } finally {
       setIsLoading(false);
@@ -213,23 +188,24 @@ export function useMultiStepForm(initialStep = 'personal') {
   };
 
   const handleApiError = (status, errorMessage) => {
+    console.log("inside handleApiError", status, errorMessage);
     if (status === 400) {
-      toast.error('Missing Fields', { description: errorMessage });
+      toast.error("Missing Fields", { description: errorMessage });
     } else if (status === 409) {
-      toast.error('Conflict', { description: errorMessage });
+      toast.error("Conflict", { description: errorMessage });
     } else if (status === 500) {
-      toast.error('Server Error', {
-        description: 'Something went wrong on the server.',
+      toast.error("Server Error", {
+        description: "Something went wrong on the server.",
       });
     } else {
-      toast.error('Upload Failed', {
-        description: 'An unexpected error occurred.',
+      toast.error("Upload Failed", {
+        description: "An unexpected error occurred.",
       });
     }
   };
 
   const getNextStep = (step) => {
-    const steps = ['personal', 'address', 'educational', 'social'];
+    const steps = ["personal", "address", "educational", "social"];
     const currentIndex = steps.indexOf(step);
     return steps[currentIndex + 1] || null;
   };

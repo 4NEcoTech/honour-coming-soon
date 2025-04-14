@@ -1,8 +1,8 @@
-import nodemailer from "nodemailer";
-import { NextResponse } from "next/server";
-import { dbConnect } from "@/app/utils/dbConnect";
-import { generateAuditTrail } from "@/app/utils/audit-trail";
 import User from "@/app/models/hcj_job_fair_form";
+import { generateAuditTrail } from "@/app/utils/audit-trail";
+import { dbConnect } from "@/app/utils/dbConnect";
+import { NextResponse } from "next/server";
+import nodemailer from "nodemailer";
 
 /**
  * @swagger
@@ -227,7 +227,7 @@ export async function POST(req) {
       {
         code: "6005_1",
         title: "Success",
-        message: "6005_1 Registration successful",
+        message: "6005_1 Your request submitted successfully",
       },
       { status: 200, headers: { "Content-Type": "application/json" } }
     );

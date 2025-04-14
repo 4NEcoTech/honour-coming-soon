@@ -3,6 +3,7 @@ import OTPVerification from '@/app/models/otp_verification';
 import { dbConnect } from '@/app/utils/dbConnect';
 import { sendEmail } from '@/app/utils/SendMail';
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
 /**
  * @swagger
@@ -106,10 +107,10 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req) {
   try {
-    console.log('Forgot Password API called');
+    // console.log('Forgot Password API called');
     const body = await req.json();
-    console.log('Forgot Password API body:', body);
-    
+    // console.log('Forgot Password API body:', body);
+
     if (!body.email) {
       return NextResponse.json(
         {
@@ -121,17 +122,18 @@ export async function POST(req) {
       );
     }
 
+
     await dbConnect();
 
     const existingUser = await User.findOne({ UT_User_Id: body.email });
 
     if (!existingUser) {
       return NextResponse.json(
-        { 
+        {
           message: 'User not found.',
           title: 'User not found',
           code: '6036_6'
-        }, 
+        },
         { status: 400 }
       );
     }
@@ -185,15 +187,35 @@ export async function POST(req) {
       {  upsert: true, new: true }
     );
 
-    return NextResponse.json(
-      {
-        message: '6036_4 Otp sent successfully.',
-        title: 'Otp sent',
-        code: '6036_4',
-        userId: existingUser._id // Return user ID for reference
-      },
-      { status: 200 }
-    );
+        const response = NextResponse.json(
+          {
+            message: "6036_4 Otp sent successfully.",
+            title: "Otp sent",
+            code: "6036_4",
+            userId: existingUser._id, // Return user ID for reference
+          },
+          { status: 200 }
+        );
+
+      // Set a secure, HTTP-only cookie with the user's email
+      response.cookies.set("user_email", existingUser.UT_Email, {
+        httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
+        secure: true, // Ensures the cookie is sent only over HTTPS
+        sameSite: "strict", // Restricts the cookie to same-site requests
+        path: "/", // Makes the cookie available across the entire site
+        maxAge: 60 * 60 * 24 * 30, // Sets the cookie to expire in 30 days
+      });
+
+      // Set a secure, HTTP-only cookie with the user's email
+      response.cookies.set("user_role", existingUser.UT_User_Role, {
+        httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
+        secure: true, // Ensures the cookie is sent only over HTTPS
+        sameSite: "strict", // Restricts the cookie to same-site requests
+        path: "/", // Makes the cookie available across the entire site
+        maxAge: 60 * 60 * 24 * 30, // Sets the cookie to expire in 30 days
+      });
+
+return response;
   } catch (error) {
     console.error('Error in forgot password:', error.message);
     return NextResponse.json(

@@ -25,7 +25,6 @@ const Page = () => {
     router.push(router.pathname, undefined, { shallow: true });
   };
 
-  console.log("step",step)
   return (
     <>
     { Number(step) === 1 &&(<RegistrationWithCredentialForm goToNextStep={goToNextStep}/>)}

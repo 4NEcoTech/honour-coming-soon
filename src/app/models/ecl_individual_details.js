@@ -18,7 +18,6 @@ import mongoose from "mongoose";
 
 const IndividualDetailsSchema = new mongoose.Schema(
   {
-   // ECL_EID_EcoLink_Id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "EcoLink" },
     ECL_EID_Individual_Id: { type: mongoose.Schema.Types.ObjectId, required: true, refPath: "EcoLink" },
     ECL_EID_Current_Designation: { type: String, default: "" }, // Only applicable to individuals
     ECL_EID_Current_Company_Name: { type: String, default: "" },

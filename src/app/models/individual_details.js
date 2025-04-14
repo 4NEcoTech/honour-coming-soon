@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-import Counter from './counter';
-const { AuditTrailSchema } = require('./common/AuditTrail');
+import mongoose from "mongoose";
+import Counter from "./counter";
+const { AuditTrailSchema } = require("./common/AuditTrail");
 const Schema = mongoose.Schema;
 
 /**
@@ -35,10 +35,14 @@ const Schema = mongoose.Schema;
 
 const individualDetailsSchema = new Schema(
   {
-  //  ID_Individual_Id: { type: String }, // Auto-generated _id by MongoDB
-  //  ID_User_Id: { type: String, required: true },
-    ID_User_Id: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
-  ID_Individual_Num: { type: String, required: false, unique: true },
+    //  ID_Individual_Id: { type: String }, // Auto-generated _id by MongoDB
+    //  ID_User_Id: { type: String, required: true },
+    ID_User_Id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
+    },
+    ID_Individual_Num: { type: String, required: false, unique: true },
     ID_Profile_Picture: { type: String },
     ID_Cover_Photo: { type: String },
     ID_First_Name: { type: String, required: true },
@@ -47,15 +51,19 @@ const individualDetailsSchema = new Schema(
     ID_Alternate_Phone: { type: String },
     ID_Email: { type: String, required: true, unique: true },
     ID_Alternate_Email: { type: String },
-    ID_DOB: { type: Date, required: true  },
-    ID_Gender: { type: String, enum: ['01', '02', '03'] },
+    ID_DOB: { type: Date, required: true },
+    ID_Gender: { type: String, enum: ["01", "02", "03"] },
     ID_City: { type: String, required: true },
-    ID_Individual_Role: { type: String, required: true, enum:['01', '02', '03', '04', '05', '06', '07', '08', '09'] },
+    ID_Individual_Role: {
+      type: String,
+      required: true,
+      enum: ["01", "02", "03", "04", "05", "06", "07", "08", "09"],
+    },
     ID_Individual_Designation: { type: String, required: false },
     ID_Profile_Headline: { type: String, required: false },
-    ID_About: { type: String, required: false },
+    ID_About: { type: String, required: false, default: "" },
     ID_Language: { type: String, required: false },
-    ID_Session_Id: { type: String, required: false},
+    ID_Session_Id: { type: String, required: false },
     ID_Creation_DtTym: { type: Date, default: Date.now },
     ID_Audit_Trail: [AuditTrailSchema],
   },
@@ -64,9 +72,7 @@ const individualDetailsSchema = new Schema(
   }
 );
 
-
-
-individualDetailsSchema.pre('save', async function (next) {
+individualDetailsSchema.pre("save", async function (next) {
   if (!this.isNew) return next(); // Only assign ID on new documents
 
   const session = await mongoose.startSession();
@@ -90,18 +96,18 @@ individualDetailsSchema.pre('save', async function (next) {
      * @returns {Promise<Object>} The updated or newly created counter document.
      */
     const counterDoc = await Counter.findByIdAndUpdate(
-      'userCounter',
+      "userCounter",
       { $inc: { seq: 1 } }, // Decrement by 1
       { new: true, upsert: true, session }
     );
     if (!counterDoc || counterDoc.seq <= 0) {
-      throw new Error('Counter has reached its limit! Cannot assign new IDs.');
+      throw new Error("Counter has reached its limit! Cannot assign new IDs.");
     }
 
     // Step 2: Format userNumber to be exactly 10 digits
     this.userNumber = counterDoc.seq;
 
-    this.ID_Individual_Num = `${2}${String(this.userNumber).padStart(10, '0')}`;
+    this.ID_Individual_Num = `${2}${String(this.userNumber).padStart(10, "0")}`;
 
     // console.log('UT_User_Num:', String(this.userNumber).padStart(10, '0'));
     // console.log('UT_User_Num:', this.UT_User_Num);
@@ -117,6 +123,5 @@ individualDetailsSchema.pre('save', async function (next) {
   }
 });
 
-
 export default mongoose.models.Individual_Details ||
-  mongoose.model('Individual_Details', individualDetailsSchema);
+  mongoose.model("Individual_Details", individualDetailsSchema);

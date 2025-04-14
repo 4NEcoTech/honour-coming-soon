@@ -153,7 +153,7 @@ export default function HowItWorks() {
         // className="bg-gradient-to-r from-teal-500 to-blue-500 text-white"
         className="text-white bg-gradient-to-r from-teal-500 to-blue-500 dark:from-teal-600 dark:to-blue-600"
         style={{
-          backgroundImage: "url('image/institute/howitworks/background.png')",
+          backgroundImage: "url('/image/institute/howitworks/background.png')",
 
           backgroundSize: 'cover',
           backgroundPosition: 'center',

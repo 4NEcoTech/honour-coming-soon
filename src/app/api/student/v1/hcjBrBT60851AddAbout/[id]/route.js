@@ -1,8 +1,8 @@
-import { dbConnect } from "@/app/utils/dbConnect";
 import IndividualDetails from "@/app/models/individual_details";
-import { z } from "zod";
 import { generateAuditTrail } from "@/app/utils/audit-trail";
+import { dbConnect } from "@/app/utils/dbConnect";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
 /**
  * @swagger
@@ -74,16 +74,18 @@ const aboutSchema = z.object({
 });
 
 //  GET: Fetch single user’s about information
-export async function GET(_, { params }) {
+export async function GET(request, context) {
   try {
+    const params = await context.params;
+    const { id } = params;
     await dbConnect();
-    const user = await IndividualDetails.findById(params.id);
+    const user = await IndividualDetails.findById(id).select("ID_About");
 
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json(user, { status: 200 });
+    return NextResponse.json({ ID_About: user.ID_About }, { status: 200 });
   } catch (error) {
     console.error("Error fetching user:", error);
     return NextResponse.json(

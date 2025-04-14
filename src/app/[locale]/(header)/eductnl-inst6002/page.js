@@ -272,7 +272,7 @@ const Page = () => {
                 />
                 <div className="text-left mt-2 sm:mt-0">
                   {' '}
-             
+           
                   <h3 className="text-lg font-bold">IIT Kanpur</h3>
                   <p className="text-gray-600">Kanpur, UP</p>
                   <p className="text-gray-600">256 Students registered</p>
@@ -288,7 +288,7 @@ const Page = () => {
                 />
                 <div className="text-left mt-2 sm:mt-0">
                   {' '}
-           
+      
                   <h3 className="text-lg font-bold">ISB Delhi</h3>
                   <p className="text-gray-600">Delhi</p>
                   <p className="text-gray-600">312 Students registered</p>
@@ -304,7 +304,7 @@ const Page = () => {
                 />
                 <div className="text-left  mt-2 sm:mt-0">
                   {' '}
-              
+          
                   <h3 className="text-lg font-bold">IIT Guwahati</h3>
                   <p className="text-gray-600">Guwahati, Assam</p>
                   <p className="text-gray-600">412 Students registered</p>
