@@ -51,14 +51,14 @@ const HCJStudentSchema = new mongoose.Schema(
   //  HCJ_ST_Student_Id: { type: String, unique: true },
     bulkImportId: { type: mongoose.Schema.Types.ObjectId, ref: "HCJBulkImport", required: false },
     HCJ_ST_Individual_Id: { type: mongoose.Schema.Types.ObjectId, ref: "IndividualDetails", required: false, default: null},
-    HCJ_ST_Student_Num: { type: String,  required: false, unique: true },
+    HCJ_ST_Student_Num: { type: String,  required: false },
     HCJ_ST_InstituteNum: { type: String, required: true },
     HCJ_ST_Institution_Name: { type: String, required: true },
     HCJ_ST_Student_Country: { type: String, required: true },
     HCJ_ST_Student_Pincode: { type: String, required: true },
     HCJ_ST_Student_State: { type: String, required: true },
     HCJ_ST_Student_City: { type: String, required: true },
-    HCJ_ST_Address: { type: String, required: true }, // ✅ Added this attribute
+    HCJ_ST_Address: { type: String, required: true }, //  Added this attribute
     HCJ_ST_Student_Document_Domicile: { type: String, required: true },
     HCJ_ST_Student_Document_Type: { type: String, required: true },
     HCJ_ST_Student_Document_Number: { type: String, required: true },
