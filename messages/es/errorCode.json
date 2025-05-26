@@ -1,0 +1,744 @@
+{
+  "6021_7": {
+    "title": "Ya registrado",
+    "description": "6021_7 Este correo ya está registrado con el ID de rol {UT_User_Role}. No se puede registrar como Institución."
+  },
+  "6021_8": {
+    "title": "Error al enviar OTP",
+    "description": "6021_8 Falló el envío del correo con OTP. Por favor, inténtelo más tarde."
+  },
+  "6021_9": {
+    "title": "Error interno del servidor",
+    "description": "6021_9 Ocurrió un error interno del servidor. Por favor, inténtelo más tarde."
+  },
+  "6022_1": {
+    "title": "Correo no encontrado",
+    "description": "6022_1 Correo del usuario no encontrado en cookies o cuerpo de la solicitud."
+  },
+  "6022_2": {
+    "title": "Usuario no encontrado",
+    "description": "6022_2 Usuario no encontrado. Por favor, regístrese primero."
+  },
+  "6022_3": {
+    "title": "Error al enviar OTP",
+    "description": "6022_3 Falló el envío del correo con OTP. Por favor, inténtelo más tarde."
+  },
+  "6022_4": {
+    "title": "OTP reenviado",
+    "description": "6022_4 OTP reenviado correctamente. Por favor, revise su correo."
+  },
+  "6022_5": {
+    "title": "Formato OTP inválido",
+    "description": "6022_5 OTP debe ser un array."
+  },
+  "6022_6": {
+    "title": "Correo no encontrado",
+    "description": "6022_6 Correo del usuario no encontrado en cookies o cuerpo de la solicitud."
+  },
+  "6022_7": {
+    "title": "Formato OTP inválido",
+    "description": "6022_7 Formato OTP inválido. Debe ser un número de 4 dígitos."
+  },
+  "6022_8": {
+    "title": "Usuario no encontrado",
+    "description": "6022_8 Usuario no encontrado. Por favor, regístrese primero."
+  },
+  "6022_9": {
+    "title": "¡OTP expirado!",
+    "description": "6022_9 El OTP ha expirado. Por favor, solicite uno nuevo."
+  },
+  "6022_10": {
+    "title": "OTP inválido",
+    "description": "6022_10 OTP inválido. Por favor, verifique e intente nuevamente."
+  },
+  "6022_11": {
+    "title": "OTP verificado",
+    "description": "6022_11 OTP verificado correctamente."
+  },
+  "6022_12": {
+    "title": "Error al verificar OTP",
+    "description": "6022_12 Ocurrió un error inesperado: {message}"
+  },
+  "6022_13": {
+    "title": "Rol de usuario no encontrado",
+    "description": "6022_13 Rol de usuario no encontrado en cookies o cuerpo de la solicitud."
+  },
+  "6022_14": {
+    "title": "OTP no encontrado",
+    "description": "6022_14 No se encontró registro OTP para este usuario."
+  },
+  "6022_15": {
+    "title": "Error interno del servidor",
+    "description": "6022_15 Ocurrió un error inesperado. Por favor, intente nuevamente."
+  },
+  "6023_8": {
+    "title": "Faltan datos del usuario",
+    "description": "6023_8 Correo o rol del usuario no encontrados en cookies."
+  },
+  "6023_9": {
+    "title": "Usuario no encontrado",
+    "description": "6023_9 Usuario no encontrado. Por favor, regístrese primero."
+  },
+  "6023_10": {
+    "title": "¡Contraseña creada exitosamente!",
+    "description": "6023_10 ¡Contraseña creada exitosamente!."
+  },
+  "6023_11": {
+    "title": "Error interno del servidor",
+    "description": "6023_11 Ocurrió un error inesperado: {message}"
+  },
+  "6024_16": {
+    "title": "No autorizado",
+    "description": "6024_16 Sesión faltante o inválida."
+  },
+  "6024_17": {
+    "title": "Usuario no encontrado",
+    "description": "6024_17 Usuario no encontrado. Por favor, regístrese primero."
+  },
+  "6024_18": {
+    "title": "¡Perfil creado exitosamente!",
+    "description": "6024_18 ¡Perfil creado exitosamente!"
+  },
+  "6024_19": {
+    "title": "¡Error al crear perfil!",
+    "description": "6024_19 ¡Error al crear perfil!."
+  },
+  "6024_20": {
+    "title": "Error interno del servidor",
+    "description": "6024_20 Ocurrió un error inesperado: {message}"
+  },
+  "6027_5": {
+    "title": "Faltan campos",
+    "description": "6027_5 Faltan campos: {message}"
+  },
+  "6027_6": {
+    "title": "ID de usuario inválido",
+    "description": "6027_6 ID de usuario inválido. No se encontró Individual Id del usuario."
+  },
+  "6027_7": {
+    "title": "Usuario no encontrado",
+    "description": "6027_7 Usuario no encontrado. Por favor, regístrese primero."
+  },
+  "6027_8": {
+    "title": "¡Documento guardado exitosamente!",
+    "description": "6027_8 ¡Documento guardado exitosamente!"
+  },
+  "6027_9": {
+    "title": "Error interno del servidor",
+    "description": "6027_9 Ocurrió un error inesperado: {message}"
+  },
+  "6028_14": {
+    "title": "Sesión faltante o inválida.",
+    "description": "6028_14 Sesión faltante o inválida."
+  },
+  "6028_15": {
+    "title": "Individual ID inválido",
+    "description": "6028_15 ID de usuario inválido. No se encontró Individual Id del usuario."
+  },
+  "6028_16": {
+    "title": "¡La compañía ya existe!",
+    "description": "6028_16 ¡La compañía ya existe!"
+  },
+  "6028_17": {
+    "title": "¡Compañía creada exitosamente!",
+    "description": "6028_17 ¡Compañía creada exitosamente!"
+  },
+  "6028_18": {
+    "title": "¡Error al crear compañía!",
+    "description": "6028_18 ¡Error al crear compañía!.:{error}"
+  },
+  "9001_1": {
+    "title": "Instituciones obtenidas exitosamente",
+    "description": "9001_1 Instituciones obtenidas exitosamente."
+  },
+  "9001_2": {
+    "title": "Error interno del servidor",
+    "description": "9001_2 Instituciones obtenidas exitosamente."
+  },
+  "9003_1": {
+    "title": "Faltan campos",
+    "description": "9003_1 Se requiere código postal."
+  },
+  "9003_2": {
+    "title": "Faltan campos",
+    "description": "9003_2 Código postal no encontrado"
+  },
+  "9003_3": {
+    "title": "Éxito",
+    "description": "9003_3 Código postal obtenido."
+  },
+  "9003_4": {
+    "title": "Error",
+    "description": "9003_4 Error interno del servidor."
+  },
+  "9004_1": {
+    "title": "Error de conexión a la base de datos",
+    "description": "9004_1 No se pudo conectar a la base de datos. Por favor, intente más tarde."
+  },
+  "9004_2": {
+    "title": "Datos obtenidos",
+    "description": "9004_2 Detalles de documentos y países obtenidos exitosamente."
+  },
+  "9004_3": {
+    "title": "Error del servidor",
+    "description": "9004_3 Error:{message}"
+  },
+  "6031_16": {
+    "title": "Sesión faltante o inválida.",
+    "description": "6031_16 Falta la sesión, por favor actualice o inicie sesión."
+  },
+  "6031_17": {
+    "title": "Compañía no encontrada",
+    "description": "6031_17 ¡Compañía no encontrada!."
+  },
+  "6031_18": {
+    "title": "¡Enviado exitosamente!",
+    "description": "6031_18 ¡Detalles KYC enviados exitosamente!"
+  },
+  "6031_19": {
+    "title": "Error en transacción de base de datos",
+    "description": "6031_19 Falló al guardar datos en la base de datos."
+  },
+  "6031_20": {
+    "title": "Error interno del servidor",
+    "description": "6031_20 Ocurrió un error inesperado: {message}"
+  },
+  "6042_22": {
+    "title": "Usuario no encontrado.",
+    "description": "6042_22 Usuario no encontrado."
+  },
+  "6042_23": {
+    "title": "No autorizado",
+    "description": "6042_23 Por favor, inicie sesión para continuar."
+  },
+  "6042_24": {
+    "title": "Éxito",
+    "description": "6042_24 ¡Perfil creado exitosamente!"
+  },
+  "6042_25": {
+    "title": "Error",
+    "description": "6042_25 Error:{message}"
+  },
+  "6046_6": {
+    "title": "¡Éxito!",
+    "description": "6046_6 Imagen de perfil subida exitosamente"
+  },
+  "6046_7": {
+    "title": "Eliminado",
+    "description": "6046_7 Foto de perfil eliminada."
+  },
+  "6046_8": {
+    "title": "Error",
+    "description": "6046_8 Usuario no autenticado."
+  },
+  "6046_9": {
+    "title": "Error",
+    "description": "6046_9 Por favor, suba primero una imagen de documento."
+  },
+  "6046_10": {
+    "title": "Error",
+    "description": "6046_10 {message}"
+  },
+  "6046_11": {
+    "title": "ID faltante",
+    "description": "6046_11 ID de usuario inválido"
+  },
+  "6046_12": {
+    "title": "No encontrado",
+    "description": "6046_12 Usuario no encontrado"
+  },
+  "6046_13": {
+    "title": "Guardado exitosamente",
+    "description": "6046_7 ¡Detalles del documento guardados exitosamente!"
+  },
+  "6052_1": {
+    "title": "Se requiere ID de administrador.",
+    "description": "6052_1 Se requiere ID de administrador."
+  },
+  "6052_2": {
+    "title": "Acceso no autorizado.",
+    "description": "6052_2 Acceso no autorizado."
+  },
+  "6052_3": {
+    "title": "Usuario no encontrado.",
+    "description": "6052_3 Administrador no encontrado."
+  },
+  "6052_4": {
+    "title": "Prohibido",
+    "description": "6052_4 Prohibido: acceso denegado."
+  },
+  "6052_5": {
+    "title": "Detalles de usuario no encontrados.",
+    "description": "6052_5 Detalles de usuario no encontrados."
+  },
+  "6052_6": {
+    "title": "¡Enviado exitosamente!",
+    "description": "6052_6 Detalles de administrador obtenidos exitosamente."
+  },
+  "6052_7": {
+    "title": "Error en transacción de base de datos",
+    "description": "6052_7 error:{message}"
+  },
+  "6055_19": {
+    "title": "Éxito",
+    "description": "6055_19 Imagen de perfil subida exitosamente."
+  },
+  "6055_20": {
+    "title": "Eliminado",
+    "description": "6055_20 Foto de perfil eliminada."
+  },
+  "6055_21": {
+    "title": "Eliminado",
+    "description": "6055_21 Foto de perfil eliminada."
+  },
+  "6055_22": {
+    "title": "Actualizado exitosamente",
+    "description": "6055_22 ¡Estudiante actualizado exitosamente!."
+  },
+  "6055_23": {
+    "title": "¡Agregado exitosamente!",
+    "description": "6055_23 ¡Estudiante agregado exitosamente!."
+  },
+  "6055_24": {
+    "title": "Faltan campos",
+    "description": "6055_24 No se proporcionó foto."
+  },
+  "6055_25": {
+    "title": "Imagen subida.",
+    "description": "6055_25 Imagen subida exitosamente."
+  },
+  "6055_26": {
+    "title": "Error",
+    "description": "6055_26 Error interno:{message}"
+  },
+  "6055_27": {
+    "title": "Error",
+    "description": "6055_27 Se requiere ID de estudiante."
+  },
+  "6055_28": {
+    "title": "Error",
+    "description": "6055_28 Estudiante no encontrado."
+  },
+  "6055_29": {
+    "title": "Éxito",
+    "description": "6055_29 Datos del estudiante."
+  },
+  "6055_30": {
+    "title": "Error",
+    "description": "6055_30 Falló al obtener estudiante."
+  },
+  "6055_31": {
+    "title": "Error",
+    "description": "6055_31 Se requiere ID de estudiante."
+  },
+  "6055_32": {
+    "title": "Error",
+    "description": "6055_32 Falló al actualizar estudiante."
+  },
+  "6055_33": {
+    "title": "Éxito",
+    "description": "6055_33 Estudiante actualizado exitosamente."
+  },
+  "6055_34": {
+    "title": "Error",
+    "description": "6055_34 Error:{message}"
+  },
+  "6055_35": {
+    "title": "Error",
+    "description": "6055_35 Estudiante eliminado exitosamente"
+  },
+  "6055_36": {
+    "title": "Error",
+    "description": "6055_36 {field} es requerido."
+  },
+  "6055_37": {
+    "title": "Error",
+    "description": "6055_37 Formato de fecha inválido para HCJ_ST_DOB."
+  },
+  "6055_38": {
+    "title": "Error",
+    "description": "6055_38 Ya existe un estudiante con este correo."
+  },
+  "6056_1": {
+    "title": "Tipo de archivo inválido",
+    "description": "6056_1 Por favor, suba un archivo CSV o Excel."
+  },
+  "6056_2": {
+    "title": "Archivo demasiado grande",
+    "description": "6056_2 Tamaño máximo de archivo es 10MB."
+  },
+  "6056_3": {
+    "title": "Archivo no seleccionado",
+    "description": "6056_3 Por favor, seleccione un archivo para subir."
+  },
+  "6056_4": {
+    "title": "Carga completada",
+    "desc1": "Importados exitosamente:",
+    "desc2": "Entradas inválidas:",
+    "desc3": "Duplicados omitidos:",
+    "description": "6056_4 ¿Qué le gustaría hacer ahora?"
+  },
+  "6056_5": {
+    "title": "Error al subir",
+    "description": "6056_5 {message}."
+  },
+  "6056_6": {
+    "title": "Archivo faltante",
+    "description": "6056_6 No se subió archivo."
+  },
+  "6056_7": {
+    "title": "Información faltante",
+    "description": "6056_7 Falta información de la institución."
+  },
+  "6056_8": {
+    "title": "Formato CSV inválido",
+    "description": "6056_8 Formato CSV inválido."
+  },
+  "6056_9": {
+    "title": "Error",
+    "description": "6056_9 Falló al procesar importación masiva."
+  },
+  "6056_10": {
+    "title": "Éxito",
+    "description": "6056_10 Importación masiva completada."
+  },
+  "6056_11": {
+    "title": "Error",
+    "description": "6056_11 Falló al generar plantilla."
+  },
+  "6056_12": {
+    "title": "Tipo de archivo inválido",
+    "description": "6056_12 Por favor, suba un archivo CSV o Excel."
+  },
+  "6056_13": {
+    "title": "Archivo demasiado grande",
+    "description": "6056_13 Tamaño máximo de archivo es 10MB."
+  },
+  "6056_14": {
+    "title": "Archivo no seleccionado",
+    "description": "6056_14 Por favor, seleccione un archivo para subir."
+  },
+  "6056_15": {
+    "title": "Carga completada",
+    "description": "6056_15 ¿Qué le gustaría hacer ahora?",
+    "desc1": "Importados exitosamente:",
+    "desc2": "Entradas inválidas:",
+    "desc3": "Duplicados omitidos:"
+  },
+  "6056_16": {
+    "title": "Error al subir",
+    "description": "6056_16 {message}"
+  },
+  "6056_17": {
+    "title": "Archivo no subido",
+    "description": "6056_17 Archivo no subido"
+  },
+  "6056_18": {
+    "title": "Faltan campos",
+    "description": "6056_18 Se requiere información."
+  },
+  "6056_19": {
+    "title": "Formato CSV inválido",
+    "description": "6056_19 Formato CSV inválido."
+  },
+  "6056_20": {
+    "title": "Éxito",
+    "description": "6056_20 Importación masiva completada"
+  },
+  "6056_21": {
+    "title": "Error",
+    "description": "6056_21 Error:{message}"
+  },
+  "6056_22": {
+    "title": "Error",
+    "description": "6056_22 Error:{message}"
+  },
+  "6058_16": {
+    "title": "Error",
+    "description": "6058_16 Falló al cargar datos de países y documentos."
+  },
+  "6058_17": {
+    "title": "Código postal no encontrado",
+    "description": "6058_17 No se encontraron detalles para este código postal."
+  },
+  "6058_18": {
+    "title": "Error",
+    "description": "6058_18 Falló al obtener detalles del código postal."
+  },
+  "6058_19": {
+    "title": "Éxito",
+    "description": "6058_19 Imagen de perfil subida exitosamente."
+  },
+  "6058_20": {
+    "title": "Eliminado",
+    "description": "6058_20 Foto de perfil eliminada."
+  },
+  "6058_21": {
+    "title": "Error al subir",
+    "description": "6058_21 {message}."
+  },
+  "6058_22": {
+    "title": "Archivo inválido",
+    "description": "6058_22 {message}."
+  },
+  "6058_23": {
+    "title": "Faltan campos",
+    "description": "6058_23 {field} es requerido."
+  },
+  "6058_24": {
+    "title": "Ya registrado",
+    "description": "6058_24 El usuario ya existe."
+  },
+  "6058_25": {
+    "title": "Éxito",
+    "description": "6058_25 Invitación enviada exitosamente."
+  },
+  "6058_26": {
+    "title": "Error",
+    "description": "6058_26 Falló al registrar personal."
+  },
+  "6058_27": {
+    "title": "Faltan campos",
+    "description": "6058_27 Se requiere ID de personal."
+  },
+  "6058_28": {
+    "title": "Faltan campos",
+    "description": "6058_28 Miembro del personal no encontrado."
+  },
+  "6058_29": {
+    "title": "Éxito",
+    "description": "6058_29 Personal actualizado."
+  },
+  "6058_30": {
+    "title": "Error",
+    "description": "6058_30 Falló al obtener miembro del personal."
+  },
+  "6058_31": {
+    "title": "Ya en uso",
+    "description": "6058_31 Correo ya en uso por otro miembro del personal."
+  },
+  "6058_32": {
+    "title": "Error",
+    "description": "6058_32 Falló al actualizar miembro del personal."
+  },
+  "6058_33": {
+    "title": "Éxito",
+    "description": "6058_33 Miembro del personal actualizado exitosamente."
+  },
+  "6058_34": {
+    "title": "Error",
+    "description": "6058_34 {message}."
+  },
+  "6058_35": {
+    "title": "Error",
+    "description": "6058_35 Miembro del personal no encontrado o ya eliminado."
+  },
+  "6058_36": {
+    "title": "Error",
+    "description": "6058_36 Personal eliminado exitosamente."
+  },
+  "6058_37": {
+    "title": "¡Personal actualizado exitosamente!",
+    "description": "6058_37 ¿Qué le gustaría hacer ahora?."
+  },
+  "6058_38": {
+    "title": "¡Invitación enviada exitosamente!",
+    "description": "6058_38 ¿Qué le gustaría hacer ahora?."
+  },
+  "6061_30": {
+    "title": "Se requiere Individual ID",
+    "description": "6061_30 Se requiere Individual ID."
+  },
+  "6061_31": {
+    "title": "Acceso no autorizado",
+    "description": "6061_31 Acceso no autorizado."
+  },
+  "6061_32": {
+    "title": "Faltan campos de idioma",
+    "description": "6061_32 Todos los campos de idioma son requeridos."
+  },
+  "6061_33": {
+    "title": "Éxito",
+    "description": "6061_33 Idioma de usuario agregado exitosamente."
+  },
+  "6061_34": {
+    "title": "Falló al guardar datos",
+    "description": "6061_34 Falló al guardar datos en la base de datos: {message}"
+  },
+  "6061_35": {
+    "title": "Falta Individual ID",
+    "description": "6061_35 Se requiere Individual ID."
+  },
+  "6061_36": {
+    "title": "Acceso no autorizado",
+    "description": "6061_36 Acceso no autorizado."
+  },
+  "6061_37": {
+    "title": "No se encontraron idiomas",
+    "description": "6061_37 No se encontraron idiomas para el usuario"
+  },
+  "6061_38": {
+    "title": "Éxito",
+    "description": "6061_38 Idiomas de usuario obtenidos exitosamente."
+  },
+  "6061_39": {
+    "title": "Falló al guardar datos",
+    "description": "6061_39 Falló al guardar datos en la base de datos: {message}"
+  },
+  "6061_40": {
+    "title": "Falta Individual ID",
+    "description": "6061_40 Se requiere Individual ID."
+  },
+  "6061_41": {
+    "title": "Address ID no encontrado",
+    "description": "6061_41 Address ID no encontrado."
+  },
+  "6061_42": {
+    "title": "Social Links ID no encontrado",
+    "description": "6061_42 Social Links ID no encontrado."
+  },
+  "6061_43": {
+    "title": "faltan archivos",
+    "description": "6061_43 No se subieron archivos."
+  },
+  "6061_44": {
+    "title": "Detalles de usuario no encontrados.",
+    "description": "6061_44 Detalles de usuario no encontrados."
+  },
+  "6061_45": {
+    "title": "Éxito",
+    "description": "6061_45 Imágenes de perfil actualizadas exitosamente."
+  },
+  "6061_46": {
+    "title": "Falló al guardar datos",
+    "description": "6061_46 Error interno del servidor: {message}"
+  },
+  "6061_47": {
+    "title": "Actualizado exitosamente",
+    "description": "6061_47 Detalles de usuario actualizados."
+  },
+  "6061_48": {
+    "title": "Se requiere Address ID",
+    "description": "6061_48 Se requiere Address ID."
+  },
+  "6061_49": {
+    "title": "Detalles de dirección no encontrados",
+    "description": "6061_49 Detalles de dirección no encontrados."
+  },
+  "6061_50": {
+    "title": "Dirección actualizada exitosamente",
+    "description": "6061_50 Dirección actualizada exitosamente."
+  },
+  "6061_51": {
+    "title": "Faltan Social Links",
+    "description": "6061_51 Se requiere Social Links ID"
+  },
+  "6061_52": {
+    "title": "Detalles de Social Links no encontrados",
+    "description": "6061_52 Detalles de Social Links no encontrados."
+  },
+  "6061_53": {
+    "title": "Social Links actualizados exitosamente",
+    "description": "6061_53 Social Links actualizados exitosamente."
+  },
+  "6061_54": {
+    "title": "Se requiere Language ID",
+    "description": "6061_54 Se requiere Language ID."
+  },
+  "6061_55": {
+    "title": "Detalles de idioma no encontrados",
+    "description": "6061_55 Entrada de idioma no encontrada."
+  },
+  "6061_56": {
+    "title": "Actualizado exitosamente",
+    "description": "6061_56 Idioma de usuario actualizado exitosamente."
+  },
+  "6061_57": {
+    "title": "Éxito",
+    "description": "6061_57 Entrada de idioma obtenida exitosamente"
+  },
+  "6061_58": {
+    "title": "Eliminado exitosamente",
+    "description": "6061_58 Entrada de idioma eliminada exitosamente"
+  },
+  "6061_59": {
+    "title": "¡Ups!",
+    "description": "6061_59 No se seleccionaron imágenes para subir."
+  },
+  "6062_12": {
+    "title": "Error",
+    "description": "6062_12 Debe iniciar sesión para editar su perfil"
+  },
+  "6062_13": {
+    "title": "Error",
+    "description": "6062_13 Se requiere ID de institución"
+  },
+  "6062_14": {
+    "title": "Error",
+    "description": "6062_14 Acceso no autorizado"
+  },
+  "6062_15": {
+    "title": "Error",
+    "description": "6062_15 Detalles de institución no encontrados"
+  },
+  "6062_16": {
+    "title": "Éxito",
+    "description": "6062_16 Detalles de institución obtenidos exitosamente."
+  },
+  "6062_17": {
+    "title": "Error",
+    "description": "6062_17 Error interno del servidor:{message}."
+  },
+  "6062_18": {
+    "title": "Faltan campos",
+    "description": "6062_18 Se requiere ID de compañía."
+  },
+  "6062_19": {
+    "title": "Acceso no autorizado",
+    "description": "6062_19 Acceso no autorizado."
+  },
+  "6062_20": {
+    "title": "Sin archivos",
+    "description": "6062_20 No se subieron archivos."
+  },
+  "6062_21": {
+    "title": "Faltan campos",
+    "description": "6062_21 Detalles de compañía no encontrados."
+  },
+  "6062_22": {
+    "title": "Imagen actualizada exitosamente",
+    "description": "6062_22 Imágenes de compañía actualizadas exitosamente."
+  },
+  "6062_23": {
+    "title": "Éxito",
+    "description": "6062_23 Detalles de compañía actualizados."
+  },
+  "6062_24": {
+    "title": "Falta Address ID",
+    "description": "6062_24 Se requiere Address ID."
+  },
+  "6062_25": {
+    "title": "Falta Address ID",
+    "description": "6062_25 Se requiere Address ID."
+  },
+  "6062_26": {
+    "title": "Falta",
+    "description": "6062_26 Dirección de compañía no encontrada."
+  },
+  "6062_27": {
+    "title": "Éxito",
+    "description": "6062_27 Dirección de compañía actualizada."
+  },
+  "6062_28": {
+    "title": "Faltan campos",
+    "description": "6062_28 Se requiere Social Links ID."
+  },
+  "6062_29": {
+    "title": "No encontrado",
+    "description": "6062_29 Social Links de compañía no encontrados."
+  },
+  "6062_30": {
+    "title": "Éxito",
+    "description": "6062_30 Social Links de compañía actualizados."
+  }
+}

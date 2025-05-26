@@ -129,50 +129,6 @@ export default function VolunteeringPage() {
     }
   }
 
-  // const handleDeleteVolunteering = async (id) => {
-  //   if (
-  //     confirm("Are you sure you want to delete this volunteering activity?")
-  //   ) {
-  //     setIsDeleting(true);
-  //     try {
-  //       const response = await fetch(
-  //         `/api/student/v1/hcjBrBT60911AddVolenteering/${id}`,
-  //         {
-  //           method: "DELETE",
-  //         }
-  //       );
-  //       const data = await response.json();
-
-  //       if (data.success) {
-  //         toast({
-  //           title: "Success",
-  //           description: "Volunteering activity deleted successfully",
-  //         });
-  //         setVolunteerings(
-  //           volunteerings.filter((volunteering) => volunteering.id !== id)
-  //         );
-  //       } else {
-  //         toast({
-  //           title: "Error",
-  //           description:
-  //             data.message || "Failed to delete volunteering activity",
-  //           variant: "destructive",
-  //         });
-  //       }
-  //     } catch (error) {
-  //       console.error("Error deleting volunteering activity:", error);
-  //       toast({
-  //         title: "Error",
-  //         description:
-  //           "Failed to delete volunteering activity. Please try again.",
-  //         variant: "destructive",
-  //       });
-  //     } finally {
-  //       setIsDeleting(false);
-  //     }
-  //   }
-  // };
-
   const handleSubmitVolunteering = async (formData) => {
     const apiData = {
       HCJ_JSV_Job_Seeker_Id: session?.user?.jobSeekerId, // Replace with dynamic value
@@ -292,7 +248,7 @@ export default function VolunteeringPage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Volunteering</h1>
+        <h1 className="text-3xl font-bold">Volunteering Activities</h1>
         <Button
           onClick={handleAddVolunteering}
           className="flex items-center gap-2 rounded-lg px-6"

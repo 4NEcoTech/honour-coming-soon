@@ -1,0 +1,29 @@
+{
+  "HomePage": {
+    "Opportunities_for_every_student": "すべての学生にチャンスを",
+    "Projects_Internships_Flexijobs_Regular_Jobs": "オンライン就職フェア | インターンシップ | フレキシブルジョブ | プロジェクト | リモートワークの機会",
+    "Marketing_Sales_Design_Development_DevOps_Robotics_ML_AI_Finance_Sketch_Artists_VFX_Animation": "マーケティング、営業、デザイン、開発、DevOps、ロボティクス、機械学習、AI、金融、スケッチアーティスト、VFX、アニメーション",
+    "Register_your_Institution_with_HCJ": "HCJに貴校を登録する",
+    "Take_part_in_India_s_biggest_Job_Fair": "インド最大の就職フェアに参加しましょう",
+    "Nov_10_Nov_20": "11月10日～11月20日",
+    "Register_here": "こちらで登録",
+    "About_Us": "私たちについて",
+    "Welcome_to_HCJ_the_leading_platform_designed_to_connect_institutions_students_and_the_dynamic_job_market": "HCJへようこそ。これは教育機関、学生、そして活発な就職市場をつなぐために設計された先進的なプラットフォームです。",
+    "At_HCJ_our_mission_is_to_streamline_and_enhance_the_job_seeking_experience": "HCJの使命は、教育機関が学生のプロフィールを簡単かつ効率的にアップロード・管理できるようにし、就職活動の体験をシンプルかつ強化することです。学生は自分のスキルと資格を、就職フェアやインターンシップ、さまざまなキャリアの機会でアピールできます。",
+    "Committed_to_bridging_the_gap_between_academia_and_industry": "私たちは学術と産業のギャップを埋めることに尽力しており、学生が雇用主に見つけられやすくなるシームレスなプラットフォームを提供しています。教育機関は学生のキャリア形成に重要な役割を果たします。HCJは教育から就職への移行をよりスムーズかつ効果的にします。",
+    "Read_more": "続きを読む",
+    "Partner_Institutions": "提携機関",
+    "Achievers_Central": "アチーバーズ・センター",
+    "View_All": "すべて表示",
+    "Featured_Achievers_Of_this_month": "今月の注目アチーバーズ",
+    "Give_your_students_access_to_real_world_opportunities": "学生に実社会でのチャンスを提供しましょう",
+    "Get_Started": "始める"
+  },
+  "RegistrationWithCredentialForm": {
+    "title": "教育機関の登録",
+    "subtitle": "教育機関の管理者の方は、登録を続けてください。",
+    "OTP": "OTP認証",
+    "OTP_Description": "教育機関のメールアドレスに送信されたOTPコードを入力してください",
+    "'Password_title": "パスワードを作成する"
+  }
+}

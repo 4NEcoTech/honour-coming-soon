@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import { AuditTrailSchema } from '../common/AuditTrail';
+import mongoose from "mongoose";
+import { AuditTrailSchema } from "./common/AuditTrail";
 
 const Schema = mongoose.Schema;
 
@@ -29,11 +29,23 @@ const Schema = mongoose.Schema;
  * @property {Date} updatedAt - Timestamp when the document was last updated.
  */
 
+// 01 Received
+// 02 Shortlisted
+// 03 Hired
+// 04 Rejected
+
 const hcjJobApplicationSchema = new Schema(
   {
-  //  HCJ_AT_Application_Id: { type: String },
-    HCJ_AT_Applicant_Id: { type: String, required: true },
-    HCJ_AT_Job_Id: { type: String, required: true },
+    HCJ_AT_Applicant_Id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "IndividualDetails",
+    },
+    HCJ_AT_Job_Id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "hcj_job_postings", // Reference to IndividualDetails schema
+    },
     HCJ_AT_Applicant_First_Name: { type: String, required: true },
     HCJ_AT_Applicant_Last_Name: { type: String, required: true },
     HCJ_AT_Applicant_Email: { type: String, required: true },
@@ -57,6 +69,6 @@ const hcjJobApplicationSchema = new Schema(
 
 const HcjJobApplication =
   mongoose.models.hcj_job_applications ||
-  mongoose.model('hcj_job_applications', hcjJobApplicationSchema);
+  mongoose.model("hcj_job_applications", hcjJobApplicationSchema);
 
 export default HcjJobApplication;

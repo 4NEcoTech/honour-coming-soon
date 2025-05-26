@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import Institution from "@/app/models/institution";
 import { dbConnect } from "@/app/utils/dbConnect";
-import Institution from "@/app/models/institution"
+import { getTranslator } from "@/i18n/server";
+import { NextResponse } from "next/server";
 
 /**
  * @swagger
@@ -103,53 +104,65 @@ import Institution from "@/app/models/institution"
  *                   example: "Internal Server Error"
  */
 
-
 export async function GET(req) {
-    await dbConnect(); // Ensure DB is connected
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
+  await dbConnect(); // Ensure DB is connected
 
-    try {
-        const { searchParams } = new URL(req.url);
-        const state = searchParams.get("state");
-        const district = searchParams.get("district");
-        const status = searchParams.get("status");
-        const aisheCode = searchParams.get("AISHE_Code");
-        const institutionName = searchParams.get("institutionName"); // Search by name
-        const dropdown = searchParams.get("dropdown"); // Fetch only institution names if true
-        const limit = parseInt(searchParams.get("limit")) || 50; // Limit results
+  try {
+    const { searchParams } = new URL(req.url);
+    const state = searchParams.get("state");
+    const district = searchParams.get("district");
+    const status = searchParams.get("status");
+    const aisheCode = searchParams.get("AISHE_Code");
+    const institutionName = searchParams.get("institutionName"); // Search by name
+    const dropdown = searchParams.get("dropdown"); // Fetch only institution names if true
+    const limit = parseInt(searchParams.get("limit")) || 50; // Limit results
 
-        let query = {};
+    let query = {};
 
-        if (aisheCode) {
-            query.AISHE_Code = aisheCode; // Fetch by AISHE Code
-        } else if (institutionName && institutionName.length >= 4) {
-            // Search by name only if at least 4 characters are entered
-            query.Institute_Name = { $regex: institutionName, $options: "i" };
-        } else {
-            if (state) query.State = state;
-            if (district) query.District = district;
-            if (status) query.Status = status;
-        }
-
-        // If dropdown=true, return only institution names
-        const selectFields = dropdown
-            ? "Institute_Name AISHE_Code" // Fetch only required fields
-            : "Category AISHE_Code Institute_Name Name_of_Affiliated_University Type_of_Institute State District Status";
-
-        const institutions = await Institution.find(query)
-            .select(selectFields)
-            .limit(limit) // Limit results for better performance
-            .lean(); // Convert Mongoose documents to plain objects
-
-        return NextResponse.json({
-            success: true,
-            data: institutions,
-        });
-
-    } catch (error) {
-        console.error("Error fetching institutions:", error);
-        return NextResponse.json({
-            success: false,
-            message: "Internal Server Error",
-        }, { status: 500 });
+    if (aisheCode) {
+      query.AISHE_Code = aisheCode; // Fetch by AISHE Code
+    } else if (institutionName && institutionName.length >= 4) {
+      // Search by name only if at least 4 characters are entered
+      query.Institute_Name = { $regex: institutionName, $options: "i" };
+    } else {
+      if (state) query.State = state;
+      if (district) query.District = district;
+      if (status) query.Status = status;
     }
+
+    // If dropdown=true, return only institution names
+    const selectFields = dropdown
+      ? "Institute_Name AISHE_Code" // Fetch only required fields
+      : "Category AISHE_Code Institute_Name Name_of_Affiliated_University Type_of_Institute State District Status";
+
+    const institutions = await Institution.find(query)
+      .select(selectFields)
+      .limit(limit) // Limit results for better performance
+      .lean(); // Convert Mongoose documents to plain objects
+
+    return NextResponse.json(
+      {
+        success: true,
+        code: "9001_1",
+        title: t(`errorCode.9001_1.title`),
+        message: t(`errorCode.9001_1.description`),
+        data: institutions,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error fetching institutions:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        code: "9001_2",
+        title: t(`errorCode.9001_2.title`),
+        message: t(`errorCode.9001_2.description`),
+        message: "Internal Server Error",
+      },
+      { status: 500 }
+    );
+  }
 }

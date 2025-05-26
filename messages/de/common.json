@@ -1,0 +1,29 @@
+{
+  "HomePage": {
+    "Opportunities_for_every_student": "Chancen für jeden Studenten",
+    "Projects_Internships_Flexijobs_Regular_Jobs": "Online-Jobmessen | Praktika | Flexijobs | Projekte | Remote-Arbeitsmöglichkeiten",
+    "Marketing_Sales_Design_Development_DevOps_Robotics_ML_AI_Finance_Sketch_Artists_VFX_Animation": "Marketing, Vertrieb, Design, Entwicklung, DevOps, Robotik, ML, KI, Finanzen, Sketch-Künstler, VFX, Animation",
+    "Register_your_Institution_with_HCJ": "Registrieren Sie Ihre Institution bei HCJ",
+    "Take_part_in_India_s_biggest_Job_Fair": "Nehmen Sie an Indiens größter Jobmesse teil",
+    "Nov_10_Nov_20": "10. Nov - 20. Nov",
+    "Register_here": "Hier registrieren",
+    "About_Us": "Über uns",
+    "Welcome_to_HCJ_the_leading_platform_designed_to_connect_institutions_students_and_the_dynamic_job_market": "Willkommen bei HCJ, der führenden Plattform zur Verbindung von Institutionen, Studierenden und dem dynamischen Arbeitsmarkt.",
+    "At_HCJ_our_mission_is_to_streamline_and_enhance_the_job_seeking_experience": "Bei HCJ ist es unsere Mission, die Jobsuche zu vereinfachen und zu verbessern, indem wir Institutionen eine einfache und effiziente Möglichkeit bieten, die Profile ihrer Studierenden hochzuladen und zu verwalten. So können Studierende ihre Fähigkeiten und Qualifikationen für Jobmessen, Praktika und eine Vielzahl von Karrieremöglichkeiten präsentieren.",
+    "Committed_to_bridging_the_gap_between_academia_and_industry": "Wir verpflichten uns, die Lücke zwischen Wissenschaft und Industrie zu schließen, indem wir eine nahtlose Plattform bieten, auf der Studierende Sichtbarkeit und Zugang zu potenziellen Arbeitgebern erhalten, während Institutionen eine Schlüsselrolle bei der Gestaltung der Karrierewege ihrer Studierenden spielen können. Mit HCJ machen wir den Übergang von der Ausbildung zur Beschäftigung reibungsloser und effektiver.",
+    "Read_more": "Mehr erfahren",
+    "Partner_Institutions": "Partnerinstitutionen",
+    "Achievers_Central": "Erfolgszentrum",
+    "View_All": "Alle anzeigen",
+    "Featured_Achievers_Of_this_month": "Hervorgehobene Erfolgreiche dieses Monats",
+    "Give_your_students_access_to_real_world_opportunities": "Geben Sie Ihren Studierenden Zugang zu realen Chancen",
+    "Get_Started": "Jetzt starten"
+  },
+  "RegistrationWithCredentialForm": {
+    "title": "Institutionen-Registrierung",
+    "subtitle": "Wenn Sie ein Institutionsadministrator sind, fahren Sie bitte mit der Registrierung fort.",
+    "OTP": "OTP-Verifizierung",
+    "OTP_Description": "Geben Sie den OTP-Code ein, der an Ihre Institutions-E-Mail-Adresse gesendet wurde",
+    "'Password_title": "Passwort erstellen"
+  }
+}

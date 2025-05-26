@@ -6,7 +6,12 @@ import { signOut } from "next-auth/react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export function LogoutButton({ className }) {
   const router = useRouter();
@@ -41,13 +46,11 @@ export function LogoutButton({ className }) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <CardHeader>
-          <CardHeader>
-            <DialogTitle asChild>
-              <CardTitle className="text-xl font-bold text-center">
-                Confirm Logout?
-              </CardTitle>
-            </DialogTitle>
-          </CardHeader>
+          <DialogTitle asChild>
+            <CardTitle className="text-xl font-bold text-center">
+              Confirm Logout?
+            </CardTitle>
+          </DialogTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-center text-muted-foreground">

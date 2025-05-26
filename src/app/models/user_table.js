@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-import { AuditTrailSchema } from './common/AuditTrail';
-import Counter from './counter';
+import mongoose from "mongoose";
+import { AuditTrailSchema } from "./common/AuditTrail";
+import Counter from "./counter";
 
 const UserSchema = new mongoose.Schema(
   {
@@ -15,19 +15,19 @@ const UserSchema = new mongoose.Schema(
     // 05 Deleted
     UT_User_Status: {
       type: String,
-      default: '02',
-      enum: ['01', '02', '03', '04', '05'],
+      default: "02",
+      enum: ["01", "02", "03", "04", "05"],
     },
     // 01 Pending Authorization
     // 02 Verified
     // 03 Unverified"
     UT_User_Verification_Status: {
       type: String,
-      enum: ['01', '02', '03', '04', '05'],
-      default: '02',
+      enum: ["01", "02", "03", "04", "05"],
+      default: "02",
     },
 
-    UT_Product_Enabled: { type: String, default: '000001000' },
+    UT_Product_Enabled: { type: String, default: "000001000" },
 
     // 01 Guest User
     // 02 SA - Admin
@@ -45,20 +45,20 @@ const UserSchema = new mongoose.Schema(
     UT_User_Role: {
       type: String,
       enum: [
-        '01',
-        '02',
-        '03',
-        '04',
-        '05',
-        '06',
-        '07',
-        '08',
-        '09',
-        '10',
-        '11',
-        '12',
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10",
+        "11",
+        "12",
       ],
-      default: '01',
+      default: "01",
     },
 
     // 01 Phone
@@ -70,17 +70,17 @@ const UserSchema = new mongoose.Schema(
     // 07 Google
     UT_Login_Type: {
       type: String,
-      enum: ['01', '02', '03', '04', '05', '06', '07'],
+      enum: ["01", "02", "03", "04", "05", "06", "07"],
     },
 
-    UT_Email: { type: String, sparse: true },
+    UT_Email: { type: String, unique: true, trim: true, lowercase: true },
     // 01 Pending Authorization
     // 02 Verified
     // 03 Unverified"
     UT_Email_Verified: {
       type: String,
-      enum: ['01', '02', '03'],
-      default: '03',
+      enum: ["01", "02", "03"],
+      default: "03",
     },
 
     UT_Phone: { type: String, sparse: true },
@@ -97,7 +97,7 @@ const UserSchema = new mongoose.Schema(
 
     UT_Biometric_Id: { type: mongoose.Schema.Types.Mixed },
 
-    UT_Password: { type: String, default: '' },
+    UT_Password: { type: String, default: "" },
 
     UT_Terms_Conditions_Agreement: { type: Boolean, default: false },
 
@@ -108,51 +108,47 @@ const UserSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+UserSchema.index(
+  { email: 1 },
+  { unique: true, collation: { locale: "en", strength: 2 } }
+);
 
-UserSchema.pre('save', async function (next) {
+UserSchema.pre("save", async function (next) {
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
   if (emailRegex.test(this.UT_User_Id)) {
-    this.UT_Email = this.UT_User_Id;
+    this.UT_User_Id = this.UT_User_Id.toLowerCase().trim();
+    this.UT_Email = this.UT_User_Id.toLowerCase().trim();
     this.UT_Phone = null;
   } else {
     this.UT_Phone = this.UT_User_Id;
     this.UT_Email = null;
   }
-
-  if (!this.UT_User_Num) {
-    const lastUser = await mongoose
-      .model('user_table')
-      .findOne()
-      .sort({ UT_User_Num: -1 });
-    this.UT_User_Num = lastUser ? lastUser.UT_User_Num + 1 : 1;
-  }
-
   // ✅ Conditional Check for Login Type
   const loginType = this.UT_Login_Type;
   if (loginType == 3 && !this.UT_LinkedIn_Id) {
-    return next(new Error('UT_LinkedIn_Id is required for UT_Login_Type 03'));
+    return next(new Error("UT_LinkedIn_Id is required for UT_Login_Type 03"));
   }
   if (loginType == 4 && !this.UT_Voice) {
-    return next(new Error('UT_Voice is required for UT_Login_Type 04'));
+    return next(new Error("UT_Voice is required for UT_Login_Type 04"));
   }
   if (loginType == 5 && !this.UT_Apple) {
-    return next(new Error('UT_Apple is required for UT_Login_Type 05'));
+    return next(new Error("UT_Apple is required for UT_Login_Type 05"));
   }
   if (loginType == 6 && !this.UT_Meta) {
-    return next(new Error('UT_Meta is required for UT_Login_Type 06'));
+    return next(new Error("UT_Meta is required for UT_Login_Type 06"));
   }
   if (loginType == 7 && !this.UT_Google) {
-    return next(new Error('UT_Google is required for UT_Login_Type 07'));
+    return next(new Error("UT_Google is required for UT_Login_Type 07"));
   }
   if (loginType == 8 && !this.UT_Biometric_Id) {
-    return next(new Error('UT_Biometric_Id is required for UT_Login_Type 08'));
+    return next(new Error("UT_Biometric_Id is required for UT_Login_Type 08"));
   }
 
   next();
 });
 
-UserSchema.pre('save', async function (next) {
+UserSchema.pre("save", async function (next) {
   if (!this.isNew) return next(); // Only assign ID on new documents
 
   const session = await mongoose.startSession();
@@ -176,18 +172,18 @@ UserSchema.pre('save', async function (next) {
      * @returns {Promise<Object>} The updated or newly created counter document.
      */
     const counterDoc = await Counter.findByIdAndUpdate(
-      'userCounter',
+      "userCounter",
       { $inc: { seq: 1 } }, // Decrement by 1
       { new: true, upsert: true, session }
     );
     if (!counterDoc || counterDoc.seq <= 0) {
-      throw new Error('Counter has reached its limit! Cannot assign new IDs.');
+      throw new Error("Counter has reached its limit! Cannot assign new IDs.");
     }
 
     // Step 2: Format userNumber to be exactly 10 digits
     this.userNumber = counterDoc.seq;
 
-    this.UT_User_Num = `${1}${String(this.userNumber).padStart(10, '0')}`;
+    this.UT_User_Num = `${1}${String(this.userNumber).padStart(10, "0")}`;
 
     // console.log('UT_User_Num:', String(this.userNumber).padStart(10, '0'));
     // console.log('UT_User_Num:', this.UT_User_Num);
@@ -216,6 +212,6 @@ UserSchema.pre('save', async function (next) {
 // });
 
 const User =
-  mongoose.models.user_table || mongoose.model('user_table', UserSchema);
+  mongoose.models.user_table || mongoose.model("user_table", UserSchema);
 
 export default User;

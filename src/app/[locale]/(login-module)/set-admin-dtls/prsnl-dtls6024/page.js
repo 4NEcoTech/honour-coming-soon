@@ -1,28 +1,66 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import PhoneInput from "react-phone-input-2"
-import "react-phone-input-2/lib/style.css"
-import * as React from "react"
-import { useForm } from "react-hook-form"
-import { Loader2, Upload } from "lucide-react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useSession } from "next-auth/react"
-import { AdminPersonalSchema } from "@/app/validation/adminSchema"
-import Swal from "sweetalert2"
+import { adminSchema } from "@/app/validation/adminSchema";
+import { ProfilePhotoUpload } from "@/components/image-upload";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import Swal from "sweetalert2";
 
-export default function PersonalDetails({ initialData, isSubmitting, onSubmit }) {
-  const [uploadedFile, setUploadedFile] = React.useState(null)
-  const [previewUrl, setPreviewUrl] = React.useState(initialData?.photoUrl || null)
-  const [uploadingPhoto, setUploadingPhoto] = React.useState(false)
-
-  const { data: session } = useSession()
+export default function PersonalDetails({
+  initialData,
+  isSubmitting,
+  onSubmit,
+}) {
+  const [uploadedFile, setUploadedFile] = React.useState(null);
+  const [previewUrl, setPreviewUrl] = React.useState(
+    initialData?.photoUrl || null
+  );
+  const [uploadingPhoto, setUploadingPhoto] = React.useState(false);
+  const { toast } = useToast();
+  const { data: session } = useSession();
+  const t = useTranslations("formErrors");
+  const Schema = adminSchema(t);
 
   const form = useForm({
-    resolver: zodResolver(AdminPersonalSchema),
+    resolver: zodResolver(
+      Schema.pick({
+        photo: true,
+        firstName: true,
+        lastName: true,
+        corporateEmail: true,
+        alternateEmail: true,
+        phone: true,
+        alternatePhone: true,
+        designation: true,
+        profileHeadline: true,
+        gender: true,
+        about: true,
+        dob: true,
+      })
+    ),
     defaultValues: {
       photo: initialData?.photo || null,
       photoUrl: initialData?.photoUrl || "",
@@ -36,19 +74,19 @@ export default function PersonalDetails({ initialData, isSubmitting, onSubmit })
       profileHeadline: initialData?.profileHeadline || "",
       gender: initialData?.gender || "",
       dob: initialData?.dob || "",
+      about: initialData?.about || "",
     },
-  })
-
+  });
   const handleFileChange = async (e) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
       // Check file size (less than 2MB)
       if (file.size > 2 * 1024 * 1024) {
         form.setError("photo", {
           type: "manual",
           message: "File size should be less than 2MB",
-        })
-        return
+        });
+        return;
       }
 
       // Check file type
@@ -56,40 +94,43 @@ export default function PersonalDetails({ initialData, isSubmitting, onSubmit })
         form.setError("photo", {
           type: "manual",
           message: "Only JPG, JPEG, and PNG files are allowed",
-        })
-        return
+        });
+        return;
       }
 
-      setUploadedFile(file)
+      setUploadedFile(file);
 
       // Create preview URL
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onload = () => {
-        setPreviewUrl(reader.result)
-      }
-      reader.readAsDataURL(file)
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
 
       // Upload the image immediately
-      await handleImageUpload(file)
+      await handleImageUpload(file);
     }
-  }
+  };
 
   const handleImageUpload = async (file) => {
-    setUploadingPhoto(true)
+    setUploadingPhoto(true);
     try {
-      const formData = new FormData()
-      formData.append("userId", session?.user?.id || "")
-      formData.append("file", file)
+      const formData = new FormData();
+      formData.append("userId", session?.user?.id || "");
+      formData.append("file", file);
 
-      const response = await fetch("/api/institution/v1/hcjBrBT60242AdminProfileImage", {
-        method: "POST",
-        body: formData,
-      })
+      const response = await fetch(
+        "/api/institution/v1/hcjBrBT60242AdminProfileImage",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
-      const result = await response.json()
+      const result = await response.json();
       if (result.success && result.url) {
         // Set the URL in the form
-        form.setValue("photoUrl", result.url)
+        form.setValue("photoUrl", result.url);
 
         Swal.fire({
           title: "Success",
@@ -99,56 +140,98 @@ export default function PersonalDetails({ initialData, isSubmitting, onSubmit })
           position: "top-end",
           showConfirmButton: false,
           timer: 3000,
-        })
+        });
 
-        return result.url
+        return result.url;
       } else {
-        throw new Error(result.message || "Upload failed")
+        throw new Error(result.message || "Upload failed");
       }
     } catch (error) {
-      console.error("Profile image upload error:", error)
+      console.error("Profile image upload error:", error);
       Swal.fire({
         title: "Error",
         text: error.message || "Failed to upload profile image",
         icon: "error",
         confirmButtonText: "OK",
-      })
-      return null
+      });
+      return null;
     } finally {
-      setUploadingPhoto(false)
+      setUploadingPhoto(false);
     }
-  }
+  };
 
   React.useEffect(() => {
-    form.setValue("corporateEmail", session?.user?.email)
-  }, [session, form])
+    form.setValue("corporateEmail", session?.user?.email);
+  }, [session, form]);
+
+  const handleUploadSuccess = (url) => {
+    // setProfileImageUrl(url);
+    form.setValue("photoUrl", url);
+    console.log("Uploaded URL:", url);
+    toast({
+      title: "Success!",
+      description: "Profile image uploaded successfully",
+      variant: "default",
+    });
+  };
+
+  const handleRemovePhoto = () => {
+    form.setValue("photoUrl", "");
+    toast({
+      title: "Removed",
+      description: "Profile photo removed",
+      variant: "default",
+    });
+  };
+
+  const handleUploadError = (error) => {
+    toast({
+      title: "Upload failed",
+      description: error.message || "Please try again with a different image",
+      variant: "destructive",
+    });
+  };
+
+  const handleValidationError = (error) => {
+    toast({
+      title: "Invalid file",
+      description: error.message,
+      variant: "destructive",
+    });
+  };
 
   const handleFormSubmit = (data) => {
     // Make sure the photoUrl is included in the submission
     const dataWithPhotoUrl = {
       ...data,
       photoUrl: form.getValues("photoUrl"),
-    }
-    onSubmit(dataWithPhotoUrl)
-  }
+    };
+    console.log(dataWithPhotoUrl);
+    onSubmit(dataWithPhotoUrl);
+  };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6 p-2 sm:p-4 max-w-xl mx-auto">
+      <form
+        onSubmit={form.handleSubmit(handleFormSubmit)}
+        className="space-y-6 p-2 sm:p-4 max-w-xl mx-auto">
         {/* Upload Profile Photo */}
-        <FormField
+        {/* <FormField
           control={form.control}
           name="photo"
           render={({ field }) => (
             <FormItem>
-              <FormLabel htmlFor="uploadPhoto" className="text-primary font-medium">
+              <FormLabel
+                htmlFor="uploadPhoto"
+                className="text-primary font-medium">
                 Upload Profile Photo
               </FormLabel>
               <FormControl>
                 <div
                   className="relative border-2 border-dashed border-blue-200 rounded-lg p-6 cursor-pointer text-center hover:bg-blue-50 transition-colors"
-                  onClick={() => document.getElementById("uploadPhoto")?.click()}
-                >
+                  onClick={() =>
+                    document.getElementById("uploadPhoto")?.click()
+                  }>
                   {previewUrl ? (
                     <div className="flex flex-col items-center">
                       <div className="w-24 h-24 rounded-full overflow-hidden mb-3 border-2 border-blue-300 relative">
@@ -163,7 +246,9 @@ export default function PersonalDetails({ initialData, isSubmitting, onSubmit })
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <p className="text-primary text-sm">Click to change photo</p>
+                      <p className="text-primary text-sm">
+                        Click to change photo
+                      </p>
                     </div>
                   ) : (
                     <>
@@ -173,9 +258,14 @@ export default function PersonalDetails({ initialData, isSubmitting, onSubmit })
                         <Upload className="mx-auto mb-2 w-10 h-10 text-primary" />
                       )}
                       <p className="text-gray-600">
-                        <span className="text-primary font-medium">Click to upload</span> or drag and drop
+                        <span className="text-primary font-medium">
+                          Click to upload
+                        </span>{" "}
+                        or drag and drop
                       </p>
-                      <p className="text-gray-400 text-xs mt-1">JPG, JPEG, PNG less than 2MB</p>
+                      <p className="text-gray-400 text-xs mt-1">
+                        JPG, JPEG, PNG less than 2MB
+                      </p>
                     </>
                   )}
                   <input
@@ -191,11 +281,29 @@ export default function PersonalDetails({ initialData, isSubmitting, onSubmit })
               <FormMessage />
             </FormItem>
           )}
+        /> */}
+
+        <ProfilePhotoUpload
+          onUploadSuccess={handleUploadSuccess}
+          onRemovePhoto={handleRemovePhoto}
+          onUploadError={handleUploadError}
+          onValidationError={handleValidationError}
+          userId={session?.user?.id}
+          imageTitle={"Upload Profile Photo"}
+          imageDescription={""}
+          uploadEndpoint="/api/institution/v1/hcjBrBT60242AdminProfileImage"
+          initialPhoto={form.getValues("photoUrl")}
+          onUploadStateChange={setUploadingPhoto}
+          // UploadIcon={ShieldUser}
+          uploadType={"profile"}
         />
 
         {/* Hidden field for photo URL */}
-        <FormField control={form.control} name="photoUrl" render={({ field }) => <input type="hidden" {...field} />} />
-
+        <FormField
+          control={form.control}
+          name="photoUrl"
+          render={({ field }) => <input type="hidden" {...field} />}
+        />
         {/* Form Fields */}
         <FormField
           control={form.control}
@@ -216,7 +324,6 @@ export default function PersonalDetails({ initialData, isSubmitting, onSubmit })
             </FormItem>
           )}
         />
-
         <FormField
           control={form.control}
           name="lastName"
@@ -243,7 +350,7 @@ export default function PersonalDetails({ initialData, isSubmitting, onSubmit })
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-primary font-medium">
-              Institution Email ID <span className="text-red-500">*</span>
+                Institution Email ID <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
                 <Input
@@ -324,7 +431,8 @@ export default function PersonalDetails({ initialData, isSubmitting, onSubmit })
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-primary font-medium">
-                Alternate Phone Number <span className="text-gray-400">(Optional)</span>
+                Alternate Phone Number{" "}
+                <span className="text-gray-400">(Optional)</span>
               </FormLabel>
               <FormControl>
                 <PhoneInput
@@ -360,7 +468,9 @@ export default function PersonalDetails({ initialData, isSubmitting, onSubmit })
                 Gender <span className="text-red-500">*</span>
               </FormLabel>
               <FormControl>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
@@ -422,7 +532,8 @@ export default function PersonalDetails({ initialData, isSubmitting, onSubmit })
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-primary font-medium">
-                Profile Headline <span className="text-gray-400">(Optional)</span>
+                Profile Headline{" "}
+                <span className="text-gray-400">(Optional)</span>
               </FormLabel>
               <FormControl>
                 <Input
@@ -436,16 +547,35 @@ export default function PersonalDetails({ initialData, isSubmitting, onSubmit })
           )}
         />
 
+        <FormField
+          control={form.control}
+          name="about"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-primary font-medium">
+                About <span className="text-gray-400">(Optional)</span>
+              </FormLabel>
+              <FormControl>
+                <textarea
+                  {...field}
+                  placeholder="Tell us something about yourself"
+                  className="w-full border border-gray-300 rounded-md p-2 focus:border-blue-400 focus:ring-blue-400"
+                  rows={4}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         {/* Submit Button */}
         <Button
           type="submit"
           className="w-full text-white py-2 rounded-md transition-colors"
-          disabled={isSubmitting || uploadingPhoto}
-        >
+          disabled={isSubmitting || uploadingPhoto}>
           {isSubmitting ? "Submitting..." : "Next"}
         </Button>
       </form>
     </Form>
-  )
+  );
 }
-

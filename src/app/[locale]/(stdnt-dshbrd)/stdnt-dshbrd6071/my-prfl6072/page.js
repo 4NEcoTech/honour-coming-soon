@@ -15,6 +15,7 @@ import {
   Plus,
   Trash2,
   Upload,
+  MailCheck,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -83,21 +84,8 @@ export default function ProfilePage() {
   const [skills, setSkills] = useState([]);
   const [skillsRecord, setSkillsRecord] = useState(null);
   const [experiences, setExperiences] = useState([]);
-  const [education, setEducation] = useState([
-    {
-      id: 1,
-      institution: "IIT Delhi",
-      degree: "B-Tech",
-      field: "Mechanical",
-      duration: "2018 - 2022",
-      skills: [
-        "Finite Element Analysis",
-        "Programming Skills",
-        "Manufacturing Processes",
-        "Welding",
-      ],
-    },
-  ]);
+
+  const [education, setEducation] = useState([]);
 
   const [projects, setProjects] = useState([]);
 
@@ -183,7 +171,7 @@ export default function ProfilePage() {
         `/api/student/v1/hcjBrBT60891AddSkills/${individualId}`
       );
 
-      console.log("Skills data:", response);
+      //  console.log("Skills data:", response);
       if (!response.ok) {
         throw new Error("Failed to fetch skills");
       }
@@ -356,20 +344,18 @@ export default function ProfilePage() {
       case "skills":
         await handleUpdateSkills(data);
         break;
+
       case "experience":
         await handleUpdateExperience(data);
         break;
       case "education":
         if (popup.data) {
-          setEducation(
-            education.map((edu) =>
-              edu.id === popup.data.id ? { ...edu, ...data } : edu
-            )
-          );
+          await handleUpdateEducation(data);
         } else {
-          setEducation([...education, { id: Date.now(), ...data }]);
+          await handleAddEducation(data);
         }
         break;
+
       case "projects":
         await handleUpdateProject(data);
         break;
@@ -526,7 +512,7 @@ export default function ProfilePage() {
       setLoading((prev) => ({ ...prev, experiences: true }));
 
       const apiData = {
-        HCJ_JSX_Job_Seeker_Id: "65d7adfdc9f2a839aafe7777", // Replace with dynamic value
+        HCJ_JSX_Job_Seeker_Id: session?.user?.jobSeekerId, // Replace with dynamic value
         HCJ_JSX_Individual_Id: individualId,
         HCJ_JSX_Company_Name: formData.companyName,
         HCJ_JSX_Job_Title: formData.jobTitle,
@@ -539,8 +525,8 @@ export default function ProfilePage() {
         HCJ_JSX_City: formData.city,
         HCJ_JSX_Work_Mode: formData.workmode,
         HCJ_JSX_Employement_Type: formData.employmentType,
-        HCJ_JSX_Updated_By: "user@example.com", // Replace with dynamic value
-        HCJ_JSX_Session_Id: "SESSION123456", // Replace with dynamic value
+        HCJ_JSX_Updated_By: session?.user?.id, // Replace with dynamic value
+        HCJ_JSX_Session_Id: `session_${Date.now()}`, // Replace with dynamic value
       };
 
       let response;
@@ -598,7 +584,7 @@ export default function ProfilePage() {
       setLoading((prev) => ({ ...prev, projects: true }));
 
       const apiData = {
-        HCJ_JSP_Job_Seeker_Id: "64c2d76c9bdf5c44f8c44e1e", // Replace with dynamic value
+        HCJ_JSP_Job_Seeker_Id: session?.user?.jobSeekerId, // Replace with dynamic value
         HCJ_JSP_Individual_Id: individualId,
         HCJ_JSP_Project_Name: formData.title,
         HCJ_JSP_Company_Name: formData.company,
@@ -606,7 +592,7 @@ export default function ProfilePage() {
         HCJ_JSP_End_Date: formData.endDate,
         HCJ_JSP_Project_Status: formData.status,
         HCJ_JSP_Project_Description: formData.description,
-        HCJ_JSP_Session_Id: "session123", // Replace with dynamic value
+        HCJ_JSP_Session_Id: `session_${Date.now()}`, // Replace with dynamic value
       };
 
       let response;
@@ -665,7 +651,7 @@ export default function ProfilePage() {
       setLoading((prev) => ({ ...prev, volunteering: true }));
 
       const apiData = {
-        HCJ_JSV_Job_Seeker_Id: "65d7adfdc9f2a839aafe7777", // Replace with dynamic value
+        HCJ_JSV_Job_Seeker_Id: session?.user?.jobSeekerId, // Replace with dynamic value
         HCJ_JSV_Individual_Id: individualId,
         HCJ_JSV_VolunteerActivity_Name: formData.activity,
         HCJ_JSV_Company_Name: formData.organization,
@@ -673,7 +659,7 @@ export default function ProfilePage() {
         HCJ_JSV_End_Date: formData.endDate,
         HCJ_JSV_VolunteerActivity_Status: formData.status,
         HCJ_JSV_VolunteerActivity_Description: formData.description,
-        HCJ_JSV_Session_Id: "SESSION123456", // Replace with dynamic value
+        HCJ_JSV_Session_Id: `session_${Date.now()}`, // Replace with dynamic value
       };
 
       let response;
@@ -863,6 +849,8 @@ export default function ProfilePage() {
     12: "Job Seeker",
   };
 
+  // console.log("Omkar", profileData)
+
   useEffect(() => {
     const fetchProfile = async () => {
       if (!session?.user?.id) return;
@@ -900,6 +888,180 @@ export default function ProfilePage() {
       fetchLanguages();
     }
   }, [individualId]);
+
+  //  user education
+
+  useEffect(() => {
+    if (session?.user?.individualId) {
+      fetchEducation();
+    }
+  }, [session?.user?.individualId]);
+
+  const fetchEducation = async () => {
+    setLoading((prev) => ({ ...prev, education: true }));
+    try {
+      const response = await fetch(
+        `/api/student/v1/hcjBrBT60861AddEducation?IE_Individual_Id=${individualId}`
+      );
+      const data = await response.json();
+
+      if (data.success) {
+        setEducation(data.educationRecords || []);
+      } else {
+        toast({
+          title: "Error",
+          description: data.message || "Failed to fetch education data",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching education:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch education data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading((prev) => ({ ...prev, education: false }));
+    }
+  };
+
+  const handleAddEducation = async (formData) => {
+    setLoading((prev) => ({ ...prev, education: true }));
+    try {
+      const apiData = {
+        IE_Individual_Id: individualId,
+        IE_Institute_Name: formData.institutionName,
+        IE_Program_Name: formData.degree,
+        IE_Specialization: formData.fieldOfStudy,
+        IE_Start_Date: formData.startDate,
+        IE_End_Date: formData.currentlyStudying ? null : formData.endDate,
+        IE_Program_Status: formData.currentlyStudying ? "01" : "02",
+        IE_Score_Grades: formData.gradeType.toLowerCase(),
+        IE_Score_Grades_Value: parseFloat(formData.score),
+      };
+
+      const response = await fetch(`/api/student/v1/hcjBrBT60861AddEducation`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(apiData),
+      });
+
+      const data = await response.json();
+
+      if (data.message) {
+        await fetchEducation();
+        toast({
+          title: "Success",
+          description: "Education added successfully",
+        });
+      } else {
+        throw new Error(data.message || "Failed to add education");
+      }
+    } catch (error) {
+      console.error("Error adding education:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add education",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading((prev) => ({ ...prev, education: false }));
+      closePopup();
+    }
+  };
+
+  const handleUpdateEducation = async (formData) => {
+    if (!popup.data || !popup.data._id) {
+      toast({
+        title: "Error",
+        description: "No education selected for update",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading((prev) => ({ ...prev, education: true }));
+    try {
+      const apiData = {
+        IE_Individual_Id: individualId,
+        IE_Institute_Name: formData.institutionName,
+        IE_Program_Name: formData.degree,
+        IE_Specialization: formData.fieldOfStudy,
+        IE_Start_Date: formData.startDate,
+        IE_End_Date: formData.currentlyStudying ? null : formData.endDate,
+        IE_Program_Status: formData.currentlyStudying ? "01" : "02",
+        IE_Score_Grades: formData.gradeType.toLowerCase(),
+        IE_Score_Grades_Value: parseFloat(formData.score),
+      };
+
+      const response = await fetch(
+        `/api/student/v1/hcjBrBT60861AddEducation/${popup.data._id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(apiData),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.message) {
+        await fetchEducation();
+        toast({
+          title: "Success",
+          description: "Education updated successfully",
+        });
+      } else {
+        throw new Error(data.message || "Failed to update education");
+      }
+    } catch (error) {
+      console.error("Error updating education:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update education",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading((prev) => ({ ...prev, education: false }));
+      closePopup();
+    }
+  };
+
+  const handleDeleteEducation = async (id) => {
+    if (!id) return;
+
+    setLoading((prev) => ({ ...prev, education: true }));
+    try {
+      const response = await fetch(
+        `/api/student/v1/hcjBrBT60861AddEducation/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.message) {
+        setEducation((prev) => prev.filter((edu) => edu._id !== id));
+        toast({
+          title: "Success",
+          description: "Education deleted successfully",
+        });
+      } else {
+        throw new Error(data.message || "Failed to delete education");
+      }
+    } catch (error) {
+      console.error("Error deleting education:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete education",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading((prev) => ({ ...prev, education: false }));
+    }
+  };
 
   //  user location
   const [locations, setLocations] = useState([]);
@@ -945,7 +1107,7 @@ export default function ProfilePage() {
       );
 
       const result = await res.json();
-      console.log("PATCH result:", result);
+      //  console.log("PATCH result:", result);
 
       if (result.success) {
         toast({
@@ -1030,6 +1192,89 @@ export default function ProfilePage() {
     }
   };
 
+  const handleDeleteResume = async () => {
+    if (!individualId) return;
+
+    const confirmDelete = confirm(
+      "Are you sure you want to delete your resume?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const response = await fetch(
+        `/api/student/v1/hcjBrBT60725DeleteResume/${individualId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setResumeUrl(null);
+        setLastUpdated(null);
+        toast({
+          title: "Deleted",
+          description: "Resume removed successfully.",
+        });
+      } else {
+        throw new Error(data.message || "Failed to delete resume");
+      }
+    } catch (error) {
+      console.error("Error deleting resume:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Something went wrong during deletion.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const formatDateRange = (start, end, status) => {
+    const format = (date) =>
+      new Date(date).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+      });
+    return `${format(start)} - ${status === "01" ? "Present" : format(end)}`;
+  };
+
+  const mapExperienceToInitialData = (exp = {}) => ({
+    jobTitle: exp.HCJ_JSX_Job_Title || "",
+    companyName: exp.HCJ_JSX_Company_Name || "",
+    country: exp.HCJ_JSX_Country || "",
+    state: exp.HCJ_JSX_State || "",
+    city: exp.HCJ_JSX_City || "",
+    workmode: exp.HCJ_JSX_Work_Mode?.toLowerCase() || "",
+    employmentType: exp.HCJ_JSX_Employement_Type?.toLowerCase() || "",
+    description: exp.HCJ_JSX_Job_Description || "",
+    startDate: exp.HCJ_JSX_Start_Date ? new Date(exp.HCJ_JSX_Start_Date) : null,
+    endDate: exp.HCJ_JSX_End_Date ? new Date(exp.HCJ_JSX_End_Date) : null,
+    currentlyWorking: exp.HCJ_JSX_Currently_Working || false,
+  });
+
+  console.log("aman", mapExperienceToInitialData)
+
+  const mapEducationToInitialData = (edu = {}) => ({
+    institutionName: edu.IE_Institute_Name || "",
+    degree: edu.IE_Program_Name || "",
+    fieldOfStudy: edu.IE_Specialization || "",
+    startDate: edu.IE_Start_Date ? new Date(edu.IE_Start_Date) : null,
+    endDate: edu.IE_End_Date ? new Date(edu.IE_End_Date) : null,
+    currentlyStudying: edu.IE_Program_Status === "01",
+    gradeType: edu.IE_Score_Grades?.toUpperCase() || "CGPA",
+    score: edu.IE_Score_Grades_Value?.toString() || "",
+  });
+
+  const mapVolunteeringToInitialData = (act) => ({
+    activity: act.activity,
+    organization: act.organization,
+    startDate: act.startDate ? new Date(act.startDate) : null,
+    endDate: act.endDate ? new Date(act.endDate) : null,
+    status: act.status,
+    description: act.description,
+  });
+
   // Map popup types to their corresponding components
   const popupComponents = {
     about: (
@@ -1048,22 +1293,26 @@ export default function ProfilePage() {
         selectedSkills={skills}
       />
     ),
+
     experience: (
       <WorkExperiencePopup
         isOpen={popup.type === "experience"}
         onClose={closePopup}
         onSubmit={handleUpdate}
-        experience={popup.data ? popup.data.originalData : null}
+        initialData={popup.data ? mapExperienceToInitialData(popup.data) : null}
+
       />
     ),
+
     education: (
       <AddEducationPopup
         isOpen={popup.type === "education"}
         onClose={closePopup}
         onSubmit={handleUpdate}
-        education={popup.data}
+        education={popup.data ? mapEducationToInitialData(popup.data) : null}
       />
     ),
+
     projects: (
       <ProjectPopup
         isOpen={popup.type === "projects"}
@@ -1078,7 +1327,9 @@ export default function ProfilePage() {
         isOpen={popup.type === "volunteering"}
         onClose={closePopup}
         onSubmit={handleUpdate}
-        activity={popup.data}
+        volunteering={
+          popup.data ? mapVolunteeringToInitialData(popup.data) : null
+        }
       />
     ),
 
@@ -1099,7 +1350,7 @@ export default function ProfilePage() {
       {profileData?.profile?.ID_Cover_Photo ? (
         <div className="relative h-[150px] sm:h-[180px] md:h-[200px] w-full">
           <Image
-            src={profileData.profile.ID_Cover_Photo}
+            src={profileData.profile.ID_Cover_Photo || "/image/cover.png"}
             alt="Cover"
             fill
             className="object-cover"
@@ -1115,8 +1366,7 @@ export default function ProfilePage() {
           {/* Profile Picture */}
           <Image
             src={
-              profileData?.profile?.ID_Profile_Picture ||
-              "/image/institutndashboard/dashpage/myprofile/profile.svg"
+              profileData?.profile?.ID_Profile_Picture || "/image/profile.png"
             }
             alt="Profile picture"
             width={128}
@@ -1148,7 +1398,8 @@ export default function ProfilePage() {
               <Link href="/stdnt-dshbrd6071/my-prfl-edit6079">
                 <Button
                   variant="outline"
-                  className="bg-primary text-sm sm:text-base text-white">
+                  className="bg-primary text-sm sm:text-base text-white"
+                >
                   Edit profile
                 </Button>
               </Link>
@@ -1160,14 +1411,12 @@ export default function ProfilePage() {
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
               <span className="text-sm sm:text-base dark:text-gray-300">
-                {profileData?.profile?.ID_City || "N/A"},{" "}
-                {profileData?.address?.[0]?.IAD_State || "N/A"}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
-              <span className="text-sm sm:text-base dark:text-gray-300">
-                {profileData?.profile?.ID_Phone || "N/A"}
+                {profileData?.address?.IAD_Address_Line1 || "N/A"},{" "}
+                {profileData?.address?.IAD_City || "N/A"},{" "}
+                {/* {profileData?.address?.[0]?.IAD_State || "N/A"}{" "} */}
+                {profileData?.address?.IAD_State || "N/A"}{" "}
+                {profileData?.address?.IAD_Pincode || "N/A"},{" "}
+                {profileData?.address?.IAD_Country || "N/A"},{" "}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -1178,15 +1427,37 @@ export default function ProfilePage() {
               </span>
             </div>
             <div className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+              <span className="text-sm sm:text-base dark:text-gray-300">
+                {profileData?.profile?.ID_Phone || "N/A"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+              <span className="text-gray-500 mr-1">Alternate:</span>
+              <span className="text-sm sm:text-base dark:text-gray-300">
+                {profileData?.profile?.ID_Alternate_Phone || "N/A"}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
               <span className="text-sm sm:text-base break-all dark:text-gray-300">
                 {profileData?.profile?.ID_Email || "N/A"}
               </span>
             </div>
+            <div className="flex items-center gap-2">
+              <MailCheck className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+              <span className="text-gray-500 mr-1">Alternate:</span>
+              <span className="text-sm sm:text-base break-all dark:text-gray-300">
+                {profileData?.profile?.ID_Alternate_Email || "N/A"}
+              </span>
+            </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full mt-4">
             <ul className="pl-5 list-none">
-              {languages && languages.length > 0 ? (
+              {languages &&
+                languages.length > 0 &&
                 languages.map((lang, index) => (
                   <li key={index} className="mb-3">
                     <div className="text-base font-medium capitalize">
@@ -1216,28 +1487,16 @@ export default function ProfilePage() {
                       </div>
                     )}
                   </li>
-                ))
-              ) : (
-                <>
-                  <li className="mb-3">
-                    <div className="text-base font-medium">English</div>
-                    <div className="text-sm text-gray-500">Fluent</div>
-                  </li>
-                  <li className="mb-3">
-                    <div className="text-base font-medium">Hindi</div>
-                    <div className="text-sm text-gray-500">Native</div>
-                  </li>
-                </>
-              )}
+                ))}
             </ul>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full mt-4">
             <div className="flex gap-2">
               <a
                 href="https://www.linkedin.com"
                 target="_blank"
-                rel="noopener noreferrer">
+                rel="noopener noreferrer"
+              >
                 <Image
                   src="/image/institutndashboard/dashpage/myprofile/linkedin.svg"
                   alt="LinkedIn"
@@ -1250,7 +1509,8 @@ export default function ProfilePage() {
               <a
                 href="https://www.facebook.com"
                 target="_blank"
-                rel="noopener noreferrer">
+                rel="noopener noreferrer"
+              >
                 <Image
                   src="/image/institutndashboard/dashpage/myprofile/fb.svg"
                   alt="Facebook"
@@ -1263,7 +1523,8 @@ export default function ProfilePage() {
               <a
                 href="https://www.instagram.com"
                 target="_blank"
-                rel="noopener noreferrer">
+                rel="noopener noreferrer"
+              >
                 <Image
                   src="/image/institutndashboard/dashpage/myprofile/ig.svg"
                   alt="Instagram"
@@ -1276,7 +1537,8 @@ export default function ProfilePage() {
               <a
                 href="https://yourportfolio.com"
                 target="_blank"
-                rel="noopener noreferrer">
+                rel="noopener noreferrer"
+              >
                 <Image
                   src="/image/institutndashboard/dashpage/myprofile/four.svg"
                   alt="Portfolio"
@@ -1295,7 +1557,8 @@ export default function ProfilePage() {
         {/* About */}
         <Card
           id="about"
-          className="dark:bg-gray-800 dark:border-gray-700 transition-all hover:shadow-md">
+          className="dark:bg-gray-800 dark:border-gray-700 transition-all hover:shadow-md"
+        >
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg sm:text-xl dark:text-white">
               About
@@ -1304,7 +1567,8 @@ export default function ProfilePage() {
               variant="ghost"
               size="sm"
               className="ml-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-              onClick={() => openPopup("about")}>
+              onClick={() => openPopup("about")}
+            >
               <Pencil className="h-4 w-4" />
             </Button>
           </CardHeader>
@@ -1331,7 +1595,8 @@ export default function ProfilePage() {
         {/* Skills */}
         <Card
           id="skills"
-          className="dark:bg-gray-800 dark:border-gray-700 transition-all hover:shadow-md">
+          className="dark:bg-gray-800 dark:border-gray-700 transition-all hover:shadow-md"
+        >
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg sm:text-xl dark:text-white">
               Skills
@@ -1339,7 +1604,8 @@ export default function ProfilePage() {
             <Button
               className="bg-primary hover:bg-primary/90 text-white"
               size="sm"
-              onClick={() => openPopup("skills")}>
+              onClick={() => openPopup("skills")}
+            >
               {skillsRecord ? (
                 <>
                   <Pencil className="mr-2 h-4 w-4" />
@@ -1365,7 +1631,8 @@ export default function ProfilePage() {
                   <Badge
                     key={skill}
                     variant="secondary"
-                    className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 transition-colors">
+                    className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 transition-colors"
+                  >
                     {skill}
                   </Badge>
                 ))}
@@ -1384,14 +1651,16 @@ export default function ProfilePage() {
         {/* Work Experience */}
         <Card
           id="experience"
-          className="dark:bg-gray-800 dark:border-gray-700 transition-all hover:shadow-md">
+          className="dark:bg-gray-800 dark:border-gray-700 transition-all hover:shadow-md"
+        >
           <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <CardTitle className="text-lg sm:text-xl dark:text-white">
               Work Experience
             </CardTitle>
             <Button
               className="w-full sm:w-auto text-sm bg-primary hover:bg-primary/90 text-white"
-              onClick={() => openPopup("experience")}>
+              onClick={() => openPopup("experience")}
+            >
               <Plus className="mr-2 h-4 w-4" />
               Add work experience
             </Button>
@@ -1407,7 +1676,8 @@ export default function ProfilePage() {
                 {experiences.map((exp) => (
                   <div
                     key={exp.id}
-                    className="flex gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 transition-all hover:shadow-md border border-gray-100 dark:border-gray-600">
+                    className="flex gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 transition-all hover:shadow-md border border-gray-100 dark:border-gray-600"
+                  >
                     <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center dark:text-blue-100 text-xl font-semibold">
                       {exp.company.charAt(0)}
                     </div>
@@ -1421,14 +1691,18 @@ export default function ProfilePage() {
                             variant="outline"
                             size="sm"
                             className="hover:bg-gray-100 dark:hover:bg-gray-600 h-8 w-8 p-0"
-                            onClick={() => openPopup("experience", exp)}>
+                            onClick={() =>
+                              openPopup("experience", exp.originalData)
+                            }
+                          >
                             <Pencil className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
                             className="hover:bg-gray-100 dark:hover:bg-gray-600 text-red-500 h-8 w-8 p-0"
-                            onClick={() => handleDeleteExperience(exp.id)}>
+                            onClick={() => handleDeleteExperience(exp.id)}
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
@@ -1471,77 +1745,83 @@ export default function ProfilePage() {
         </Card>
 
         {/* Education */}
+
         <Card
           id="education"
-          className="dark:bg-gray-800 dark:border-gray-700 transition-all hover:shadow-md">
+          className="dark:bg-gray-800 dark:border-gray-700 transition-all hover:shadow-md"
+        >
           <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <CardTitle className="text-lg sm:text-xl dark:text-white">
               Education
             </CardTitle>
             <Button
               className="w-full sm:w-auto text-sm bg-primary hover:bg-primary/90 text-white"
-              onClick={() => openPopup("education")}>
+              onClick={() => openPopup("education")}
+            >
               <Plus className="mr-2 h-4 w-4" />
               Add Education
             </Button>
           </CardHeader>
           <CardContent className="space-y-4">
-            {education.length > 0 ? (
+            {loading.education ? (
+              <div className="w-full flex justify-center py-4">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <span className="ml-2">Loading education data...</span>
+              </div>
+            ) : education.length > 0 ? (
               education.map((edu) => (
                 <div
-                  key={edu.id}
-                  className="flex flex-col sm:flex-row gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 transition-all hover:shadow-md border border-gray-100 dark:border-gray-600">
+                  key={edu._id}
+                  className="flex flex-col sm:flex-row gap-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 transition-all hover:shadow-md border border-gray-100 dark:border-gray-600"
+                >
                   <div className="w-12 h-12 bg-primary/10 dark:bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0 text-primary">
                     <Building2 className="h-6 w-6" />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between flex-wrap gap-2">
                       <h3 className="font-semibold text-lg dark:text-white">
-                        {edu.institution}
+                        {edu.IE_Institute_Name}
                       </h3>
                       <div className="flex gap-2">
                         <Button
                           variant="outline"
                           size="sm"
                           className="hover:bg-gray-100 dark:hover:bg-gray-600 h-8 w-8 p-0"
-                          onClick={() => openPopup("education", edu)}>
+                          onClick={() => openPopup("education", edu)}
+                        >
                           <Pencil className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
                           className="hover:bg-gray-100 dark:hover:bg-gray-600 text-red-500 h-8 w-8 p-0"
-                          onClick={() => {
-                            if (
-                              confirm(
-                                "Are you sure you want to delete this education?"
-                              )
-                            ) {
-                              setEducation(
-                                education.filter((e) => e.id !== edu.id)
-                              );
-                            }
-                          }}>
+                          onClick={() => handleDeleteEducation(edu._id)}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
                     <p className="text-gray-700 dark:text-gray-300 font-medium">
-                      {edu.degree}, {edu.field}
+                      {edu.IE_Program_Name}, {edu.IE_Specialization}
                     </p>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                      {edu.duration}
+                      {formatDateRange(
+                        edu.IE_Start_Date,
+                        edu.IE_End_Date,
+                        edu.IE_Program_Status
+                      )}
                     </p>
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {edu?.skills?.map((skill) => (
+                    {edu.IE_Score_Grades && (
+                      <div className="mt-2 flex flex-wrap gap-1">
                         <Badge
-                          key={skill}
                           variant="outline"
-                          className="bg-gray-100/50 dark:bg-gray-800/50">
-                          {skill}
+                          className="bg-gray-100/50 dark:bg-gray-800/50"
+                        >
+                          {edu.IE_Score_Grades.toUpperCase()}:{" "}
+                          {edu.IE_Score_Grades_Value}
                         </Badge>
-                      ))}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))
@@ -1559,14 +1839,16 @@ export default function ProfilePage() {
         {/* Projects */}
         <Card
           id="project"
-          className="dark:bg-gray-800 dark:border-gray-700 transition-all hover:shadow-md">
+          className="dark:bg-gray-800 dark:border-gray-700 transition-all hover:shadow-md"
+        >
           <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <CardTitle className="text-lg sm:text-xl dark:text-white">
               Projects
             </CardTitle>
             <Button
               onClick={() => openPopup("projects")}
-              className="w-full sm:w-auto text-sm bg-primary hover:bg-primary/90 text-white">
+              className="w-full sm:w-auto text-sm bg-primary hover:bg-primary/90 text-white"
+            >
               <Plus className="mr-2 h-4 w-4" />
               Add new project
             </Button>
@@ -1603,10 +1885,12 @@ export default function ProfilePage() {
                   return (
                     <div
                       key={project.id}
-                      className="p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 transition-all hover:shadow-md border border-gray-100 dark:border-gray-600 flex flex-col h-full">
+                      className="p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 transition-all hover:shadow-md border border-gray-100 dark:border-gray-600 flex flex-col h-full"
+                    >
                       <div className="flex items-start gap-3 mb-3">
                         <div
-                          className={`w-10 h-10 rounded-md flex items-center justify-center text-lg font-semibold ${getAvatarColor()}`}>
+                          className={`w-10 h-10 rounded-md flex items-center justify-center text-lg font-semibold ${getAvatarColor()}`}
+                        >
                           {project.title.charAt(0)}
                         </div>
                         <div className="flex-1">
@@ -1619,14 +1903,16 @@ export default function ProfilePage() {
                                 variant="outline"
                                 size="sm"
                                 className="hover:bg-gray-100 dark:hover:bg-gray-600 h-7 w-7 p-0"
-                                onClick={() => openPopup("projects", project)}>
+                                onClick={() => openPopup("projects", project)}
+                              >
                                 <Pencil className="h-3.5 w-3.5" />
                               </Button>
                               <Button
                                 variant="outline"
                                 size="sm"
                                 className="hover:bg-gray-100 dark:hover:bg-gray-600 text-red-500 h-7 w-7 p-0"
-                                onClick={() => handleDeleteProject(project.id)}>
+                                onClick={() => handleDeleteProject(project.id)}
+                              >
                                 <Trash2 className="h-3.5 w-3.5" />
                               </Button>
                             </div>
@@ -1640,7 +1926,8 @@ export default function ProfilePage() {
                       <div className="flex items-center gap-2 mb-2">
                         <Badge
                           variant="outline"
-                          className="bg-gray-100/50 dark:bg-gray-800/50">
+                          className="bg-gray-100/50 dark:bg-gray-800/50"
+                        >
                           {project.status === "01"
                             ? "In Progress"
                             : "Completed"}
@@ -1679,14 +1966,16 @@ export default function ProfilePage() {
         {/* Volunteering Activities */}
         <Card
           id="volenteering"
-          className="dark:bg-gray-800 dark:border-gray-700 transition-all hover:shadow-md">
+          className="dark:bg-gray-800 dark:border-gray-700 transition-all hover:shadow-md"
+        >
           <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <CardTitle className="text-lg sm:text-xl dark:text-white">
               Volunteering Activities
             </CardTitle>
             <Button
               onClick={() => openPopup("volunteering")}
-              className="w-full sm:w-auto text-sm bg-primary hover:bg-primary/90 text-white">
+              className="w-full sm:w-auto text-sm bg-primary hover:bg-primary/90 text-white"
+            >
               <Plus className="mr-2 h-4 w-4" />
               Add activity
             </Button>
@@ -1721,10 +2010,12 @@ export default function ProfilePage() {
                   return (
                     <div
                       key={activity.id}
-                      className="p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 transition-all hover:shadow-md border border-gray-100 dark:border-gray-600 flex flex-col h-full">
+                      className="p-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 transition-all hover:shadow-md border border-gray-100 dark:border-gray-600 flex flex-col h-full"
+                    >
                       <div className="flex items-start gap-3 mb-3">
                         <div
-                          className={`w-10 h-10 rounded-md flex items-center justify-center text-lg font-semibold ${getAvatarColor()}`}>
+                          className={`w-10 h-10 rounded-md flex items-center justify-center text-lg font-semibold ${getAvatarColor()}`}
+                        >
                           {activity.activity.charAt(0)}
                         </div>
                         <div className="flex-1">
@@ -1739,7 +2030,8 @@ export default function ProfilePage() {
                                 className="hover:bg-gray-100 dark:hover:bg-gray-600 h-7 w-7 p-0"
                                 onClick={() =>
                                   openPopup("volunteering", activity)
-                                }>
+                                }
+                              >
                                 <Pencil className="h-3.5 w-3.5" />
                               </Button>
                               <Button
@@ -1748,7 +2040,8 @@ export default function ProfilePage() {
                                 className="hover:bg-gray-100 dark:hover:bg-gray-600 text-red-500 h-7 w-7 p-0"
                                 onClick={() =>
                                   handleDeleteVolunteering(activity.id)
-                                }>
+                                }
+                              >
                                 <Trash2 className="h-3.5 w-3.5" />
                               </Button>
                             </div>
@@ -1762,7 +2055,8 @@ export default function ProfilePage() {
                       <div className="flex items-center gap-2 mb-2">
                         <Badge
                           variant="outline"
-                          className="bg-gray-100/50 dark:bg-gray-800/50">
+                          className="bg-gray-100/50 dark:bg-gray-800/50"
+                        >
                           {activity.status === "01"
                             ? "In Progress"
                             : "Completed"}
@@ -1804,7 +2098,8 @@ export default function ProfilePage() {
         {/* Location Preferences */}
         <Card
           id="location"
-          className="dark:bg-gray-800 dark:border-gray-700 transition-all hover:shadow-md">
+          className="dark:bg-gray-800 dark:border-gray-700 transition-all hover:shadow-md"
+        >
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg sm:text-xl dark:text-white">
               Location Preferences
@@ -1813,7 +2108,8 @@ export default function ProfilePage() {
               variant="ghost"
               size="sm"
               className="hover:bg-gray-100 dark:hover:bg-gray-600"
-              onClick={() => openPopup("preferences")}>
+              onClick={() => openPopup("preferences")}
+            >
               <Pencil className="h-4 w-4" />
               <span className="sr-only">Edit location preferences</span>{" "}
               {/* for accessibility */}
@@ -1826,7 +2122,8 @@ export default function ProfilePage() {
                 <Badge
                   key={location}
                   variant="outline"
-                  className="px-3 py-1 text-sm whitespace-nowrap">
+                  className="px-3 py-1 text-sm whitespace-nowrap"
+                >
                   {location}
                 </Badge>
               ))
@@ -1841,7 +2138,8 @@ export default function ProfilePage() {
         {/* Resume */}
         <Card
           id="resume"
-          className="dark:bg-gray-800 dark:border-gray-700 transition-all hover:shadow-md">
+          className="dark:bg-gray-800 dark:border-gray-700 transition-all hover:shadow-md"
+        >
           <CardHeader>
             <CardTitle className="text-lg sm:text-xl dark:text-white">
               Resume
@@ -1866,16 +2164,19 @@ export default function ProfilePage() {
                         </p>
                       </div>
                     </div>
+
                     <div className="flex gap-2 w-full sm:w-auto justify-end">
                       <a
                         href={resumeUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        download>
+                        download
+                      >
                         <Button
                           variant="outline"
                           size="sm"
-                          className="dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
+                          className="dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        >
                           <Download className="h-4 w-4 mr-2" />
                           Download
                         </Button>
@@ -1884,9 +2185,19 @@ export default function ProfilePage() {
                         variant="outline"
                         size="sm"
                         onClick={() => fileInputRef.current.click()}
-                        className="dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        className="dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
                         <Upload className="h-4 w-4 mr-2" />
                         Replace
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={handleDeleteResume} // <-- This is your new delete function
+                        className="hover:bg-red-500"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
                       </Button>
                     </div>
                   </div>
@@ -1899,7 +2210,8 @@ export default function ProfilePage() {
                       variant="outline"
                       size="sm"
                       onClick={() => fileInputRef.current.click()}
-                      className="dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
+                      className="dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
                       <Upload className="h-4 w-4 mr-2" />
                       Upload Resume
                     </Button>

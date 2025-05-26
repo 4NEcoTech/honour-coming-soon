@@ -44,7 +44,7 @@ import CompanyProfile from '@/app/models/ecl_company_profile';
 export async function GET(request, { params }) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = await params;
 
     const [ecoLink, companyProfile, socialProfile] = await Promise.all([
       EcoLink.findOne({ ECL_EL_Id: id, ECL_EL_Id_Source: 'CompanyDetails' }).lean(),

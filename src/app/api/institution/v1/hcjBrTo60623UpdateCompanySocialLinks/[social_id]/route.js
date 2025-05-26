@@ -1,7 +1,8 @@
-import { getServerSession } from "next-auth";
 import SocialLinks from "@/app/models/social_link";
-import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/utils/dbConnect";
+import { getTranslator } from "@/i18n/server";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
 /**
  * @swagger
@@ -48,13 +49,20 @@ import { dbConnect } from "@/app/utils/dbConnect";
  */
 
 export async function PATCH(req, { params }) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   try {
     await dbConnect();
 
     const { social_id } = await params;
     if (!social_id) {
       return NextResponse.json(
-        { success: false, message: "Social Links ID is required" },
+        {
+          success: false,
+          code: "6062_28",
+          title: t("errorCode.6062_28.title"),
+          message: t("errorCode.6062_28.description"),
+        },
         { status: 400 }
       );
     }
@@ -62,7 +70,12 @@ export async function PATCH(req, { params }) {
     const session = await getServerSession(req);
     if (!session || !session.user) {
       return NextResponse.json(
-        { success: false, message: "Unauthorized access" },
+        {
+          success: false,
+          code: "6062_19",
+          title: t("errorCode.6062_19.title"),
+          message: t("errorCode.6062_19.description"),
+        },
         { status: 401 }
       );
     }
@@ -76,19 +89,35 @@ export async function PATCH(req, { params }) {
 
     if (!updatedSocialLinks) {
       return NextResponse.json(
-        { success: false, message: "Company social links not found" },
+        {
+          success: false,
+          code: "6062_29",
+          title: t("errorCode.6062_29.title"),
+          message: t("errorCode.6062_29.description"),
+        },
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      { success: true, message: "Company social links updated", data: updatedSocialLinks },
+      {
+        success: true,
+        code: "6062_30",
+        title: t("errorCode.6062_30.title"),
+        message: t("errorCode.6062_30.description"),
+        data: updatedSocialLinks,
+      },
       { status: 200 }
     );
   } catch (error) {
     console.error("Error updating company social links:", error);
     return NextResponse.json(
-      { success: false, message: "Internal Server Error" },
+      {
+        success: false,
+        code: "6062_17",
+        title: t("errorCode.6062_17.title"),
+        message: t("errorCode.6062_17.description"),
+      },
       { status: 500 }
     );
   }

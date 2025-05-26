@@ -45,7 +45,7 @@ const hcjJobFairFormSchema = new Schema(
 );
 
 const HcjJobFairForm =
-  mongoose.models.Jobfairform ||
-  mongoose.model('hcj_job_fair_form', hcjJobFairFormSchema);
+  mongoose.models['hcj_job_fair_form'] || mongoose.model('hcj_job_fair_form', hcjJobFairFormSchema);
+
 
 export default HcjJobFairForm;

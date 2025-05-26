@@ -1,0 +1,29 @@
+{
+  "HomePage": {
+    "Opportunities_for_every_student": "ప్రతి విద్యార్థికి అవకాశాలు",
+    "Projects_Internships_Flexijobs_Regular_Jobs": "ఆన్‌లైన్ జాబ్ ఫెయిర్లు | ఇంటర్న్‌షిప్‌లు | ఫ్లెక్సీ ఉద్యోగాలు | ప్రాజెక్టులు | రిమోట్ వర్క్ అవకాశాలు",
+    "Marketing_Sales_Design_Development_DevOps_Robotics_ML_AI_Finance_Sketch_Artists_VFX_Animation": "మార్కెటింగ్, అమ్మకాలు, డిజైన్, అభివృద్ధి, డెవ్‌ఆప్స్, రోబోటిక్స్, మెషీన్ లెర్నింగ్, ఎఐ, ఫైనాన్స్, స్కెచ్ కళాకారులు, VFX, యానిమేషన్",
+    "Register_your_Institution_with_HCJ": "మీ సంస్థను HCJ లో నమోదు చేయండి",
+    "Take_part_in_India_s_biggest_Job_Fair": "భారతదేశపు అతిపెద్ద ఉద్యోగ మేళాలో పాల్గొనండి",
+    "Nov_10_Nov_20": "నవంబర్ 10 - నవంబర్ 20",
+    "Register_here": "ఇక్కడ నమోదు చేయండి",
+    "About_Us": "మా గురించి",
+    "Welcome_to_HCJ_the_leading_platform_designed_to_connect_institutions_students_and_the_dynamic_job_market": "HCJ కి స్వాగతం — ఇది సంస్థలు, విద్యార్థులు మరియు డైనమిక్ ఉద్యోగ మార్కెట్‌ను కలిపే ప్రముఖ ప్లాట్‌ఫారమ్.",
+    "At_HCJ_our_mission_is_to_streamline_and_enhance_the_job_seeking_experience": "HCJలో, విద్యార్థుల ప్రొఫైల్స్‌ను అప్‌లోడ్ చేసి నిర్వహించడానికి సంస్థలకు ఒక సరళమైన, సమర్థవంతమైన మార్గాన్ని అందించడం ద్వారా ఉద్యోగ అన్వేషణ అనుభవాన్ని మెరుగుపరచడం మా లక్ష్యం. ఇది విద్యార్థులు వారి నైపుణ్యాలు మరియు అర్హతలను ఉద్యోగ మేళాలు, ఇంటర్న్‌షిప్‌లు మరియు విస్తృతమైన కెరీర్ అవకాశాల కోసం ప్రదర్శించడానికి వీలు కల్పిస్తుంది.",
+    "Committed_to_bridging_the_gap_between_academia_and_industry": "HCJ విద్యా మరియు పరిశ్రమ మధ్య ఖాళీని తగ్గించడానికి కట్టుబడి ఉంది, విద్యార్థులకు కనపడేలా చేస్తూ, పనివేళా అవకాశాలను అందించేందుకు సరళమైన ప్లాట్‌ఫారమ్‌ను అందిస్తుంది. సంస్థలు విద్యార్థుల కెరీర్ మార్గాన్ని తీర్చిదిద్దడంలో కీలక పాత్ర పోషించగలవు. HCJ సహాయంతో విద్య నుండి ఉద్యోగానికి మారడం మరింత సులభంగా మరియు ప్రభావవంతంగా మారుతుంది.",
+    "Read_more": "ఇంకా చదవండి",
+    "Partner_Institutions": "భాగస్వామ్య సంస్థలు",
+    "Achievers_Central": "అచీవర్స్ సెంటర్",
+    "View_All": "అన్నీ చూడండి",
+    "Featured_Achievers_Of_this_month": "ఈ నెలలో ప్రాధాన్యత పొందిన అచీవర్స్",
+    "Give_your_students_access_to_real_world_opportunities": "మీ విద్యార్థులకు నిజమైన ప్రపంచ అవకాశాలకు ప్రాప్తిని ఇవ్వండి",
+    "Get_Started": "ప్రారంభించండి"
+  },
+  "RegistrationWithCredentialForm": {
+    "title": "సంస్థ నమోదు",
+    "subtitle": "మీరు ఒక సంస్థ నిర్వాహకులైతే, దయచేసి కొనసాగించండి.",
+    "OTP": "OTP ధృవీకరణ",
+    "OTP_Description": "మీ సంస్థ ఇమెయిల్‌కు పంపిన OTP కోడ్‌ను నమోదు చేయండి",
+    "'Password_title": "పాస్వర్డ్ సృష్టించండి"
+  }
+}

@@ -1,15 +1,27 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useForm } from "react-hook-form"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import {AdminAddressSchema} from "@/app/validation/adminSchema"
-import React from "react"
+import { adminSchema } from "@/app/validation/adminSchema";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import React from "react";
+import { useForm } from "react-hook-form";
 
 // const addressSchema = z.object({
 //   addressLine1: z.string().min(1, "Address line 1 is required"),
@@ -21,9 +33,26 @@ import React from "react"
 //   city: z.string().min(1, "City is required"),
 // })
 
-export default function AddressDetails({ initialData, onSubmit, onBack, isSubmitting }) {
+export default function AddressDetails({
+  initialData,
+  onSubmit,
+  onBack,
+  isSubmitting,
+}) {
+  const t = useTranslations("formErrors");
+  const Schema = adminSchema(t);
   const form = useForm({
-    resolver: zodResolver(AdminAddressSchema),
+    resolver: zodResolver(
+      Schema.pick({
+        addressLine1: true,
+        addressLine2: true,
+        landmark: true,
+        country: true,
+        pincode: true,
+        state: true,
+        city: true,
+      })
+    ),
     defaultValues: {
       addressLine1: initialData?.addressLine1 || "",
       addressLine2: initialData?.addressLine2 || "",
@@ -33,7 +62,7 @@ export default function AddressDetails({ initialData, onSubmit, onBack, isSubmit
       state: initialData?.state || "",
       city: initialData?.city || "",
     },
-  })
+  });
 
   React.useEffect(() => {
     if (initialData) {
@@ -41,32 +70,33 @@ export default function AddressDetails({ initialData, onSubmit, onBack, isSubmit
     }
   }, [initialData]);
 
-
   const handleSubmit = (data) => {
-    onSubmit(data)
-  }
+    onSubmit(data);
+  };
 
   // Function to fetch address details from pincode
   const fetchAddressDetails = async (pincode) => {
     try {
-      const response = await fetch(`/api/global/v1/gblArET90003FtchPinCdDtls?pincode=${pincode}`)
-      const data = await response.json()
+      const response = await fetch(
+        `/api/global/v1/gblArET90003FtchPinCdDtls?pincode=${pincode}`
+      );
+      const data = await response.json();
 
       if (data?.data?.state && data?.data?.city) {
         form.setValue("state", data?.data?.state, {
           shouldValidate: true,
-        })
+        });
         form.setValue("city", data?.data?.city, {
           shouldValidate: true,
-        })
+        });
       } else {
-        throw new Error("Invalid pincode")
+        throw new Error("Invalid pincode");
       }
     } catch (err) {
-      console.error("Error fetching address details:", err)
+      console.error("Error fetching address details:", err);
       // Keep existing values if there's an error
     }
-  }
+  };
 
   return (
     <Form {...form}>
@@ -240,7 +270,7 @@ export default function AddressDetails({ initialData, onSubmit, onBack, isSubmit
             type="submit"
             className="flex items-center justify-center gap-1 bg-primary text-white"
             disabled={isSubmitting}>
-            {isSubmitting ? 'Submitting...' : 'Next'}
+            {isSubmitting ? "Submitting..." : "Next"}
             {!isSubmitting && <ChevronRight className="h-4 w-4" />}
           </Button>
         </div>
@@ -248,4 +278,3 @@ export default function AddressDetails({ initialData, onSubmit, onBack, isSubmit
     </Form>
   );
 }
-

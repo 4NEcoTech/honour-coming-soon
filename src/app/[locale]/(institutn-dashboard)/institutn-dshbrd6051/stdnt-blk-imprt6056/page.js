@@ -1,127 +1,237 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { Link, useRouter } from '@/i18n/routing';
-import Image from 'next/image';
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import useInstitution from "@/hooks/useInstitution";
+import { Link, useRouter } from "@/i18n/routing";
+import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
+import Image from "next/image";
+import { useRef, useState } from "react";
+import Swal from "sweetalert2";
 
-import { useState } from 'react';
-import Swal from 'sweetalert2';
-
-export default function StudentBulkDataUpload() {
+export default function Page() {
+  const tError = useTranslations("errorCode");
   const [uploadedFile, setUploadedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const { toast } = useToast();
+  const { data: session } = useSession();
+  const companyId = session?.user?.companyId;
+  const { institutionData, loading, error } = useInstitution(companyId);
+  const fileInputRef = useRef(null);
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file type and size
+      const validTypes = [
+        "text/csv",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      ];
+      const maxSize = 10 * 1024 * 1024; // 10MB
+
+      if (
+        !validTypes.includes(file.type) &&
+        !file.name.match(/\.(csv|xlsx)$/i)
+      ) {
+        Swal.fire({
+          icon: "error",
+          title: tError("6056_1.title"),
+          text: tError("6056_1.description"),
+          confirmButtonText: "Okay",
+        });
+        return;
+      }
+
+      if (file.size > maxSize) {
+        Swal.fire({
+          icon: "error",
+          title: tError("6056_2.title"),
+          text: tError("6056_2.description"),
+          confirmButtonText: "Okay",
+        });
+        return;
+      }
+
       setUploadedFile(file);
     }
   };
 
   const router = useRouter();
 
-
   const handleUpload = async () => {
     if (!uploadedFile) {
       Swal.fire({
-        icon: 'error',
-        title: 'No File Selected',
-        text: 'Please select a file to upload.',
-        confirmButtonText: 'Okay',
+        icon: "error",
+        title: tError("6056_3.title"),
+        text: tError("6056_3.description"),
+        confirmButtonText: "Okay",
       });
       return;
     }
-  
+
     setIsUploading(true);
-  
+    setUploadProgress(0);
+
     try {
       const formData = new FormData();
-      formData.append('file', uploadedFile);
-  
-      //  Updated API endpoint
-      const response = await fetch('/api/institution/v1/hcjBrBT60561StudentBulkUpload', {
-        method: 'POST',
-        body: formData,
+      formData.append("file", uploadedFile);
+      formData.append("institutionNum", institutionData?.CD_Company_Num || "");
+      formData.append(
+        "institutionName",
+        institutionData?.CD_Company_Name || ""
+      );
+
+      // Create an abort controller for timeout handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout
+
+      // Track upload progress
+      const xhr = new XMLHttpRequest();
+      xhr.upload.addEventListener("progress", (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round(
+            (event.loaded / event.total) * 100
+          );
+          setUploadProgress(percentComplete);
+        }
       });
-  
-      const result = await response.json();
-  
-      if (response.ok) {
-        setUploadedFile(null);
-  
-        //  Read valid, invalid, and duplicate counts from response
-        const { message, validCount = 0, invalidCount = 0, duplicateCount = 0 } = result;
-  
-        //  Display success modal with details
-        Swal.fire({
-          icon: 'success',
-          title: 'Upload Completed',
-          html: `
-            <p>${message}</p>
-            <p><b> Successfully Imported:</b> ${validCount}</p>
-            <p><b> Invalid Entries:</b> ${invalidCount}</p>
-            <p><b> Duplicates Skipped:</b> ${duplicateCount}</p>
-            <p>What would you like to do next?</p>
-          `,
-          showCancelButton: true,
-          confirmButtonText: 'Add More',
-          cancelButtonText: 'Go to Dashboard',
-          reverseButtons: true,
-        }).then((result) => {
-          if (result.isConfirmed) {
-            router.push('/institutn-dshbrd6051/stdnt-blk-imprt6056');
-          } else {
-            router.push('/institutn-dshbrd6051');
-          }
-        });
-      } else {
-        throw new Error(result.error || 'Failed to process upload');
+
+      const response = await fetch(
+        "/api/institution/v1/hcjBrBT60561StudentBulkUpload",
+        {
+          method: "POST",
+          body: formData,
+          signal: controller.signal,
+        }
+      );
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    } catch (error) {
-      //  Failure modal
+
+      const result = await response.json();
+
+      setUploadedFile(null);
+      setUploadProgress(0);
+
+      // Display success modal with details
       Swal.fire({
-        icon: 'error',
-        title: 'Upload Failed',
-        text:
-          error.message ||
-          'An error occurred while uploading the file. What would you like to do next?',
+        icon: "success",
+        title: tError("6056_4.title"),
+        html: `
+          <p>${result.message}</p>
+          <p><b>${tError("6056_4.desc1")}</b> ${result.validCount}</p>
+          <p><b>${tError("6056_4.desc2")}</b> ${result.invalidCount}</p>
+          <p><b>${tError("6056_4.desc3")}</b> ${result.duplicateCount}</p>
+          <p>${tError("6056_4.description")}</p>
+        `,
         showCancelButton: true,
-        confirmButtonText: 'Retry Upload',
-        cancelButtonText: 'Go to Dashboard',
+        confirmButtonText: "Add More",
+        cancelButtonText: "Go to Dashboard",
         reverseButtons: true,
       }).then((result) => {
         if (result.isConfirmed) {
-          router.push('/institutn-dshbrd6051/stdnt-blk-imprt6056');
+          // Reset file input
+          if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+          }
         } else {
-          router.push('/institutn-dshbrd6051');
+          router.push("/institutn-dshbrd6051");
+        }
+      });
+    } catch (error) {
+      console.error("Upload error:", error);
+
+      let errorMessage = "An error occurred while uploading the file.";
+      if (error.name === "AbortError") {
+        errorMessage =
+          "The upload took too long and was aborted. Please try again with a smaller file or check your network connection.";
+      } else if (error.message.includes("Failed to fetch")) {
+        errorMessage =
+          "Network error. Please check your internet connection and try again.";
+      } else {
+        errorMessage = error.message || errorMessage;
+      }
+
+      Swal.fire({
+        icon: "error",
+        title: tError("6056_5.title"),
+        text: tError("6056_5.description", { message: errorMessage }),
+        showCancelButton: true,
+        confirmButtonText: "Retry Upload",
+        cancelButtonText: "Go to Dashboard",
+        reverseButtons: true,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Reset for retry
+          setUploadProgress(0);
+          setIsUploading(false);
+        } else {
+          router.push("/institutn-dshbrd6051");
         }
       });
     } finally {
       setIsUploading(false);
     }
   };
-  
-  
-
 
   const handledashboardclick = (e) => {
-    router.push('/institutn-dshbrd6051');
+    router.push("/institutn-dshbrd6051");
   };
 
   const handleDownload = () => {
-    const filePath = '/assets/student.csv';
-    const link = document.createElement('a');
+    const filePath = "/assets/studentbulk.xlsx";
+    const link = document.createElement("a");
     link.href = filePath;
-    link.download = 'studentBulkImport.csv';
+    link.download = "studentBulkImport.xlsx";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      const event = { target: { files: [file] } };
+      handleFileChange(event);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   return (
-    <div className="max-w-md mx-auto mt-10 border rounded-lg shadow-md p-6">
+    <div className="max-w-md mx-auto mt-10 border rounded-lg shadow-md p-6 mb-10">
+      {/* Institution Info Block */}
+      {loading ? (
+        <p className="text-center text-gray-500 mb-4">
+          Loading institution info...
+        </p>
+      ) : error ? (
+        <p className="text-center text-red-500 mb-4">Error: {error}</p>
+      ) : (
+        institutionData && (
+          <div className="text-center mb-6">
+            <p className="text-xl font-bold text-primary">
+              {institutionData.CD_Company_Name}
+            </p>
+            <p className="text-sm text-gray-600">
+              Institution Number: {institutionData.CD_Company_Num}
+            </p>
+          </div>
+        )
+      )}
+
       <h2 className="text-2xl font-semibold text-center text-primary mb-4">
         Student Bulk Upload Data
       </h2>
@@ -146,34 +256,69 @@ export default function StudentBulkDataUpload() {
         Please upload an Excel file (10mb) of student&apos;s details here
       </p>
       <div
-        className="relative border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer text-center hover:border-gray-400"
-        onClick={() => document.getElementById('uploadFile')?.click()}>
-        <Image
-          src="/image/info/upload.svg"
-          alt="Upload Icon"
-          width={40}
-          height={40}
-          className="mx-auto mb-2 w-10 h-10"
-        />
-        <p className="text-gray-600">
-          <span className="text-primary">Click here </span>to upload file or
-          drag and drop
-        </p>
-        <p className="text-gray-400 text-xs mt-1">
-          Supported format: Excel, CSV (10mb)
-        </p>
+        className={`relative border-2 border-dashed rounded-lg p-6 cursor-pointer text-center hover:border-gray-400 transition-colors ${
+          isUploading ? "border-blue-500" : "border-gray-300"
+        }`}
+        onClick={() => fileInputRef.current?.click()}
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}>
+        {isUploading ? (
+          <div className="space-y-4">
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div
+                className="bg-blue-600 h-2.5 rounded-full"
+                style={{ width: `${uploadProgress}%` }}></div>
+            </div>
+            <p className="text-gray-600">
+              Uploading... {uploadProgress}% complete
+            </p>
+            <p className="text-sm text-gray-500">
+              Please don&nbsp;t close this window
+            </p>
+          </div>
+        ) : (
+          <>
+            <Image
+              src="/image/info/upload.svg"
+              alt="Upload Icon"
+              width={40}
+              height={40}
+              className="mx-auto mb-2 w-10 h-10"
+            />
+            <p className="text-gray-600">
+              <span className="text-primary">Click here </span>to upload file or
+              drag and drop
+            </p>
+            <p className="text-gray-400 text-xs mt-1">
+              Supported format: Excel, CSV (10mb)
+            </p>
+          </>
+        )}
         <input
           type="file"
           id="uploadFile"
+          ref={fileInputRef}
           accept=".xlsx,.csv"
           onChange={handleFileChange}
           className="hidden"
+          disabled={isUploading}
         />
       </div>
-      {uploadedFile && (
-        <p className="text-green-600 mt-2 text-center">
-          File uploaded: {uploadedFile.name}
-        </p>
+      {uploadedFile && !isUploading && (
+        <div className="mt-2 text-center">
+          <p className="text-green-600">
+            File ready: {uploadedFile.name} (
+            {Math.round(uploadedFile.size / 1024)} KB)
+          </p>
+          <button
+            onClick={() => {
+              setUploadedFile(null);
+              if (fileInputRef.current) fileInputRef.current.value = "";
+            }}
+            className="text-red-500 text-xs hover:underline">
+            Remove file
+          </button>
+        </div>
       )}
       <div className="mt-6 flex flex-col items-center space-y-3">
         <Button
@@ -181,7 +326,7 @@ export default function StudentBulkDataUpload() {
           onClick={handleUpload}
           disabled={!uploadedFile || isUploading}>
           <span className="mr-2">
-            {isUploading ? 'Uploading...' : 'Upload'}
+            {isUploading ? "Uploading..." : "Upload"}
           </span>
           <Image
             src="/image/institutndashboard/dashpage/student/upload.svg"
@@ -192,7 +337,8 @@ export default function StudentBulkDataUpload() {
         </Button>
         <Button
           className="w-64 px-6 py-2 bg-transparent text-primary border border-primary font-semibold rounded-lg hover:bg-gray-100"
-          onClick={handledashboardclick}>
+          onClick={handledashboardclick}
+          disabled={isUploading}>
           Skip to Dashboard
         </Button>
         <p className="text-gray-600 text-sm mt-1">

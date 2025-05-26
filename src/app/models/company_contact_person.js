@@ -48,8 +48,8 @@ const companyContactPersonSchema = new mongoose.Schema(
     },
     CCP_Contact_PersonNum: {
       type: String,
-      unique: true,
-      required: true,
+      // unique: true,
+      // required: true,
     },
     CCP_Institute_Num: {
       type: String,
@@ -65,6 +65,7 @@ const companyContactPersonSchema = new mongoose.Schema(
     CCP_Individual_Id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'individual_details',
+      required: false, default: null
     },
     CCP_Company_Id: {
       type: mongoose.Schema.Types.ObjectId,
@@ -156,6 +157,7 @@ const companyContactPersonSchema = new mongoose.Schema(
     CCP_Contact_Person_Document_Picture: {
       type: String,
     },
+    signupToken: { type: String },
     CCP_Session_Id: {
       type: Number,
       required: false,

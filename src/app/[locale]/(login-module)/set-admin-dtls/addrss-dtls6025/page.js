@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { AdminAddressSchema } from '@/app/validation/adminSchema';
-import { Button } from '@/components/ui/button';
+import { adminSchema } from "@/app/validation/adminSchema";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -9,28 +9,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-
-// const addressSchema = z.object({
-//   addressLine1: z.string().min(1, "Address line 1 is required"),
-//   addressLine2: z.string().optional(),
-//   landmark: z.string().optional(),
-//   country: z.string().min(1, "Country is required"),
-//   pincode: z.string().min(1, "Pincode is required"),
-//   state: z.string().min(1, "State is required"),
-//   city: z.string().min(1, "City is required"),
-// })
+} from "@/components/ui/select";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useForm } from "react-hook-form";
 
 export default function AddressDetails({
   initialData,
@@ -38,16 +29,28 @@ export default function AddressDetails({
   onBack,
   isSubmitting,
 }) {
+  const t = useTranslations("formErrors");
+  const Schema = adminSchema(t);
   const form = useForm({
-    resolver: zodResolver(AdminAddressSchema),
+    resolver: zodResolver(
+      Schema.pick({
+        addressLine1: true,
+        addressLine2: true,
+        landmark: true,
+        country: true,
+        pincode: true,
+        state: true,
+        city: true,
+      })
+    ),
     defaultValues: {
-      addressLine1: initialData?.addressLine1 || '',
-      addressLine2: initialData?.addressLine2 || '',
-      landmark: initialData?.landmark || '',
-      country: initialData?.country || 'India',
-      pincode: initialData?.pincode || '',
-      state: initialData?.state || '',
-      city: initialData?.city || '',
+      addressLine1: initialData?.addressLine1 || "",
+      addressLine2: initialData?.addressLine2 || "",
+      landmark: initialData?.landmark || "",
+      country: initialData?.country || "India",
+      pincode: initialData?.pincode || "",
+      state: initialData?.state || "",
+      city: initialData?.city || "",
     },
   });
 
@@ -64,17 +67,17 @@ export default function AddressDetails({
       const data = await response.json();
 
       if (data?.data?.state && data?.data?.city) {
-        form.setValue('state', data?.data?.state, {
+        form.setValue("state", data?.data?.state, {
           shouldValidate: true,
         });
-        form.setValue('city', data?.data?.city, {
+        form.setValue("city", data?.data?.city, {
           shouldValidate: true,
         });
       } else {
-        throw new Error('Invalid pincode');
+        throw new Error("Invalid pincode");
       }
     } catch (err) {
-      console.error('Error fetching address details:', err);
+      console.error("Error fetching address details:", err);
       // Keep existing values if there's an error
     }
   };
@@ -251,7 +254,7 @@ export default function AddressDetails({
             type="submit"
             className="flex items-center justify-center gap-1 bg-primary text-white"
             disabled={isSubmitting}>
-            {isSubmitting ? 'Submitting...' : 'Next'}
+            {isSubmitting ? "Submitting..." : "Next"}
             {!isSubmitting && <ChevronRight className="h-4 w-4" />}
           </Button>
         </div>

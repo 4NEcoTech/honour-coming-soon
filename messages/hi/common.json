@@ -1,0 +1,30 @@
+{
+  "HomePage": {
+    "Opportunities_for_every_student": "हर छात्र के लिए अवसर",
+    "Projects_Internships_Flexijobs_Regular_Jobs": "ऑनलाइन जॉब फेयर | इंटर्नशिप | फ्लेक्सी जॉब | प्रोजेक्ट्स | रिमोट वर्क अवसर",
+    "Marketing_Sales_Design_Development_DevOps_Robotics_ML_AI_Finance_Sketch_Artists_VFX_Animation": "मार्केटिंग, सेल्स, डिज़ाइन, डेवलपमेंट, DevOps, रोबोटिक्स, ML, AI, फाइनेंस, स्केच आर्टिस्ट, VFX, एनिमेशन",
+    "Register_your_Institution_with_HCJ": "अपने संस्थान को Honour के साथ पंजीकृत करें",
+    "Take_part_in_India_s_biggest_Job_Fair": "भारत के सबसे बड़े जॉब फेयर में भाग लें",
+    "Nov_10_Nov_20": "10 नवंबर - 20 नवंबर",
+    "Register_here": "यहां पंजीकरण करें",
+    "About_Us": "हमारे बारे में",
+    "Welcome_to_HCJ_the_leading_platform_designed_to_connect_institutions_students_and_the_dynamic_job_market": "Honour में आपका स्वागत है, यह प्रमुख प्लेटफॉर्म संस्थानों, छात्रों और गतिशील नौकरी बाजार को जोड़ने के लिए डिज़ाइन किया गया है।",
+
+    "At_HCJ_our_mission_is_to_streamline_and_enhance_the_job_seeking_experience": "Honour में, हमारा मिशन संस्थानों को अपने छात्रों के प्रोफाइल अपलोड और प्रबंधित करने का एक सरल और कुशल तरीका प्रदान करके नौकरी की तलाश के अनुभव को सुव्यवस्थित और बेहतर बनाना है। इससे छात्र जॉब फेयर, इंटर्नशिप और करियर के विभिन्न अवसरों के लिए अपने कौशल और योग्यता प्रदर्शित कर सकते हैं।",
+    "Committed_to_bridging_the_gap_between_academia_and_industry": "हम शिक्षा और उद्योग के बीच की खाई को पाटने के लिए प्रतिबद्ध हैं, एक सहज प्लेटफॉर्म प्रदान करके जहां छात्रों को नियोक्ताओं के साथ दृश्यता और पहुंच मिल सके, जबकि संस्थान अपने छात्रों के करियर मार्ग को आकार देने में महत्वपूर्ण भूमिका निभा सकते हैं। Honour के साथ, हम शिक्षा से रोजगार में परिवर्तन को सरल और अधिक प्रभावी बनाते हैं।",
+    "Read_more": "अधिक पढ़ें",
+    "Partner_Institutions": "साझेदार संस्थान",
+    "Achievers_Central": "अचीवर्स सेंट्रल",
+    "View_All": "सभी देखें",
+    "Featured_Achievers_Of_this_month": "इस महीने के प्रमुख अचीवर्स",
+    "Give_your_students_access_to_real_world_opportunities": "अपने छात्रों को वास्तविक दुनिया के अवसर प्रदान करें",
+    "Get_Started": "शुरू करें"
+  },
+  "RegistrationWithCredentialForm": {
+    "title": "संस्थान पंजीकरण",
+    "subtitle": "यदि आप एक संस्थान प्रशासक हैं, तो कृपया पंजीकरण के साथ आगे बढ़ें।",
+    "OTP": "OTP सत्यापन",
+    "OTP_Description": "अपने संस्थान के ईमेल आईडी पर भेजा गया OTP कोड दर्ज करें",
+    "'Password_title": "पासवर्ड बनाएं"
+  }
+}

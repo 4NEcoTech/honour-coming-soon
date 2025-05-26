@@ -1,7 +1,8 @@
-import { getServerSession } from "next-auth";
 import IndividualAddress from "@/app/models/individual_address_detail";
-import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/utils/dbConnect";
+import { getTranslator } from "@/i18n/server";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
 /**
  * @swagger
@@ -48,13 +49,20 @@ import { dbConnect } from "@/app/utils/dbConnect";
  */
 
 export async function PATCH(req, { params }) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   try {
     await dbConnect();
 
     const { address_id } = await params;
     if (!address_id) {
       return NextResponse.json(
-        { success: false, message: "Address ID is required" },
+        {
+          success: false,
+          code: "6061_48",
+          message: t("errorCode.6061_48.title"),
+          description: t("errorCode.6061_48.description"),
+        },
         { status: 400 }
       );
     }
@@ -62,7 +70,12 @@ export async function PATCH(req, { params }) {
     const session = await getServerSession(req);
     if (!session || !session.user) {
       return NextResponse.json(
-        { success: false, message: "Unauthorized access" },
+        {
+          success: false,
+          code: "6061_31",
+          message: t("errorCode.6061_31.title"),
+          description: t("errorCode.6061_31.description"),
+        },
         { status: 401 }
       );
     }
@@ -76,19 +89,37 @@ export async function PATCH(req, { params }) {
 
     if (!updatedAddress) {
       return NextResponse.json(
-        { success: false, message: "Address details not found" },
+        {
+          success: false,
+          code: "6061_49",
+          message: t("errorCode.6061_49.title"),
+          description: t("errorCode.6061_49.description"),
+        },
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      { success: true, message: "Address details updated", data: updatedAddress },
+      {
+        success: true,
+        code: "6061_50",
+        message: t("errorCode.6061_50.title"),
+        description: t("errorCode.6061_50.description"),
+        data: updatedAddress,
+      },
       { status: 200 }
     );
   } catch (error) {
     console.error("Error updating address details:", error);
     return NextResponse.json(
-      { success: false, message: "Internal Server Error" },
+      {
+        success: false,
+        code: "6061_46",
+        message: t("errorCode.6061_46.title"),
+        description: t("errorCode.6061_46.description", {
+          message: error.message,
+        }),
+      },
       { status: 500 }
     );
   }

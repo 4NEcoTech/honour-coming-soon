@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { AuditTrailSchema } from '../common/AuditTrail';
+import { AuditTrailSchema } from './common/AuditTrail';
 
 const Schema = mongoose.Schema;
 
@@ -28,17 +28,18 @@ const hcjJobContactPersonMappingSchema = new Schema(
     },
     HCJ_JCPM_Employee_Id: {
       type: Schema.Types.ObjectId,
-      ref: 'Employee', // Reference to the Employee schema (to be added later)
+      ref: 'IndividualDetails', // Reference to the Employee schema (to be added later)
       required: true,
     },
     HCJ_JCPM_Job_Id: {
       type: Schema.Types.ObjectId,
-      ref: 'Job',
+      ref: 'hcj_job_applications',
       required: true,
     },
     HCJ_JCPM_Session_Id: {
-      type: Schema.Types.ObjectId,
-      ref: 'Session',
+     type: String, 
+     required: false,
+     default: Date.now,
     },
     HCJ_JCPM_Creation_DtTym: {
       type: Date,

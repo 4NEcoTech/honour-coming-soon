@@ -1,18 +1,38 @@
-"use client"
+"use client";
 
-import { useState, useRef } from "react"
-import { Upload, Loader2, User, CalendarIcon, Award, School, FileText, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { useToast } from "@/hooks/use-toast"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { cn } from "@/lib/utils"
-import { format } from "date-fns"
-import Image from "next/image"
+import { useState, useRef } from "react";
+import {
+  Upload,
+  Loader2,
+  User,
+  CalendarIcon,
+  Award,
+  School,
+  FileText,
+  X,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format, isFuture } from "date-fns";
+import Image from "next/image";
 
 export default function AchieverNomination() {
   const [formData, setFormData] = useState({
@@ -28,74 +48,197 @@ export default function AchieverNomination() {
     HCJ_AC_Achievers_Award_Detail_Description: "",
     HCJ_AC_Achievers_Photo: null,
     HCJ_AC_Achievers_Award_Img: null,
-  })
+  });
 
-  const [loading, setLoading] = useState(false)
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState({
     HCJ_AC_Achievers_Photo: null,
     HCJ_AC_Achievers_Award_Img: null,
-  })
-  const { toast } = useToast()
+  });
+  const { toast } = useToast();
   const fileInputRefs = {
     HCJ_AC_Achievers_Photo: useRef(null),
     HCJ_AC_Achievers_Award_Img: useRef(null),
-  }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    const today = new Date();
+
+    // Name validation
+    if (!formData.HCJ_AC_Achievers_Name.trim()) {
+      newErrors.HCJ_AC_Achievers_Name = "Achiever's name is required";
+    }
+
+    // College validation
+    if (!formData.HCJ_AC_College_Name.trim()) {
+      newErrors.HCJ_AC_College_Name = "College name is required";
+    }
+
+    // Event name validation
+    if (!formData.HCJ_AC_Achievers_Event_Name.trim()) {
+      newErrors.HCJ_AC_Achievers_Event_Name = "Event name is required";
+    }
+
+    // Event date validation
+    if (!formData.HCJ_AC_Achievers_Event_Dt) {
+      newErrors.HCJ_AC_Achievers_Event_Dt = "Event date is required";
+    } else if (isFuture(new Date(formData.HCJ_AC_Achievers_Event_Dt))) {
+      newErrors.HCJ_AC_Achievers_Event_Dt =
+        "Event date cannot be in the future";
+    }
+
+    // Publish date validation
+    if (!formData.HCJ_AC_Publish_Dt) {
+      newErrors.HCJ_AC_Publish_Dt = "Publish date is required";
+    } else if (isFuture(new Date(formData.HCJ_AC_Publish_Dt))) {
+      newErrors.HCJ_AC_Publish_Dt = "Publish date cannot be in the future";
+    }
+
+    // News description validation
+    if (!formData.HCJ_AC_News_Shrt_Description.trim()) {
+      newErrors.HCJ_AC_News_Shrt_Description = "News description is required";
+    } else if (formData.HCJ_AC_News_Shrt_Description.length > 500) {
+      newErrors.HCJ_AC_News_Shrt_Description =
+        "Description must be less than 500 characters";
+    }
+
+    // Event description validation
+    if (!formData.HCJ_AC_Achievers_Event_Description.trim()) {
+      newErrors.HCJ_AC_Achievers_Event_Description =
+        "Event description is required";
+    }
+
+    // Award description validation
+    if (!formData.HCJ_AC_Achievers_Award_Description.trim()) {
+      newErrors.HCJ_AC_Achievers_Award_Description =
+        "Award description is required";
+    }
+
+    // Detailed award description validation
+    if (!formData.HCJ_AC_Achievers_Award_Detail_Description.trim()) {
+      newErrors.HCJ_AC_Achievers_Award_Detail_Description =
+        "Detailed award description is required";
+    }
+
+    // Image validations
+    if (!formData.HCJ_AC_Achievers_Photo) {
+      newErrors.HCJ_AC_Achievers_Photo = "Achiever's photo is required";
+    }
+    if (!formData.HCJ_AC_Achievers_Award_Img) {
+      newErrors.HCJ_AC_Achievers_Award_Img = "Award image is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
 
   const handleFileUpload = (e, field) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
-      setFormData((prev) => ({ ...prev, [field]: file }))
+      // Validate file type
+      if (!file.type.match("image.*")) {
+        setErrors((prev) => ({
+          ...prev,
+          [field]: "Please upload an image file",
+        }));
+        return;
+      }
+
+      // Validate file size (e.g., 5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        setErrors((prev) => ({
+          ...prev,
+          [field]: "File size must be less than 5MB",
+        }));
+        return;
+      }
+
+      setFormData((prev) => ({ ...prev, [field]: file }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
 
       // Create preview
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreviews((prev) => ({
           ...prev,
           [field]: reader.result,
-        }))
-      }
-      reader.readAsDataURL(file)
+        }));
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   const removeImage = (field) => {
-    setFormData((prev) => ({ ...prev, [field]: null }))
-    setImagePreviews((prev) => ({ ...prev, [field]: null }))
+    setFormData((prev) => ({ ...prev, [field]: null }));
+    setImagePreviews((prev) => ({ ...prev, [field]: null }));
     if (fileInputRefs[field]?.current) {
-      fileInputRefs[field].current.value = ""
+      fileInputRefs[field].current.value = "";
     }
-  }
+    setErrors((prev) => ({ ...prev, [field]: "This field is required" }));
+  };
 
   const triggerFileInput = (field) => {
-    fileInputRefs[field]?.current?.click()
-  }
+    fileInputRefs[field]?.current?.click();
+  };
+
+  const handleDateSelect = (date, field) => {
+    if (date && isFuture(date)) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: "Date cannot be in the future",
+      }));
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      [field]: date ? date.toISOString().split("T")[0] : "",
+    }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
 
-    const formDataToSend = new FormData()
+    if (!validateForm()) {
+      toast({
+        title: "Validation Error",
+        description: "Please fix the errors in the form",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    const formDataToSend = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
-      if (value) formDataToSend.append(key, value)
-    })
+      if (value) formDataToSend.append(key, value);
+    });
 
     try {
       const response = await fetch("/api/hcj/v1/hcjBrBt60071AhieverCentral", {
         method: "POST",
         body: formDataToSend,
-      })
+      });
 
       if (response.ok) {
         toast({
           title: "Success 🎉",
           description: "Nomination submitted successfully!",
           variant: "default",
-        })
+        });
         // Reset form
         setFormData({
           HCJ_AC_News_Shrt_Description: "",
@@ -110,29 +253,33 @@ export default function AchieverNomination() {
           HCJ_AC_Achievers_Award_Detail_Description: "",
           HCJ_AC_Achievers_Photo: null,
           HCJ_AC_Achievers_Award_Img: null,
-        })
+        });
         setImagePreviews({
           HCJ_AC_Achievers_Photo: null,
           HCJ_AC_Achievers_Award_Img: null,
-        })
+        });
+        setErrors({});
       } else {
+        const errorData = await response.json();
         toast({
           title: "Error ❌",
-          description: "Failed to submit nomination. Please try again.",
+          description:
+            errorData.message ||
+            "Failed to submit nomination. Please try again.",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
-      console.error("Error submitting nomination:", error)
+      console.error("Error submitting nomination:", error);
       toast({
         title: "Error ❌",
         description: "Something went wrong. Please try again later.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-300 dark:from-gray-900 dark:to-gray-800 p-4 py-10">
@@ -150,11 +297,18 @@ export default function AchieverNomination() {
         </CardHeader>
 
         <CardContent>
-          <form id="nomination-form" onSubmit={handleSubmit} className="space-y-6">
+          <form
+            id="nomination-form"
+            onSubmit={handleSubmit}
+            className="space-y-6"
+          >
             {/* Personal Details */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="HCJ_AC_Achievers_Name" className="text-sm font-medium text-primary">
+                <Label
+                  htmlFor="HCJ_AC_Achievers_Name"
+                  className="text-sm font-medium text-primary"
+                >
                   <User className="h-4 w-4 inline mr-2 text-primary" />
                   Achiever&apos;s Name
                 </Label>
@@ -165,11 +319,18 @@ export default function AchieverNomination() {
                   onChange={handleChange}
                   className="border-gray-300 dark:border-gray-600 focus:ring-primary"
                   placeholder="Enter full name"
-                  required
                 />
+                {errors.HCJ_AC_Achievers_Name && (
+                  <p className="text-sm text-red-500">
+                    {errors.HCJ_AC_Achievers_Name}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="HCJ_AC_College_Name" className="text-sm font-medium text-primary">
+                <Label
+                  htmlFor="HCJ_AC_College_Name"
+                  className="text-sm font-medium text-primary"
+                >
                   <School className="h-4 w-4 inline mr-2 text-primary" />
                   College Name
                 </Label>
@@ -180,15 +341,22 @@ export default function AchieverNomination() {
                   onChange={handleChange}
                   className="border-gray-300 dark:border-gray-600 focus:ring-primary"
                   placeholder="Enter college name"
-                  required
                 />
+                {errors.HCJ_AC_College_Name && (
+                  <p className="text-sm text-red-500">
+                    {errors.HCJ_AC_College_Name}
+                  </p>
+                )}
               </div>
             </div>
 
             {/* Event Information */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="HCJ_AC_Achievers_Event_Name" className="text-sm font-medium text-primary">
+                <Label
+                  htmlFor="HCJ_AC_Achievers_Event_Name"
+                  className="text-sm font-medium text-primary"
+                >
                   <Award className="h-4 w-4 inline mr-2 text-primary" />
                   Event Name
                 </Label>
@@ -199,11 +367,18 @@ export default function AchieverNomination() {
                   onChange={handleChange}
                   className="border-gray-300 dark:border-gray-600 focus:ring-primary"
                   placeholder="Enter event name"
-                  required
                 />
+                {errors.HCJ_AC_Achievers_Event_Name && (
+                  <p className="text-sm text-red-500">
+                    {errors.HCJ_AC_Achievers_Event_Name}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="HCJ_AC_Achievers_Event_Dt" className="text-sm font-medium text-primary">
+                <Label
+                  htmlFor="HCJ_AC_Achievers_Event_Dt"
+                  className="text-sm font-medium text-primary"
+                >
                   <CalendarIcon className="h-4 w-4 inline mr-2 text-primary" />
                   Event Date
                 </Label>
@@ -213,12 +388,16 @@ export default function AchieverNomination() {
                       variant="outline"
                       className={cn(
                         "w-full justify-start text-left font-normal border-gray-300 dark:border-gray-600",
-                        !formData.HCJ_AC_Achievers_Event_Dt && "text-muted-foreground",
+                        !formData.HCJ_AC_Achievers_Event_Dt &&
+                          "text-muted-foreground"
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {formData.HCJ_AC_Achievers_Event_Dt ? (
-                        format(new Date(formData.HCJ_AC_Achievers_Event_Dt), "PPP")
+                        format(
+                          new Date(formData.HCJ_AC_Achievers_Event_Dt),
+                          "PPP"
+                        )
                       ) : (
                         <span>Select event date</span>
                       )}
@@ -228,24 +407,32 @@ export default function AchieverNomination() {
                     <Calendar
                       mode="single"
                       selected={
-                        formData.HCJ_AC_Achievers_Event_Dt ? new Date(formData.HCJ_AC_Achievers_Event_Dt) : undefined
+                        formData.HCJ_AC_Achievers_Event_Dt
+                          ? new Date(formData.HCJ_AC_Achievers_Event_Dt)
+                          : undefined
                       }
                       onSelect={(date) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          HCJ_AC_Achievers_Event_Dt: date ? date.toISOString().split("T")[0] : "",
-                        }))
+                        handleDateSelect(date, "HCJ_AC_Achievers_Event_Dt")
                       }
                       initialFocus
+                      disabled={(date) => isFuture(date)}
                     />
                   </PopoverContent>
                 </Popover>
+                {errors.HCJ_AC_Achievers_Event_Dt && (
+                  <p className="text-sm text-red-500">
+                    {errors.HCJ_AC_Achievers_Event_Dt}
+                  </p>
+                )}
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="HCJ_AC_News_Shrt_Description" className="text-sm font-medium text-primary">
+                <Label
+                  htmlFor="HCJ_AC_News_Shrt_Description"
+                  className="text-sm font-medium text-primary"
+                >
                   <FileText className="h-4 w-4 inline mr-2 text-primary" />
                   Short News Description
                 </Label>
@@ -256,11 +443,18 @@ export default function AchieverNomination() {
                   onChange={handleChange}
                   className="border-gray-300 dark:border-gray-600 focus:ring-primary min-h-[100px]"
                   placeholder="Provide a brief description of the achievement"
-                  required
                 />
+                {errors.HCJ_AC_News_Shrt_Description && (
+                  <p className="text-sm text-red-500">
+                    {errors.HCJ_AC_News_Shrt_Description}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="HCJ_AC_Achievers_Event_Description" className="text-sm font-medium text-primary">
+                <Label
+                  htmlFor="HCJ_AC_Achievers_Event_Description"
+                  className="text-sm font-medium text-primary"
+                >
                   <FileText className="h-4 w-4 inline mr-2 text-primary" />
                   Event Description
                 </Label>
@@ -271,14 +465,21 @@ export default function AchieverNomination() {
                   onChange={handleChange}
                   className="border-gray-300 dark:border-gray-600 focus:ring-primary min-h-[100px]"
                   placeholder="Describe the event in detail"
-                  required
                 />
+                {errors.HCJ_AC_Achievers_Event_Description && (
+                  <p className="text-sm text-red-500">
+                    {errors.HCJ_AC_Achievers_Event_Description}
+                  </p>
+                )}
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="HCJ_AC_Publish_Dt" className="text-sm font-medium text-primary">
+                <Label
+                  htmlFor="HCJ_AC_Publish_Dt"
+                  className="text-sm font-medium text-primary"
+                >
                   <CalendarIcon className="h-4 w-4 inline mr-2 text-primary" />
                   Publish Date
                 </Label>
@@ -288,7 +489,7 @@ export default function AchieverNomination() {
                       variant="outline"
                       className={cn(
                         "w-full justify-start text-left font-normal border-gray-300 dark:border-gray-600",
-                        !formData.HCJ_AC_Publish_Dt && "text-muted-foreground",
+                        !formData.HCJ_AC_Publish_Dt && "text-muted-foreground"
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
@@ -302,20 +503,30 @@ export default function AchieverNomination() {
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
-                      selected={formData.HCJ_AC_Publish_Dt ? new Date(formData.HCJ_AC_Publish_Dt) : undefined}
+                      selected={
+                        formData.HCJ_AC_Publish_Dt
+                          ? new Date(formData.HCJ_AC_Publish_Dt)
+                          : undefined
+                      }
                       onSelect={(date) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          HCJ_AC_Publish_Dt: date ? date.toISOString().split("T")[0] : "",
-                        }))
+                        handleDateSelect(date, "HCJ_AC_Publish_Dt")
                       }
                       initialFocus
+                      disabled={(date) => isFuture(date)}
                     />
                   </PopoverContent>
                 </Popover>
+                {errors.HCJ_AC_Publish_Dt && (
+                  <p className="text-sm text-red-500">
+                    {errors.HCJ_AC_Publish_Dt}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="HCJ_AC_Achievers_Award_Description" className="text-sm font-medium text-primary">
+                <Label
+                  htmlFor="HCJ_AC_Achievers_Award_Description"
+                  className="text-sm font-medium text-primary"
+                >
                   <Award className="h-4 w-4 inline mr-2 text-primary" />
                   Award Description
                 </Label>
@@ -326,13 +537,20 @@ export default function AchieverNomination() {
                   onChange={handleChange}
                   className="border-gray-300 dark:border-gray-600 focus:ring-primary min-h-[100px]"
                   placeholder="Describe the award received"
-                  required
                 />
+                {errors.HCJ_AC_Achievers_Award_Description && (
+                  <p className="text-sm text-red-500">
+                    {errors.HCJ_AC_Achievers_Award_Description}
+                  </p>
+                )}
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="HCJ_AC_Achievers_Award_Detail_Description" className="text-sm font-medium text-primary">
+              <Label
+                htmlFor="HCJ_AC_Achievers_Award_Detail_Description"
+                className="text-sm font-medium text-primary"
+              >
                 <FileText className="h-4 w-4 inline mr-2 text-primary" />
                 Detailed Award Description
               </Label>
@@ -343,8 +561,12 @@ export default function AchieverNomination() {
                 onChange={handleChange}
                 className="border-gray-300 dark:border-gray-600 focus:ring-primary min-h-[120px]"
                 placeholder="Provide detailed information about the award and its significance"
-                required
               />
+              {errors.HCJ_AC_Achievers_Award_Detail_Description && (
+                <p className="text-sm text-red-500">
+                  {errors.HCJ_AC_Achievers_Award_Detail_Description}
+                </p>
+              )}
             </div>
 
             {/* Image Uploads */}
@@ -359,7 +581,10 @@ export default function AchieverNomination() {
                   {imagePreviews.HCJ_AC_Achievers_Photo ? (
                     <div className="relative w-full">
                       <Image
-                        src={imagePreviews.HCJ_AC_Achievers_Photo || "/placeholder.svg"}
+                        src={
+                          imagePreviews.HCJ_AC_Achievers_Photo ||
+                          "/placeholder.svg"
+                        }
                         alt="Achiever Preview"
                         height="100"
                         width="100"
@@ -381,18 +606,28 @@ export default function AchieverNomination() {
                       className="w-full p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors"
                     >
                       <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Click to upload photo</p>
-                      <p className="text-xs text-gray-400 mt-1">PNG, JPG or JPEG</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Click to upload photo
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        PNG, JPG or JPEG (max 5MB)
+                      </p>
                     </div>
                   )}
                   <input
                     type="file"
                     ref={fileInputRefs.HCJ_AC_Achievers_Photo}
                     accept="image/*"
-                    onChange={(e) => handleFileUpload(e, "HCJ_AC_Achievers_Photo")}
+                    onChange={(e) =>
+                      handleFileUpload(e, "HCJ_AC_Achievers_Photo")
+                    }
                     className="hidden"
-                    required={!formData.HCJ_AC_Achievers_Photo}
                   />
+                  {errors.HCJ_AC_Achievers_Photo && (
+                    <p className="text-sm text-red-500">
+                      {errors.HCJ_AC_Achievers_Photo}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -406,7 +641,10 @@ export default function AchieverNomination() {
                   {imagePreviews.HCJ_AC_Achievers_Award_Img ? (
                     <div className="relative w-full">
                       <img
-                        src={imagePreviews.HCJ_AC_Achievers_Award_Img || "/placeholder.svg"}
+                        src={
+                          imagePreviews.HCJ_AC_Achievers_Award_Img ||
+                          "/placeholder.svg"
+                        }
                         alt="Award Preview"
                         className="w-full h-auto rounded-lg object-cover border border-gray-300 dark:border-gray-600"
                       />
@@ -415,29 +653,43 @@ export default function AchieverNomination() {
                         variant="destructive"
                         size="icon"
                         className="absolute top-2 right-2 h-8 w-8 rounded-full"
-                        onClick={() => removeImage("HCJ_AC_Achievers_Award_Img")}
+                        onClick={() =>
+                          removeImage("HCJ_AC_Achievers_Award_Img")
+                        }
                       >
                         <X className="h-4 w-4" />
                       </Button>
                     </div>
                   ) : (
                     <div
-                      onClick={() => triggerFileInput("HCJ_AC_Achievers_Award_Img")}
+                      onClick={() =>
+                        triggerFileInput("HCJ_AC_Achievers_Award_Img")
+                      }
                       className="w-full p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors"
                     >
                       <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                      <p className="text-sm text-gray-500 dark:text-gray-400">Click to upload award image</p>
-                      <p className="text-xs text-gray-400 mt-1">PNG, JPG or JPEG</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Click to upload award image
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        PNG, JPG or JPEG (max 5MB)
+                      </p>
                     </div>
                   )}
                   <input
                     type="file"
                     ref={fileInputRefs.HCJ_AC_Achievers_Award_Img}
                     accept="image/*"
-                    onChange={(e) => handleFileUpload(e, "HCJ_AC_Achievers_Award_Img")}
+                    onChange={(e) =>
+                      handleFileUpload(e, "HCJ_AC_Achievers_Award_Img")
+                    }
                     className="hidden"
-                    required={!formData.HCJ_AC_Achievers_Award_Img}
                   />
+                  {errors.HCJ_AC_Achievers_Award_Img && (
+                    <p className="text-sm text-red-500">
+                      {errors.HCJ_AC_Achievers_Award_Img}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -463,6 +715,5 @@ export default function AchieverNomination() {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
-

@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Link } from "@/i18n/routing";
 import { updateUser } from "@/app/utils/indexDB";
@@ -49,10 +49,7 @@ export default function TeamMemberRegistrationForm({ goToNextStep }) {
           updateUser(decoded)
             .then(() => {
               console.log(" Token data stored in IndexedDB");
-              localStorage.setItem(
-                "temp_team_member_id",
-                decoded?.id
-              );
+              localStorage.setItem("temp_team_member_id", decoded?.id);
             })
             .catch((err) => {
               console.error(" Error storing data in IndexedDB:", err);
@@ -74,18 +71,18 @@ export default function TeamMemberRegistrationForm({ goToNextStep }) {
     setError(null);
 
     // Map human-readable roles back to role IDs
-  const roleMapping = {
-    "Team Member": "07",
-    "Support Staff": "08",
-  };
+    const roleMapping = {
+      "Team Member": "07",
+      "Support Staff": "08",
+    };
 
-  const roleId = roleMapping[role] || role; // Ensure we send the correct ID
+    const roleId = roleMapping[role] || role; // Ensure we send the correct ID
 
     try {
       const response = await fetch("/api/auth/institution-staff/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, role : roleId }),
+        body: JSON.stringify({ email, role: roleId }),
       });
 
       const data = await response.json();
@@ -176,33 +173,37 @@ export default function TeamMemberRegistrationForm({ goToNextStep }) {
             >
               {loading ? "Sending OTP..." : "Next"}
             </Button>
-
-            <div className="sm:text-center text-sm text-left text-muted-foreground">
-              <p className="text-muted-foreground">
+            {/* Footer Text */}
+            <CardFooter className="flex flex-col items-start sm:items-start text-sm text-gray-400 text-start sm:text-left w-full text-pretty">
+              {/* Login Link */}
+              <span className="text-sm mb-0 text-muted-foreground">
                 Already have an account?{" "}
                 <Link
                   href="/login6035"
-                  className="text-primary hover:underline"
+                  className="text-primary hover:underline ml-1"
                 >
                   Click here to log in
                 </Link>
-                .
-              </p>
-              By creating an account or logging in, you agree with HCJ&apos;s{" "}
-              <Link
-                href="/prvcy-plcy6014"
-                className="text-primary hover:underline"
-              >
-                Privacy Policy
-              </Link>{" "}
-              &{" "}
-              <Link
-                href="/trmsndcndtn6015"
-                className="text-primary hover:underline"
-              >
-                Terms and condition
-              </Link>
-            </div>
+              </span>
+
+              {/* Terms Agreement */}
+              <span className="text-start sm:text-left text-sm block">
+                By creating an account or logging in, you agree with HCJ&apos;{" "}
+                <Link
+                  href="/prvcy-plcy6014"
+                  className="text-primary hover:underline"
+                >
+                  Privacy Policy
+                </Link>{" "}
+                <span>and&nbsp;</span>
+                <Link
+                  href="/trmsnd-cndtn6015"
+                  className="text-primary hover:underline"
+                >
+                  Terms & Conditions
+                </Link>
+              </span>
+            </CardFooter>
           </div>
         </CardContent>
       </Card>

@@ -1,62 +1,64 @@
-const { z } = require('zod');
+const { z } = require("zod");
 
-export const adminSchema = z.object({
-  photo: z.any().optional(),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  corporateEmail: z.string().email("Please enter a valid corporate email"),
-  alternateEmail: z.string().email("Please enter a valid alternate email").optional(),
-  phone: z.string().min(10, "Phone number is required"),
-  alternatePhone: z.string().optional(),
-  designation: z.string().optional(),
-  profileHeadline: z.string().optional(),
-  gender: z.enum(["01", "02", "03"], { required_error: "Gender is required" }),
-  dob: z.string().min(1, "Date of birth is required"),
+export const adminSchema = (t) =>
+  z.object({
+    photo: z.any().optional(),
+    firstName: z.string().min(1, t("6024_1")),
+    lastName: z.string().min(1, t("6024_2")),
+    corporateEmail: z.string().email(t("6024_3")),
+    alternateEmail: z.string().email(t("6024_4")).optional(),
+    phone: z.string().min(10, t("6024_5")),
+    alternatePhone: z.string().optional(),
+    about: z.string().max(500, t("6024_6")).optional(),
 
-  // part two of the schema down below
+    designation: z.string().optional(),
+    profileHeadline: z.string().optional(),
+    gender: z.enum(["01", "02", "03"], {
+      required_error: t("6024_7"),
+    }),
+    dob: z.string().min(1, t("6024_8")),
+    // part two of the schema down below
 
-  addressLine1: z.string().min(1, "Address line 1 is required"),
-  addressLine2: z.string().optional(),
-  landmark: z.string().optional(),
-  country: z.string().min(1, "Country is required"),
-  pincode: z.string().min(1, "Pincode is required"),
-  state: z.string().min(1, "State is required"),
-  city: z.string().min(1, "City is required"),
+    addressLine1: z.string().min(1, t("6024_9")),
+    addressLine2: z.string().optional(),
+    landmark: z.string().optional(),
+    country: z.string().min(1, t("6024_10")),
+    pincode: z.string().min(1, t("6024_11")),
+    state: z.string().min(1, t("6024_12")),
+    city: z.string().min(1, t("6024_13")),
 
-  // social media schema
-  platform: z.string().min(1, "Platform is required"),
-  url: z.string().url("Please enter a valid URL"),
-});
+    // social media schema
+    platform: z.string().min(1, t("6024_14")),
+    url: z.string().url(t("6024_15")),
+  });
 
+// export const AdminSocialPlatformsSchema = adminSchema.pick({
+//   platform: true,
+//   url: true,
+// });
 
+// export const AdminAddressSchema = adminSchema.pick({
+//   addressLine1: true,
+//   addressLine2: true,
+//   landmark: true,
+//   country: true,
+//   pincode: true,
+//   state: true,
+//   city: true,
+// });
 
+// export const AdminPersonalSchema = adminSchema.pick({
+//   photo: true,
+//   firstName: true,
+//   lastName: true,
+//   corporateEmail: true,
+//   alternateEmail: true,
+//   phone: true,
+//   alternatePhone: true,
+//   designation: true,
+//   profileHeadline: true,
+//   gender: true,
+//   about: true,
+//   dob: true,
 
-export const AdminSocialPlatformsSchema = adminSchema.pick({
-  platform: true,
-  url: true,
-});
-
-export const AdminAddressSchema = adminSchema.pick({
-  addressLine1: true,
-  addressLine2: true,
-  landmark: true,
-  country: true,
-  pincode: true,
-  state: true,
-  city: true,
-});
-
-export const AdminPersonalSchema = adminSchema.pick({
-  photo: true,
-  firstName: true,
-  lastName: true,
-  corporateEmail: true,
-  alternateEmail: true,
-  phone: true,
-  alternatePhone: true,
-  designation: true,
-  profileHeadline: true,
-  gender: true,
-  dob: true,
-
-});
+// });

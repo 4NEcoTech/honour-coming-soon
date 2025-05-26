@@ -158,7 +158,8 @@ function Page() {
                           variant="ghost"
                           size="icon"
                           className="absolute right-0 top-0 h-full px-3 py-2"
-                          onClick={() => setShowPassword(!showPassword)}>
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
                           {showPassword ? <Eye /> : <EyeOff />}
                         </Button>
                       </div>
@@ -168,10 +169,20 @@ function Page() {
                 )}
               />
 
+              <div className="flex mt-2 justify-end">
+                <Link
+                  href="/frgt-psswd6036"
+                  className="text-sm text-primary font-semibold hover:underline"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
+
               <Button
                 type="submit"
                 disabled={form.formState.isSubmitting}
-                className="w-full mt-4 flex justify-center items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-gray-300">
+                className="w-full mt-2 flex justify-center items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:text-gray-300"
+              >
                 {form.formState.isSubmitting ? (
                   <>
                     <Loader2 className="h-6 w-6 animate-spin mr-2 text-white" />
@@ -190,7 +201,8 @@ function Page() {
             Don&apos;t have an account?{" "}
             <Link
               href="/supr-admn-rgstrtn6101"
-              className="text-primary hover:underline">
+              className="text-primary hover:underline"
+            >
               Sign Up
             </Link>
           </p>
@@ -198,13 +210,15 @@ function Page() {
             By logging in, you agree with HCJ&apos;s{" "}
             <Link
               href="/prvcy-plcy6014"
-              className="text-primary hover:underline">
+              className="text-primary hover:underline"
+            >
               Privacy Policy
             </Link>{" "}
             &{" "}
             <Link
               href="/trmsnd-cndtn6015"
-              className="text-primary hover:underline">
+              className="text-primary hover:underline"
+            >
               Terms and Conditions
             </Link>
             .

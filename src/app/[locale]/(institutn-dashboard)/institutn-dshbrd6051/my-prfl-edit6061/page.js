@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
+import { useAbility } from "@/Casl/CaslContext";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -10,20 +11,22 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Textarea } from '@/components/ui/textarea';
-import { toast } from '@/hooks/use-toast';
-import { Link } from '@/i18n/routing';
-import { zodResolver } from '@hookform/resolvers/zod';
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/hooks/use-toast";
+import { Link } from "@/i18n/routing";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowLeft,
   Camera,
@@ -33,151 +36,144 @@ import {
   Save,
   Trash,
   X,
-} from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
-import { z } from 'zod';
-import { VisibilitySheet } from './visibility-popover';
+} from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import { z } from "zod";
+import { VisibilitySheet } from "./visibility-popover";
 
 // Define schemas for form validation
-const personalInfoSchema = z.object({
-  firstName: z
-    .string()
-    .min(1, 'First name is required')
-    .max(50, 'First name cannot exceed 50 characters')
-    .regex(/^[a-zA-Z\s]+$/, 'First name can only contain letters and spaces'),
-  lastName: z
-    .string()
-    .max(50, 'Last name cannot exceed 50 characters')
-    .regex(/^[a-zA-Z\s]*$/, 'Last name can only contain letters and spaces')
-    .optional(),
-  profileHeadline: z
-    .string()
-    .max(100, 'Profile headline cannot exceed 100 characters')
-    .optional(),
-  designation: z
-    .string()
-    .max(100, 'Designation cannot exceed 100 characters')
-    .optional(),
-  about: z
-    .string()
-    .max(500, 'About section cannot exceed 500 characters')
-    .optional(),
-  email: z
-    .string()
-    .email('Invalid email address')
-    .min(1, 'Email is required')
-    .max(100, 'Email cannot exceed 100 characters'),
-  phone: z
-    .string()
-    .min(10, 'Phone number must be at least 10 digits')
-    .max(15, 'Phone number cannot exceed 15 digits')
-    .regex(
-      /^\+?[0-9\s\-]+$/,
-      'Phone number can only contain numbers, spaces, or dashes'
-    ),
-});
+const personalInfoSchema = (t) =>
+  z.object({
+    firstName: z
+      .string()
+      .min(1, t("6061_1"))
+      .max(50, t("6061_2"))
+      .regex(/^[a-zA-Z\s]+$/, t("6061_3")),
+    lastName: z
+      .string()
+      .max(50, "")
+      .regex(/^[a-zA-Z\s]*$/, t("6061_4"))
+      .optional(),
+    profileHeadline: z.string().max(100, t("6061_5")).optional(),
+    designation: z.string().max(100, t("6061_6")).optional(),
+    about: z.string().max(500, t("6061_7")).optional(),
+    email: z.string().email(t("6061_8")).min(1, t("6061_9")),
+    phone: z
+      .string()
+      .min(10, t("6061_10"))
+      .max(15, t("6061_11"))
+      .regex(/^\+?[0-9\s\-]+$/, t("6061_12")),
+  });
 
-const addressSchema = z.object({
-  addressLine1: z
-    .string()
-    .min(1, 'Address line 1 is required')
-    .max(100, 'Address line 1 cannot exceed 100 characters'),
-  addressLine2: z
-    .string()
-    .max(100, 'Address line 2 cannot exceed 100 characters')
-    .optional(),
-  landmark: z
-    .string()
-    .max(100, 'Landmark cannot exceed 100 characters')
-    .optional(),
-  country: z
-    .string()
-    .min(1, 'Country is required')
-    .max(50, 'Country cannot exceed 50 characters'),
-  state: z
-    .string()
-    .min(1, 'State is required')
-    .max(50, 'State cannot exceed 50 characters'),
-  city: z
-    .string()
-    .min(1, 'City is required')
-    .max(50, 'City cannot exceed 50 characters'),
-  pincode: z
-    .string()
-    .min(5, 'Pincode must be at least 5 characters')
-    .max(10, 'Pincode cannot exceed 10 characters')
-    .regex(/^\d+$/, 'Pincode must contain only numbers'),
-});
+const addressSchema = (t) =>
+  z.object({
+    addressLine1: z.string().min(1, t("6061_13")).max(100, t("6061_14")),
+    addressLine2: z.string().max(100, t("6061_15")).optional(),
+    landmark: z.string().max(100, t("6061_16")).optional(),
+    country: z.string().min(1, t("6061_17")).max(50, t("6061_18")),
+    state: z.string().min(1, t("6061_19")).max(50, t("6061_20")),
+    city: z.string().min(1, t("6061_21")),
+    pincode: z
+      .string()
+      .min(5, t("6061_22"))
+      .max(10, t("6061_23"))
+      .regex(/^\d+$/, t("6061_24")),
+  });
 
-const socialLinksSchema = z.object({
-  website: z
-    .string()
-    .trim()
-    .url('Invalid URL format for Website')
-    .optional()
-    .or(z.literal('')),
-  linkedin: z
-    .string()
-    .trim()
-    .url('Invalid URL format for LinkedIn')
-    .optional()
-    .or(z.literal('')),
-  facebook: z
-    .string()
-    .trim()
-    .url('Invalid URL format for Facebook')
-    .optional()
-    .or(z.literal('')),
-  instagram: z
-    .string()
-    .trim()
-    .url('Invalid URL format for Instagram')
-    .optional()
-    .or(z.literal('')),
-  portfolio: z
-    .string()
-    .trim()
-    .url('Invalid URL format for Portfolio')
-    .optional()
-    .or(z.literal('')),
-});
+const socialLinksSchema = (t) =>
+  z.object({
+    website: z.string().trim().url(t("6061_25")).optional().or(z.literal("")),
+    linkedin: z.string().trim().url(t("6061_26")).optional().or(z.literal("")),
+    facebook: z.string().trim().url(t("6061_27")).optional().or(z.literal("")),
+    instagram: z.string().trim().url(t("6061_28")).optional().or(z.literal("")),
+    portfolio: z.string().trim().url(t("6061_29")).optional().or(z.literal("")),
+  });
 
 // Language proficiency options
 const proficiencyOptions = [
-  { value: '01', label: 'Basic' },
-  { value: '02', label: 'Intermediate' },
-  { value: '03', label: 'Fluent' },
-  { value: '04', label: 'Native' },
+  { value: "01", label: "Basic" },
+  { value: "02", label: "Intermediate" },
+  { value: "03", label: "Fluent" },
+  { value: "04", label: "Native" },
 ];
 
 // Language proficiency types
 const proficiencyTypes = [
-  { id: '01', label: 'Reading' },
-  { id: '02', label: 'Writing' },
-  { id: '03', label: 'Speaking' },
+  { id: "01", label: "Reading" },
+  { id: "02", label: "Writing" },
+  { id: "03", label: "Speaking" },
 ];
 
 // Languages list
 const languagesList = [
-  { value: 'english', label: 'English' },
-  { value: 'hindi', label: 'Hindi' },
-  { value: 'tamil', label: 'Tamil' },
-  { value: 'telugu', label: 'Telugu' },
-  { value: 'kannada', label: 'Kannada' },
-  { value: 'malayalam', label: 'Malayalam' },
-  { value: 'bengali', label: 'Bengali' },
-  { value: 'marathi', label: 'Marathi' },
-  { value: 'gujarati', label: 'Gujarati' },
-  { value: 'punjabi', label: 'Punjabi' },
+  {
+    groupName: "Popular in India",
+    languages: [
+      { value: "hindi", label: "Hindi" },
+      { value: "english", label: "English" },
+      { value: "bengali", label: "Bengali" },
+      { value: "telugu", label: "Telugu" },
+      { value: "marathi", label: "Marathi" },
+      { value: "tamil", label: "Tamil" },
+      { value: "urdu", label: "Urdu" },
+      { value: "gujarati", label: "Gujarati" },
+      { value: "kannada", label: "Kannada" },
+      { value: "odia", label: "Odia" },
+      { value: "malayalam", label: "Malayalam" },
+      { value: "punjabi", label: "Punjabi" },
+      { value: "assamese", label: "Assamese" },
+      { value: "bhojpuri", label: "Bhojpuri" },
+    ],
+  },
+  {
+    groupName: "Other Indian Languages",
+    languages: [
+      { value: "konkani", label: "Konkani" },
+      { value: "sindhi", label: "Sindhi" },
+      { value: "sanskrit", label: "Sanskrit" },
+      { value: "manipuri", label: "Manipuri" },
+      { value: "bodo", label: "Bodo" },
+      { value: "kashmiri", label: "Kashmiri" },
+      { value: "tulu", label: "Tulu" },
+      { value: "santhali", label: "Santhali" },
+      { value: "mao", label: "Mao" },
+      { value: "nepali", label: "Nepali" },
+    ],
+  },
+  {
+    groupName: "International Languages",
+    languages: [
+      { value: "french", label: "French" },
+      { value: "spanish", label: "Spanish" },
+      { value: "arabic", label: "Arabic" },
+      { value: "chinese", label: "Chinese" },
+      { value: "german", label: "German" },
+      { value: "japanese", label: "Japanese" },
+      { value: "russian", label: "Russian" },
+      { value: "korean", label: "Korean" },
+      { value: "italian", label: "Italian" },
+      { value: "portuguese", label: "Portuguese" },
+      { value: "dutch", label: "Dutch" },
+      { value: "indonesian", label: "Indonesian" },
+      { value: "malaysian", label: "Malaysian" },
+      { value: "turkish", label: "Turkish" },
+      { value: "persian", label: "Persian" },
+      { value: "swahili", label: "Swahili" },
+    ],
+  },
 ];
 
 export default function Page() {
+  const tForm = useTranslations("formErrors");
+  const tError = useTranslations("errorCode");
+
   const router = useRouter();
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(true);
@@ -186,58 +182,59 @@ export default function Page() {
   const [coverImage, setCoverImage] = useState(null);
   const [profileImagePreview, setProfileImagePreview] = useState(null);
   const [coverImagePreview, setCoverImagePreview] = useState(null);
-  const [savingSection, setSavingSection] = useState('');
+  const [savingSection, setSavingSection] = useState("");
 
   // Language state
   const [languages, setLanguages] = useState([]);
-  const [selectedLanguage, setSelectedLanguage] = useState('');
-  const [selectedProficiency, setSelectedProficiency] = useState('');
+  const [selectedLanguage, setSelectedLanguage] = useState("");
+  const [selectedProficiency, setSelectedProficiency] = useState("");
   const [selectedProficiencyTypes, setSelectedProficiencyTypes] = useState([]);
   const [loadingLanguages, setLoadingLanguages] = useState(false);
   const [addingLanguage, setAddingLanguage] = useState(false);
-  const [languageError, setLanguageError] = useState('');
+  const [languageError, setLanguageError] = useState("");
+  const ability = useAbility();
 
   // Initialize forms with default values
   const personalForm = useForm({
-    resolver: zodResolver(personalInfoSchema),
+    resolver: zodResolver(personalInfoSchema(tForm)),
     defaultValues: {
-      firstName: '',
-      lastName: '',
-      profileHeadline: '',
-      designation: '',
-      about: '',
-      email: '',
-      phone: '',
+      firstName: "",
+      lastName: "",
+      profileHeadline: "",
+      designation: "",
+      about: "",
+      email: "",
+      phone: "",
     },
   });
 
   const addressForm = useForm({
-    resolver: zodResolver(addressSchema),
+    resolver: zodResolver(addressSchema(tForm)),
     defaultValues: {
-      addressLine1: '',
-      addressLine2: '',
-      landmark: '',
-      country: '',
-      state: '',
-      city: '',
-      pincode: '',
+      addressLine1: "",
+      addressLine2: "",
+      landmark: "",
+      country: "",
+      state: "",
+      city: "",
+      pincode: "",
     },
   });
 
   const socialLinksForm = useForm({
-    resolver: zodResolver(socialLinksSchema),
+    resolver: zodResolver(socialLinksSchema(tForm)),
     defaultValues: {
-      website: '',
-      linkedin: '',
-      facebook: '',
-      instagram: '',
-      portfolio: '',
+      website: "",
+      linkedin: "",
+      facebook: "",
+      instagram: "",
+      portfolio: "",
     },
   });
 
   // Fetch profile data when component mounts
   useEffect(() => {
-    if (status !== 'authenticated') return;
+    if (status !== "authenticated") return;
 
     const fetchProfileData = async () => {
       try {
@@ -261,9 +258,9 @@ export default function Page() {
 
         if (!response.ok) {
           toast({
-            title: 'Error',
-            description: data.message || 'Failed to load profile data',
-            variant: 'destructive',
+            title: data.title,
+            description: data.message || "Failed to load profile data",
+            variant: "destructive",
           });
         } else {
           setProfileData(data.data);
@@ -275,11 +272,11 @@ export default function Page() {
           }
         }
       } catch (err) {
-        console.error('Error fetching profile data:', err);
+        console.error("Error fetching profile data:", err);
         toast({
-          title: 'Error',
-          description: 'Failed to load profile data',
-          variant: 'destructive',
+          title: err.title || "Error",
+          description: err.message || "Failed to load profile data",
+          variant: "destructive",
         });
       } finally {
         setLoading(false);
@@ -301,11 +298,11 @@ export default function Page() {
       if (response.ok && data.success) {
         setLanguages(data.data || []);
       } else {
-        console.log('No languages found or error:', data.message);
+        console.log("No languages found or error:", data.message);
         setLanguages([]);
       }
     } catch (error) {
-      console.error('Error fetching languages:', error);
+      console.error("Error fetching languages:", error);
       setLanguages([]);
     } finally {
       setLoadingLanguages(false);
@@ -318,33 +315,33 @@ export default function Page() {
 
     // Set personal form values
     personalForm.reset({
-      firstName: individualDetails?.ID_First_Name || '',
-      lastName: individualDetails?.ID_Last_Name || '',
-      profileHeadline: individualDetails?.ID_Profile_Headline || '',
-      designation: individualDetails?.ID_Individual_Designation || '',
-      about: individualDetails?.ID_About || '',
-      email: individualDetails?.ID_Email || '',
-      phone: individualDetails?.ID_Phone || '',
+      firstName: individualDetails?.ID_First_Name || "",
+      lastName: individualDetails?.ID_Last_Name || "",
+      profileHeadline: individualDetails?.ID_Profile_Headline || "",
+      designation: individualDetails?.ID_Individual_Designation || "",
+      about: individualDetails?.ID_About || "",
+      email: individualDetails?.ID_Email || "",
+      phone: individualDetails?.ID_Phone || "",
     });
 
     // Set address form values
     addressForm.reset({
-      addressLine1: address?.IAD_Address_Line1 || '',
-      addressLine2: address?.IAD_Address_Line2 || '',
-      landmark: address?.IAD_Landmark || '',
-      country: address?.IAD_Country || '',
-      state: address?.IAD_State || '',
-      city: address?.IAD_City || '',
-      pincode: address?.IAD_Pincode || '',
+      addressLine1: address?.IAD_Address_Line1 || "",
+      addressLine2: address?.IAD_Address_Line2 || "",
+      landmark: address?.IAD_Landmark || "",
+      country: address?.IAD_Country || "",
+      state: address?.IAD_State || "",
+      city: address?.IAD_City || "",
+      pincode: address?.IAD_Pincode || "",
     });
 
     // Set social links form values
     socialLinksForm.reset({
-      website: socialLinks?.SL_Website_Url || '',
-      linkedin: socialLinks?.SL_LinkedIn_Profile || '',
-      facebook: socialLinks?.SL_Facebook_Url || '',
-      instagram: socialLinks?.SL_Instagram_Url || '',
-      portfolio: socialLinks?.SL_Portfolio_Url || '',
+      website: socialLinks?.SL_Website_Url || "",
+      linkedin: socialLinks?.SL_LinkedIn_Profile || "",
+      facebook: socialLinks?.SL_Facebook_Url || "",
+      instagram: socialLinks?.SL_Instagram_Url || "",
+      portfolio: socialLinks?.SL_Portfolio_Url || "",
     });
   };
 
@@ -368,33 +365,33 @@ export default function Page() {
 
   // Handle image uploads
   const handleImageUpload = async () => {
-    setSavingSection('photos');
+    setSavingSection("photos");
 
     try {
       if (!profileImage && !coverImage) {
         toast({
-          title: 'No changes',
-          description: 'No images selected for upload',
+          title: tError("errorCode.6061_59.title"),
+          description: tError("errorCode.6061_59.description"),
         });
-        setSavingSection('');
+        setSavingSection("");
         return;
       }
 
       if (!profileData?.individualDetails?._id) {
         toast({
-          title: 'Error',
-          description: 'Individual ID not found',
-          variant: 'destructive',
+          title: tError("errorCode.6061_40.title"),
+          description: tError("errorCode.6061_40.description"),
+          variant: "destructive",
         });
-        setSavingSection('');
+        setSavingSection("");
         return;
       }
 
       const formData = new FormData();
-      if (profileImage) formData.append('profilePicture', profileImage);
-      if (coverImage) formData.append('coverPhoto', coverImage);
+      if (profileImage) formData.append("profilePicture", profileImage);
+      if (coverImage) formData.append("coverPhoto", coverImage);
 
-      console.log('Uploading images:', {
+      console.log("Uploading images:", {
         hasProfileImage: !!profileImage,
         hasCoverImage: !!coverImage,
         individualId: profileData.individualDetails._id,
@@ -403,18 +400,18 @@ export default function Page() {
       const response = await fetch(
         `/api/institution/v1/hcjBrTo60614UpdateProfileImages/${profileData.individualDetails._id}`,
         {
-          method: 'PATCH',
+          method: "PATCH",
           body: formData,
         }
       );
 
       const data = await response.json();
-      console.log('Upload response:', data);
+      // console.log("Upload response:", data);
 
       if (response.ok && data.success) {
         toast({
-          title: 'Success',
-          description: 'Profile images updated successfully',
+          title: response.title || "Success",
+          description: response.message || "Images uploaded successfully",
         });
 
         // Refresh profile data to get updated image URLs
@@ -434,34 +431,36 @@ export default function Page() {
         setCoverImage(null);
       } else {
         toast({
-          title: 'Error',
-          description: data.message || 'Failed to upload images',
-          variant: 'destructive',
+          title: data.title || "Error",
+          description:
+            data.message ||
+            "An error occurred while uploading the images. Please try again.",
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Error uploading images:', error);
+      console.error("Error uploading images:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to upload images',
-        variant: 'destructive',
+        title: error.title || "Error",
+        description: error.message || "Failed to upload images",
+        variant: "destructive",
       });
     } finally {
-      setSavingSection('');
+      setSavingSection("");
     }
   };
 
   // Handle personal info submission
   const onPersonalSubmit = async (data) => {
-    setSavingSection('personal');
+    setSavingSection("personal");
     try {
       if (!profileData?.individualDetails?._id) {
         toast({
-          title: 'Error',
-          description: 'Individual ID not found',
-          variant: 'destructive',
+          title: tError("6061_40.title"),
+          description: tError("6061_40.description"),
+          variant: "destructive",
         });
-        setSavingSection('');
+        setSavingSection("");
         return;
       }
 
@@ -478,9 +477,9 @@ export default function Page() {
       const response = await fetch(
         `/api/institution/v1/hcjBrTo60611UpdateIndividual/${profileData.individualDetails._id}`,
         {
-          method: 'PATCH',
+          method: "PATCH",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(updateData),
         }
@@ -490,41 +489,42 @@ export default function Page() {
 
       if (response.ok && responseData.success) {
         toast({
-          title: 'Success',
-          description: 'Personal information updated successfully',
+          title: responseData.title || "Success",
+          description:
+            responseData.message || "Personal information updated successfully",
         });
       } else {
         toast({
-          title: 'Error',
+          title: responseData.title || "Error",
           description:
-            responseData.message || 'Failed to update personal information',
-          variant: 'destructive',
+            responseData.message || "Failed to update personal information",
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Error updating personal info:', error);
+      console.error("Error updating personal info:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to update personal information',
-        variant: 'destructive',
+        title: error.title || "Error",
+        description: error.message || "Failed to update personal information",
+        variant: "destructive",
       });
     } finally {
-      setSavingSection('');
+      setSavingSection("");
     }
   };
 
   // Handle address submission
   const onAddressSubmit = async (data) => {
-    setSavingSection('address');
+    setSavingSection("address");
     try {
-      console.log(profileData)
+      console.log(profileData);
       if (!profileData?.address?._id) {
         toast({
-          title: 'Error',
-          description: 'Address ID not found',
-          variant: 'destructive',
+          title: tError("6061_41.title"),
+          description: tError("6061_41.description"),
+          variant: "destructive",
         });
-        setSavingSection('');
+        setSavingSection("");
         return;
       }
 
@@ -541,9 +541,9 @@ export default function Page() {
       const response = await fetch(
         `/api/institution/v1/hcjBrTo60612UpdateAddress/${profileData.address._id}`,
         {
-          method: 'PATCH',
+          method: "PATCH",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(updateData),
         }
@@ -553,40 +553,41 @@ export default function Page() {
 
       if (response.ok && responseData.success) {
         toast({
-          title: 'Success',
-          description: 'Address information updated successfully',
+          title: responseData.title || "Success",
+          description:
+            responseData.message || "Address information updated successfully",
         });
       } else {
         toast({
-          title: 'Error',
+          title: responseData.title || "Error",
           description:
-            responseData.message || 'Failed to update address information',
-          variant: 'destructive',
+            responseData.message || "Failed to update address information",
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Error updating address:', error);
+      console.error("Error updating address:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to update address information',
-        variant: 'destructive',
+        title: error.title || "Error",
+        description: error.message || "Failed to update address information",
+        variant: "destructive",
       });
     } finally {
-      setSavingSection('');
+      setSavingSection("");
     }
   };
 
   // Handle social links submission
   const onSocialLinksSubmit = async (data) => {
-    setSavingSection('social');
+    setSavingSection("social");
     try {
       if (!profileData?.socialLinks?._id) {
         toast({
-          title: 'Error',
-          description: 'Social Links ID not found',
-          variant: 'destructive',
+          title: tError("6061_42.title"),
+          description: tError("6061_42.description"),
+          variant: "destructive",
         });
-        setSavingSection('');
+        setSavingSection("");
         return;
       }
 
@@ -601,9 +602,9 @@ export default function Page() {
       const response = await fetch(
         `/api/institution/v1/hcjBrTo60613UpdateSocialLinks/${profileData.socialLinks._id}`,
         {
-          method: 'PATCH',
+          method: "PATCH",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(updateData),
         }
@@ -613,24 +614,25 @@ export default function Page() {
 
       if (response.ok && responseData.success) {
         toast({
-          title: 'Success',
-          description: 'Social links updated successfully',
+          title: responseData.title || "Success",
+          description:
+            responseData.message || "Social links updated successfully",
         });
       } else {
         toast({
-          title: 'Error',
-          description: responseData.message || 'Failed to update social links',
-          variant: 'destructive',
+          title: responseData.title || "Error",
+          description: responseData.message || "Failed to update social links",
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Error updating social links:', error);
+      console.error("Error updating social links:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to update social links',
+        title: error.title || "Error",
+        description: error.message || "Failed to update social links",
       });
     } finally {
-      setSavingSection('');
+      setSavingSection("");
     }
   };
 
@@ -643,33 +645,33 @@ export default function Page() {
         return [...prev, id];
       }
     });
-    setLanguageError('');
+    setLanguageError("");
   };
 
   // Add a new language
   const handleAddLanguage = async () => {
-    setLanguageError('');
+    setLanguageError("");
 
     // Validate inputs
     if (!selectedLanguage) {
-      setLanguageError('Please select a language');
+      setLanguageError("Please select a language");
       return;
     }
 
     if (!selectedProficiency) {
-      setLanguageError('Please select proficiency level');
+      setLanguageError("Please select proficiency level");
       return;
     }
 
     if (selectedProficiencyTypes.length === 0) {
       setLanguageError(
-        'Please select at least one proficiency type (Reading, Writing, Speaking)'
+        "Please select at least one proficiency type (Reading, Writing, Speaking)"
       );
       return;
     }
 
     if (!profileData?.individualDetails?._id) {
-      setLanguageError('Individual ID not found');
+      setLanguageError("Individual ID not found");
       return;
     }
 
@@ -677,21 +679,21 @@ export default function Page() {
 
     try {
       const languageData = {
-        HCJ_JSL_Source: '01',
+        HCJ_JSL_Source: "01",
         HCJ_JSL_Id: profileData.individualDetails._id,
         HCJ_JSL_Language: selectedLanguage,
         HCJ_JSL_Language_Proficiency_Level: selectedProficiency,
         HCJ_JSL_Language_Proficiency: selectedProficiencyTypes,
-        HCJ_JSL_Ref: 'IndividualDetails',
+        HCJ_JSL_Ref: "IndividualDetails",
         HCJ_JSL_Creation_DtTym: new Date().toISOString(),
       };
 
       const response = await fetch(
         `/api/institution/v1/hcjBrTo60615UserLanguage/${profileData.individualDetails._id}`,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(languageData),
         }
@@ -701,23 +703,23 @@ export default function Page() {
 
       if (response.ok && data.success) {
         toast({
-          title: 'Success',
-          description: 'Language added successfully',
+          title: data.title||"Success",
+          description:data.message|| "Language added successfully",
         });
 
         // Reset form
-        setSelectedLanguage('');
-        setSelectedProficiency('');
+        setSelectedLanguage("");
+        setSelectedProficiency("");
         setSelectedProficiencyTypes([]);
 
         // Refresh languages list
         fetchLanguages(profileData.individualDetails._id);
       } else {
-        setLanguageError(data.message || 'Failed to add language');
+        setLanguageError(data.message || "Failed to add language");
       }
     } catch (error) {
-      console.error('Error adding language:', error);
-      setLanguageError('Failed to add language');
+      console.error("Error adding language:", error);
+      setLanguageError("Failed to add language");
     } finally {
       setAddingLanguage(false);
     }
@@ -731,7 +733,7 @@ export default function Page() {
       const response = await fetch(
         `/api/institution/v1/hcjBrTo60616UpdateUserLanguage/${languageId}`,
         {
-          method: 'DELETE',
+          method: "DELETE",
         }
       );
 
@@ -739,24 +741,24 @@ export default function Page() {
 
       if (response.ok && data.success) {
         toast({
-          title: 'Success',
-          description: 'Language deleted successfully',
+          title: data.title||"Success",
+          description:data.message|| "Language deleted successfully",
         });
 
         // Update languages list
         setLanguages((prev) => prev.filter((lang) => lang._id !== languageId));
       } else {
         toast({
-          title: 'Error',
-          description: data.message || 'Failed to delete language',
-          variant: 'destructive',
+          title: data.title||"Error",
+          description: data.message || "Failed to delete language",
+          variant: "destructive",
         });
       }
     } catch (error) {
-      console.error('Error deleting language:', error);
+      console.error("Error deleting language:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to delete language',
+        title: error.title||"Error",
+        description:error.message|| "Failed to delete language",
       });
     }
   };
@@ -764,20 +766,20 @@ export default function Page() {
   // Get proficiency level label
   const getProficiencyLabel = (code) => {
     const proficiency = proficiencyOptions.find((p) => p.value === code);
-    return proficiency ? proficiency.label : 'Unknown';
+    return proficiency ? proficiency.label : "Unknown";
   };
 
   // Get proficiency types as string
   const getProficiencyTypes = (types) => {
-    if (!types || !Array.isArray(types)) return '';
+    if (!types || !Array.isArray(types)) return "";
 
     return types
       .map((type) => {
         const profType = proficiencyTypes.find((p) => p.id === type);
-        return profType ? profType.label : '';
+        return profType ? profType.label : "";
       })
       .filter(Boolean)
-      .join(', ');
+      .join(", ");
   };
 
   if (loading) {
@@ -820,7 +822,9 @@ export default function Page() {
           <h1 className="text-2xl font-bold">Edit Profile</h1>
         </div>
         <div className="flex items-end">
-          <VisibilitySheet position="top-right" />
+          {ability.can("manage", "PersonalInfo") && (
+            <VisibilitySheet position="top-right" />
+          )}
         </div>
       </div>
 
@@ -1203,16 +1207,24 @@ export default function Page() {
                       <SelectValue placeholder="Select language" />
                     </SelectTrigger>
                     <SelectContent>
-                      {languagesList.map((language) => (
-                        <SelectItem
-                          key={language.value}
-                          value={language.value}
-                          disabled={languages.some(
-                            (profile) =>
-                              profile.HCJ_JSL_Language === language.value
-                          )}>
-                          {language.label}
-                        </SelectItem>
+                      {languagesList.map((group) => (
+                        <SelectGroup key={group.groupName}>
+                          {/* Group heading */}
+                          <SelectLabel>{group.groupName}</SelectLabel>
+
+                          {/* Group items */}
+                          {group.languages.map((language) => (
+                            <SelectItem
+                              key={language.value}
+                              value={language.value}
+                              disabled={languages?.some(
+                                (profile) =>
+                                  profile.HCJ_JSL_Language === language.value
+                              )}>
+                              {language.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
                       ))}
                     </SelectContent>
                   </Select>

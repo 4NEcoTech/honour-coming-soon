@@ -41,7 +41,7 @@ import SocialProfile from '@/app/models/social_link';
 export async function GET(request, { params }) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = await params;
 
     const [individualDetails, ecoLink, designation, socialProfile] = await Promise.all([
       IndividualDetails.findOne({ _id: id }).select('ID_Individual_Designation').lean(),

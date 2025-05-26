@@ -11,5 +11,7 @@ export function verifyToken(token) {
 }
 
 export function generateToken(user) {
-  return jwt.sign({ id: user._id, role: user.UT_Role }, JWT_SECRET, { expiresIn: "1h" });
+  return jwt.sign({ id: user._id, role: user.UT_Role }, JWT_SECRET, {
+    expiresIn: "1d",
+  });
 }

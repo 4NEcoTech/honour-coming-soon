@@ -1,23 +1,28 @@
-'use client';
+"use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+import { useAbility } from "@/Casl/CaslContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Link } from '@/i18n/routing';
-import Image from 'next/image';
+} from "@/components/ui/dialog";
+import { Link } from "@/i18n/routing";
+import Image from "next/image";
 
 const roleMapping = {
-  '07': 'Team Member',
-  '08': 'Support Staff',
-  '06': 'Administrator',
+  "07": "Team Member",
+  "08": "Support Staff",
+  "06": "Administrator",
 };
 
 export default function RegisteredTeamPopup({ staff, isOpen, onClose }) {
+  const ability = useAbility();
+
+
+  
   if (!staff) return null;
 
   return (
@@ -54,16 +59,38 @@ export default function RegisteredTeamPopup({ staff, isOpen, onClose }) {
         </DialogHeader>
 
         <div className="flex space-x-4 mt-4">
-          <Link href={`/team-prfl/${staff.id}`} className="flex-1">
-            <Button className="w-full border bg-gray border-gray-300 py-2 px-4 text-gray-700 rounded-md hover:bg-blue-300">
-              View Profile
-            </Button>
-          </Link>
-          <Link href={`/institutn-dshbrd6051/add-stff-membr6058?id=${staff.id}`} className="flex-1">
-            <Button className="w-full border bg-primary py-2 px-4 rounded-md text-white">
-              Edit
-            </Button>
-          </Link>
+          {ability.can("read", "Staff") ? (
+            <Link href={`/team-prfl/${staff.id}`} className="flex-1">
+              <Button className="w-full border bg-gray border-gray-300 py-2 px-4 text-gray-700 rounded-md hover:bg-blue-300">
+                View Profile
+              </Button>
+            </Link>
+          ) : (
+            <div className="flex-1">
+              <Button
+                disabled
+                className="w-full border bg-gray border-gray-300 py-2 px-4 text-gray-700 rounded-md hover:bg-blue-300 cursor-not-allowed">
+                View Profile
+              </Button>
+            </div>
+          )}
+          {ability.can("update", "Staff") ? (
+            <Link
+              href={`/institutn-dshbrd6051/add-stff-membr6058?id=${staff.id}`}
+              className="flex-1">
+              <Button className="w-full border bg-primary py-2 px-4 rounded-md text-white">
+                Edit
+              </Button>
+            </Link>
+          ) : (
+            <div className="flex-1">
+              <Button
+                disabled
+                className="w-full border bg-primary py-2 px-4 rounded-md text-white cursor-not-allowed ">
+                Edit
+              </Button>
+            </div>
+          )}
         </div>
 
         <div className="grid gap-4 py-4">
@@ -73,7 +100,9 @@ export default function RegisteredTeamPopup({ staff, isOpen, onClose }) {
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
             <div className="font-medium">Phone Number</div>
-            <div className="text-sm text-muted-foreground">{staff.phone || 'N/A'}</div>
+            <div className="text-sm text-muted-foreground">
+              {staff.phone || "N/A"}
+            </div>
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
             <div className="font-medium">Email</div>
@@ -81,11 +110,15 @@ export default function RegisteredTeamPopup({ staff, isOpen, onClose }) {
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
             <div className="font-medium">Department</div>
-            <div className="text-sm text-muted-foreground">{staff.department}</div>
+            <div className="text-sm text-muted-foreground">
+              {staff.department}
+            </div>
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
             <div className="font-medium">Joining Year</div>
-            <div className="text-sm text-muted-foreground">{staff.joiningYear}</div>
+            <div className="text-sm text-muted-foreground">
+              {staff.joiningYear}
+            </div>
           </div>
         </div>
       </DialogContent>

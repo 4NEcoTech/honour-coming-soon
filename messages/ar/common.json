@@ -1,0 +1,29 @@
+{
+  "HomePage": {
+    "Opportunities_for_every_student": "فرص لكل طالب",
+    "Projects_Internships_Flexijobs_Regular_Jobs": "معارض الوظائف عبر الإنترنت | تدريب | وظائف مرنة | مشاريع | فرص عمل عن بُعد",
+    "Marketing_Sales_Design_Development_DevOps_Robotics_ML_AI_Finance_Sketch_Artists_VFX_Animation": "التسويق، المبيعات، التصميم، التطوير، ديف أوبس، الروبوتات، التعلم الآلي، الذكاء الاصطناعي، المالية، فنانو الرسم، المؤثرات البصرية، الرسوم المتحركة",
+    "Register_your_Institution_with_HCJ": "سجّل مؤسستك في HCJ",
+    "Take_part_in_India_s_biggest_Job_Fair": "شارك في أكبر معرض وظائف في الهند",
+    "Nov_10_Nov_20": "10 نوفمبر - 20 نوفمبر",
+    "Register_here": "سجّل هنا",
+    "About_Us": "معلومات عنا",
+    "Welcome_to_HCJ_the_leading_platform_designed_to_connect_institutions_students_and_the_dynamic_job_market": "مرحبًا بك في HCJ، المنصة الرائدة المصممة لربط المؤسسات والطلاب وسوق العمل الديناميكي.",
+    "At_HCJ_our_mission_is_to_streamline_and_enhance_the_job_seeking_experience": "في HCJ، مهمتنا هي تبسيط وتعزيز تجربة البحث عن عمل من خلال توفير وسيلة سهلة وفعالة للمؤسسات لتحميل وإدارة ملفات الطلاب. يتيح ذلك للطلاب عرض مهاراتهم ومؤهلاتهم لمعارض الوظائف، والتدريب، ومجموعة واسعة من الفرص المهنية.",
+    "Committed_to_bridging_the_gap_between_academia_and_industry": "نحن ملتزمون بسد الفجوة بين الأوساط الأكاديمية والصناعة من خلال توفير منصة سلسة يمكن للطلاب من خلالها الحصول على الرؤية والوصول إلى أصحاب العمل المحتملين، في حين يمكن للمؤسسات لعب دور رئيسي في تشكيل مسارات الطلاب المهنية. مع HCJ، نجعل الانتقال من التعليم إلى التوظيف أكثر سلاسة وفعالية.",
+    "Read_more": "اقرأ المزيد",
+    "Partner_Institutions": "المؤسسات الشريكة",
+    "Achievers_Central": "مركز المتميزين",
+    "View_All": "عرض الكل",
+    "Featured_Achievers_Of_this_month": "المتميزون المميزون لهذا الشهر",
+    "Give_your_students_access_to_real_world_opportunities": "امنح طلابك إمكانية الوصول إلى فرص العالم الحقيقي",
+    "Get_Started": "ابدأ الآن"
+  },
+  "RegistrationWithCredentialForm": {
+    "title": "تسجيل المؤسسة",
+    "subtitle": "إذا كنت مسؤول مؤسسة، يرجى المتابعة بالتسجيل.",
+    "OTP": "التحقق من رمز OTP",
+    "OTP_Description": "أدخل رمز OTP المرسل إلى بريدك الإلكتروني الخاص بالمؤسسة",
+    "'Password_title": "إنشاء كلمة المرور"
+  }
+}

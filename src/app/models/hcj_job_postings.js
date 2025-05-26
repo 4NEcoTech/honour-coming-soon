@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import { AuditTrailSchema } from '../common/AuditTrail';
+import mongoose from "mongoose";
+import { AuditTrailSchema } from "./common/AuditTrail";
 
 const Schema = mongoose.Schema;
 
@@ -52,10 +52,20 @@ const Schema = mongoose.Schema;
  * @property {Date} updatedAt - Timestamp indicating when the document was last updated.
  */
 
+const assessmentQuestionSchema = new Schema({
+  question: { type: String },
+  isMandatory: { type: Boolean, default: false }
+}, 
+  { _id: false }
+);
+
 const hcjJobPostingsSchema = new Schema(
   {
-  //  HCJ_JP_Job_Id: { type: String },
-    HCJ_JP_Company_Id: { type: String },
+    HCJ_JP_Company_Id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "company_details",
+      required: true,
+    },
     HCJ_JP_Job_Num: { type: String },
     HCJ_JP_Opportunity_Type: { type: String },
     HCJ_JP_Job_Headline: { type: String },
@@ -72,7 +82,11 @@ const hcjJobPostingsSchema = new Schema(
     HCJ_JP_Start_Date_Flag: { type: Boolean },
     HCJ_JP_Responsibility: { type: String },
     HCJ_JP_Additional_Preferences: { type: String },
-    HCJ_JP_Assessment_Questions: { type: [String] },
+    // HCJ_JP_Assessment_Questions: { type: [String] },
+     HCJ_JP_Assessment_Questions: { 
+      type: [assessmentQuestionSchema], 
+      default: [] 
+    },
     HCJ_JP_Salary_Flag: { type: Boolean },
     HCJ_JP_Salary_Currency: { type: String },
     HCJ_JP_Salary_Amount: { type: Number },
@@ -103,6 +117,6 @@ const hcjJobPostingsSchema = new Schema(
 
 const HcjJobPostings =
   mongoose.models.hcj_job_postings ||
-  mongoose.model('hcj_job_postings', hcjJobPostingsSchema);
+  mongoose.model("hcj_job_postings", hcjJobPostingsSchema);
 
 export default HcjJobPostings;

@@ -1,7 +1,8 @@
-import { getServerSession } from "next-auth";
 import JobSeekerLanguages from "@/app/models/hcj_job_seeker_languages";
-import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/utils/dbConnect";
+import { getTranslator } from "@/i18n/server";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
 /**
  * @swagger
@@ -99,13 +100,20 @@ import { dbConnect } from "@/app/utils/dbConnect";
  */
 
 export async function PATCH(req, { params }) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   try {
     await dbConnect();
     const { language_id } = await params;
 
     if (!language_id) {
       return NextResponse.json(
-        { success: false, message: "Language ID is required" },
+        {
+          success: false,
+          code: "6061_54",
+          title: t("errorCodes.6061_54.title"),
+          message: t("errorCodes.6061_54.description"),
+        },
         { status: 400 }
       );
     }
@@ -113,7 +121,12 @@ export async function PATCH(req, { params }) {
     const session = await getServerSession(req);
     if (!session || !session.user) {
       return NextResponse.json(
-        { success: false, message: "Unauthorized access" },
+        {
+          success: false,
+          code: "6061_36",
+          title: t("errorCodes.6061_36.title"),
+          message: t("errorCodes.6061_36.description"),
+        },
         { status: 401 }
       );
     }
@@ -127,32 +140,57 @@ export async function PATCH(req, { params }) {
 
     if (!updatedLanguage) {
       return NextResponse.json(
-        { success: false, message: "Language entry not found" },
+        {
+          success: false,
+          code: "6061_55",
+          title: t("errorCodes.6061_55.title"),
+          message: t("errorCodes.6061_55.description"),
+        },
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      { success: true, message: "User language updated", data: updatedLanguage },
+      {
+        success: true,
+        code: "6061_56",
+        title: t("errorCodes.6061_56.title"),
+        message: t("errorCodes.6061_56.description"),
+        data: updatedLanguage,
+      },
       { status: 200 }
     );
   } catch (error) {
     console.error("Error updating user language:", error);
     return NextResponse.json(
-      { success: false, message: "Internal Server Error" },
+      {
+        success: false,
+        code: "6061_46",
+        title: t("errorCodes.6061_46.title"),
+        message: t("errorCodes.6061_46.description", {
+          message: error.message,
+        }),
+      },
       { status: 500 }
     );
   }
 }
 
 export async function GET(req, { params }) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   try {
     await dbConnect();
     const { language_id } = await params;
 
     if (!language_id) {
       return NextResponse.json(
-        { success: false, message: "Language ID is required" },
+        {
+          success: false,
+          code: "6061_54",
+          title: t("errorCodes.6061_54.title"),
+          message: t("errorCodes.6061_54.description"),
+        },
         { status: 400 }
       );
     }
@@ -160,7 +198,12 @@ export async function GET(req, { params }) {
     const session = await getServerSession(req);
     if (!session || !session.user) {
       return NextResponse.json(
-        { success: false, message: "Unauthorized access" },
+        {
+          success: false,
+          code: "6061_36",
+          title: t("errorCodes.6061_36.title"),
+          message: t("errorCodes.6061_36.description"),
+        },
         { status: 401 }
       );
     }
@@ -169,32 +212,58 @@ export async function GET(req, { params }) {
 
     if (!languageEntry) {
       return NextResponse.json(
-        { success: false, message: "Language entry not found" },
+        {
+          success: false,
+          code: "6061_55",
+          title: t("errorCodes.6061_55.title"),
+          message: t("errorCodes.6061_55.description"),
+        },
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      { success: true, message: "Language entry retrieved successfully", data: languageEntry },
+      {
+        success: true,
+        code: "6061_57",
+        title: t("errorCodes.6061_57.title"),
+        message: t("errorCodes.6061_57.description"),
+        data: languageEntry,
+      },
       { status: 200 }
     );
   } catch (error) {
     console.error("Error fetching user language:", error);
     return NextResponse.json(
-      { success: false, message: "Internal Server Error" },
+      {
+        success: false,
+        code: "6061_46",
+        title: t("errorCodes.6061_46.title"),
+        message: t("errorCodes.6061_46.description", {
+          message: error.message,
+        }),
+      },
       { status: 500 }
     );
   }
 }
 
 export async function DELETE(req, { params }) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
+
   try {
     await dbConnect();
     const { language_id } = await params;
 
     if (!language_id) {
       return NextResponse.json(
-        { success: false, message: "Language ID is required" },
+        {
+          success: false,
+          code: "6061_54",
+          title: t("errorCodes.6061_54.title"),
+          message: t("errorCodes.6061_54.description"),
+        },
         { status: 400 }
       );
     }
@@ -202,28 +271,53 @@ export async function DELETE(req, { params }) {
     const session = await getServerSession(req);
     if (!session || !session.user) {
       return NextResponse.json(
-        { success: false, message: "Unauthorized access" },
+        {
+          success: false,
+          code: "6061_36",
+          title: t("errorCodes.6061_36.title"),
+          message: t("errorCodes.6061_36.description"),
+        },
         { status: 401 }
       );
     }
 
-    const deletedLanguage = await JobSeekerLanguages.findByIdAndDelete(language_id).lean();
+    const deletedLanguage = await JobSeekerLanguages.findByIdAndDelete(
+      language_id
+    ).lean();
 
     if (!deletedLanguage) {
       return NextResponse.json(
-        { success: false, message: "Language entry not found" },
+        {
+          success: false,
+          code: "6061_55",
+          title: t("errorCodes.6061_55.title"),
+          message: t("errorCodes.6061_55.description"),
+        },
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      { success: true, message: "Language entry deleted successfully" },
+      {
+        success: true,
+        code: "6061_58",
+        title: t("errorCodes.6061_58.title"),
+        message: t("errorCodes.6061_58.description"),
+        data: deletedLanguage,
+      },
       { status: 200 }
     );
   } catch (error) {
     console.error("Error deleting user language:", error);
     return NextResponse.json(
-      { success: false, message: "Internal Server Error" },
+      {
+        success: false,
+        code: "6061_46",
+        title: t("errorCodes.6061_46.title"),
+        message: t("errorCodes.6061_46.description", {
+          message: error.message,
+        }),
+      },
       { status: 500 }
     );
   }

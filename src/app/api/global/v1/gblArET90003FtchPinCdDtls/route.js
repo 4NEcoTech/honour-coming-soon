@@ -1,4 +1,5 @@
-import { dbConnect } from '@/app/utils/dbConnect';
+import { dbConnect } from "@/app/utils/dbConnect";
+import { getTranslator } from "@/i18n/server";
 
 /**
  * @swagger
@@ -71,25 +72,32 @@ import { dbConnect } from '@/app/utils/dbConnect';
  */
 
 export async function GET(req) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   try {
     const startTime = Date.now(); // Start time for execution tracking
 
     // Connect to the database
     const db = await dbConnect();
-    const collection = db.collection('pincode_list');
+    const collection = db.collection("pincode_list");
 
     // Parse query parameters
     const url = new URL(req.url);
-    const pincode = url.searchParams.get('pincode')?.trim();
+    const pincode = url.searchParams.get("pincode")?.trim();
     const fields = url.searchParams
-      .get('fields')
-      ?.split(',')
+      .get("fields")
+      ?.split(",")
       .map((field) => field.trim());
 
     // Validate pincode input
     if (!pincode) {
       return Response.json(
-        { success: false, message: 'Pincode is required', status: 400 },
+        {
+          success: false,
+          code: "9003_1",
+          title: t("errorCode.9003_1.title"),
+          message: t("errorCode.9003_1.description"),
+        },
         { status: 400 }
       );
     }
@@ -112,8 +120,9 @@ export async function GET(req) {
       return Response.json(
         {
           success: false,
-          message: 'Pincode not found',
-          status: 404,
+          code: "9003_2",
+          title: t("errorCode.9003_2.title"),
+          message: t("errorCode.9003_2.description"),
           fetched_at: new Date().toISOString(),
           execution_time_ms: Date.now() - startTime,
         },
@@ -123,8 +132,8 @@ export async function GET(req) {
 
     // Provide default values for missing fields
     if (!fields || fields.length === 0) {
-      result.state = result.state_name || 'Unknown State';
-      result.city = result.district || 'Unknown Division';
+      result.state = result.state_name || "Unknown State";
+      result.city = result.district || "Unknown Division";
       delete result.state_name;
       delete result.district;
     }
@@ -133,21 +142,25 @@ export async function GET(req) {
     return Response.json(
       {
         success: true,
-        status: 200,
+        code: "9003_3",
+        title: t("errorCode.9003_3.title"),
+        message: t("errorCode.9003_3.description"),
         fetched_at: new Date().toISOString(), // Current timestamp
         execution_time_ms: Date.now() - startTime, // API execution time
         requested_pincode: pincode, // Pincode queried
-        requested_fields: fields || ['state_name', 'district'], // Requested fields
+        requested_fields: fields || ["state_name", "district"], // Requested fields
         data: result, // Actual data
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error('Database error:', error);
+    console.error("Database error:", error);
     return Response.json(
       {
         success: false,
-        message: 'Internal server error',
+        code: "9003_4",
+        title: t("errorCode.9003_4.title"),
+        message: t("errorCode.9003_4.description"),
         status: 500,
         fetched_at: new Date().toISOString(),
       },

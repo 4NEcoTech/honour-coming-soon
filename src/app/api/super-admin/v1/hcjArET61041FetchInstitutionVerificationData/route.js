@@ -11,149 +11,103 @@ import { getPaginatedResults } from "@/app/utils/paginationUtils";
  * @swagger
  * /api/super-admin/v1/hcjArET61041FetchInstitutionVerificationData:
  *   get:
- *     summary: Retrieve company details with pagination
- *     description: |
- *       - Fetches paginated company details including company KYC, address, and administrator details.
- *       - Supports searching by various fields such as company name, email, industry, and registration number.
- *       - Returns associated social profiles and verification details.
- *     tags: [Get Institution Details For Super Admin Verification]
+ *     summary: Get paginated list of institution KYC records with related data
+ *     description: >
+ *       Fetches paginated KYC records for institutions.  
+ *       Each record includes associated company details, administrator details, address, social profiles, and KYC metadata.
+ *     tags:
+ *       - Super Admin Verify A Institution or COmpany
  *     parameters:
  *       - in: query
  *         name: page
  *         schema:
  *           type: integer
- *         description: The page number for pagination (default is 1).
+ *         description: Page number for pagination
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
- *         description: The number of results per page (default is 10).
+ *         description: Number of records per page
  *       - in: query
  *         name: search
  *         schema:
  *           type: string
- *         description: Search query that checks multiple fields (company name, email, phone, registration number, etc.).
+ *         description: Search term for matching across name, email, industry, etc.
  *     responses:
  *       200:
- *         description: Successfully retrieved paginated company details.
+ *         description: List of institution KYC records with related details
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 _id:
- *                   type: string
- *                   example: "65f4b29e28b72a001c35a92b"
- *                   description: "Unique identifier for the company KYC record."
- *                 administrator:
- *                   type: object
- *                   nullable: true
- *                   properties:
- *                     ID_First_Name:
- *                       type: string
- *                       example: "John"
- *                     ID_Last_Name:
- *                       type: string
- *                       example: "Doe"
- *                     ID_Email:
- *                       type: string
- *                       example: "john.doe@example.com"
- *                     ID_Phone:
- *                       type: string
- *                       example: "+1234567890"
- *                 companyDetails:
- *                   type: object
- *                   properties:
- *                     CD_Company_Name:
- *                       type: string
- *                       example: "TechCorp Pvt Ltd"
- *                     CD_Company_Industry:
- *                       type: string
- *                       example: "Information Technology"
- *                     CD_Company_Email:
- *                       type: string
- *                       example: "info@techcorp.com"
- *                     CD_Phone_Number:
- *                       type: string
- *                       example: "+9876543210"
- *                     CD_Company_Website:
- *                       type: string
- *                       example: "https://www.techcorp.com"
- *                 companyAddress:
- *                   type: object
- *                   nullable: true
- *                   properties:
- *                     CAD_Address_Line1:
- *                       type: string
- *                       example: "123 Street Name"
- *                     CAD_City:
- *                       type: string
- *                       example: "New York"
- *                     CAD_State:
- *                       type: string
- *                       example: "NY"
- *                     CAD_Country:
- *                       type: string
- *                       example: "USA"
- *                     CAD_Pincode:
- *                       type: string
- *                       example: "10001"
- *                 socialProfiles:
- *                   type: object
- *                   nullable: true
- *                   properties:
- *                     SL_LinkedIn:
- *                       type: string
- *                       example: "https://linkedin.com/in/techcorp"
- *                     SL_Twitter:
- *                       type: string
- *                       example: "https://twitter.com/techcorp"
- *                 companyKYC:
- *                   type: object
- *                   properties:
- *                     CKD_Company_Registration_Number:
- *                       type: string
- *                       example: "ABC123456"
- *                     CKD_Company_Tax_Id:
- *                       type: string
- *                       example: "TAX987654"
- *                     CKD_Verification_Status:
- *                       type: string
- *                       example: "verified"
- *                     CKD_Verification_DtTym:
- *                       type: string
- *                       format: date-time
- *                       example: "2024-03-19T10:30:00Z"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       administrator:
+ *                         type: object
+ *                         properties:
+ *                           ID_First_Name:
+ *                             type: string
+ *                           ID_Last_Name:
+ *                             type: string
+ *                           ID_Email:
+ *                             type: string
+ *                           ID_Phone:
+ *                             type: string
+ *                       companyDetails:
+ *                         type: object
+ *                         properties:
+ *                           CD_Company_Name:
+ *                             type: string
+ *                           CD_Company_Email:
+ *                             type: string
+ *                           CD_Company_Industry:
+ *                             type: string
+ *                           ...:
+ *                             description: Other company metadata
+ *                       companyAddress:
+ *                         type: object
+ *                         properties:
+ *                           CAD_City:
+ *                             type: string
+ *                           CAD_State:
+ *                             type: string
+ *                           CAD_Country:
+ *                             type: string
+ *                           ...:
+ *                             description: Other address details
+ *                       socialProfiles:
+ *                         type: object
+ *                         properties:
+ *                           SL_LinkedIn:
+ *                             type: string
+ *                           SL_Website:
+ *                             type: string
+ *                           ...:
+ *                             description: Other social links
+ *                       companyKYC:
+ *                         type: object
+ *                         properties:
+ *                           CKD_KYCNum:
+ *                             type: string
+ *                           CKD_Company_Registration_Number:
+ *                             type: string
+ *                           CKD_Verification_Status:
+ *                             type: string
+ *                           ...:
+ *                             description: Other KYC fields
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
  *       400:
- *         description: Bad request (e.g., invalid parameters).
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "Invalid query parameters."
- *       404:
- *         description: No records found for the given search criteria.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: "No company records found."
+ *         description: Invalid search or pagination parameters
  *       500:
- *         description: Internal server error.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: "Internal Server Error."
+ *         description: Internal Server Error
  */
 
 

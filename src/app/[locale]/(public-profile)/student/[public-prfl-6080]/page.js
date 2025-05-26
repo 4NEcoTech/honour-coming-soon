@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@/i18n/routing";
 import {
+  AlignLeft,
   Briefcase,
   Building2,
   Download,
@@ -16,6 +17,7 @@ import {
   MessageSquare,
   Phone,
   Share2,
+  UserCog,
   Users,
 } from "lucide-react";
 import Image from "next/image";
@@ -90,8 +92,7 @@ export default function StudentPublicProfilePage() {
           <Image
             src={
               profileData?.individualDetails?.ID_Cover_Photo ||
-              "/image/institutnstudent/cover.jpg" ||
-              "/placeholder.svg"
+              "/image/cover.png" 
             }
             alt="Cover"
             className="object-cover"
@@ -113,8 +114,7 @@ export default function StudentPublicProfilePage() {
                 <Image
                   src={
                     profileData?.individualDetails?.ID_Profile_Picture ||
-                    "/image/institutnstudent/user.svg" ||
-                    "/placeholder.svg"
+                    "/image/profile.png"
                   }
                   alt="Profile"
                   width={180}
@@ -216,67 +216,134 @@ export default function StudentPublicProfilePage() {
                   {profileData?.individualDetails?.ID_First_Name}{" "}
                   {profileData?.individualDetails?.ID_Last_Name}
                 </h1>
-                <p className="text-muted-foreground dark:text-gray-400 mt-1">
-                  {profileData?.individualDetails?.ID_Profile_Headline ||
-                    "Student"}
-                </p>
-                <div className="flex items-center gap-4 mt-3">
-                  <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
-                    <Users className="w-4 h-4" />
-                    <span>{profileData?.user?.followers || 0} Followers</span>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <p className="text-muted-foreground dark:text-gray-400 mt-1">
+                    {profileData?.individualDetails?.ID_Profile_Headline ||
+                      "Student"}
+                  </p>
                 </div>
-              </div>
 
-              <div className="space-y-4">
-                {profileData?.address && (
-                  <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
-                    <MapPin className="w-4 h-4 shrink-0" />
-                    <span>
-                      {profileData.address.IAD_City},{" "}
-                      {profileData.address.IAD_State}
-                      {profileData.address.IAD_Country
-                        ? `, ${profileData.address.IAD_Country}`
-                        : ""}
-                    </span>
+                {profileData?.individualDetails?.ID_Individual_Designation && (
+                  <div className="flex items-center gap-2">
+                    <UserCog className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                    <p className="text-muted-foreground dark:text-gray-400 mt-1">
+                      {profileData?.individualDetails
+                        ?.ID_Individual_Designation || "Add Designation"}
+                    </p>
                   </div>
                 )}
-
-                {profileData?.profile?.ID_Individual_Designation && (
-                  <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
-                    <Briefcase className="w-4 h-4 shrink-0" />
-                    <span>{profileData.profile.ID_Individual_Designation}</span>
-                  </div>
-                )}
-
-                {profileData?.profile?.ID_About && (
-                  <div className="flex items-start gap-2 text-muted-foreground dark:text-gray-400">
-                    <Mail className="w-4 h-4 mt-1 shrink-0" />
-                    <p className="leading-relaxed">
-                      {profileData.profile.ID_About}
+                {profileData?.individualDetails?.ID_About && (
+                  <div className="flex items-center gap-2">
+                    <AlignLeft className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                    <p className="text-muted-foreground dark:text-gray-400 mt-1">
+                      {profileData?.individualDetails?.ID_About || "Add About"}
                     </p>
                   </div>
                 )}
 
-                {profileData?.socialLinks?.SL_Website_Url && (
-                  <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
-                    <Globe className="w-4 h-4 shrink-0" />
-                    <Link
-                      href={profileData.socialLinks.SL_Website_Url}
-                      className="text-primary hover:underline dark:text-blue-400 dark:hover:text-blue-300 flex items-center"
-                    >
-                      {profileData.socialLinks.SL_Website_Url}
-                      <ExternalLink className="w-3 h-3 ml-1" />
-                    </Link>
+                {profileData?.user?.followers && (
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
+                      <Users className="w-4 h-4" />
+                      <span>{profileData?.user?.followers || 0} Followers</span>
+                    </div>
                   </div>
                 )}
 
-                {profileData?.profile?.ID_Phone && (
-                  <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
-                    <Phone className="w-4 h-4 shrink-0" />
-                    <span>{profileData.profile.ID_Phone}</span>
-                  </div>
-                )}
+                {profileData?.visibility?.IIV_Phone_Number &&
+                  profileData?.individualDetails?.ID_Phone && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                      <p className="text-muted-foreground dark:text-gray-400 mt-1">
+                        {profileData.individualDetails.ID_Phone}
+                      </p>
+                    </div>
+                  )}
+
+                {profileData?.visibility?.IIV_Email &&
+                  profileData?.individualDetails?.ID_Email && (
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                      <p className="text-muted-foreground dark:text-gray-400 mt-1">
+                        {profileData.individualDetails.ID_Email}
+                      </p>
+                    </div>
+                  )}
+
+                {profileData?.visibility?.IIV_Address_Line1 &&
+                  profileData?.address?.IAD_Address_Line1 && (
+                    <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
+                      <MapPin className="w-4 h-4 shrink-0" />
+                      <span>{profileData.address.IAD_Address_Line1}</span>
+                    </div>
+                  )}
+
+                {profileData?.visibility?.IIV_Address_Line2 &&
+                  profileData?.address?.IAD_Address_Line2 && (
+                    <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
+                      <MapPin className="w-4 h-4 shrink-0" />
+                      <span>{profileData.address.IAD_Address_Line2}</span>
+                    </div>
+                  )}
+
+                {profileData?.visibility?.IIV_Landmark &&
+                  profileData?.address?.IAD_Landmark && (
+                    <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
+                      <MapPin className="w-4 h-4 shrink-0" />
+                      <span>{profileData.address.IAD_Landmark}</span>
+                    </div>
+                  )}
+
+                {profileData?.visibility?.IIV_Pincode &&
+                  profileData?.address?.IAD_Pincode && (
+                    <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
+                      <MapPin className="w-4 h-4 shrink-0" />
+                      <span>{profileData.address.IAD_Pincode}</span>
+                    </div>
+                  )}
+
+                {profileData?.visibility?.IIV_Website_Url_Visibility &&
+                  profileData?.socialLinks?.SL_Website_Url && (
+                    <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
+                      <Globe className="w-4 h-4 shrink-0" />
+                      <Link
+                        href={profileData.socialLinks.SL_Website_Url}
+                        className="text-primary hover:underline dark:text-blue-400 dark:hover:text-blue-300 flex items-center"
+                      >
+                        {profileData.socialLinks.SL_Website_Url}
+                        <ExternalLink className="w-3 h-3 ml-1" />
+                      </Link>
+                    </div>
+                  )}
+
+                {/* <div className="flex items-center gap-2">
+                  <Phone className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                  <p className="text-muted-foreground dark:text-gray-400 mt-1">
+                    {profileData?.individualDetails?.ID_Phone || "+91 xxxxx"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                  <p className="text-muted-foreground dark:text-gray-400 mt-1">
+                    {profileData?.individualDetails?.ID_Email ||
+                      "abc@gmail.com"}
+                  </p>
+                </div> */}
+
+                {/* <div className="space-y-4 gap-2">
+                  {profileData?.address && (
+                    <div className="flex items-center gap-2 text-muted-foreground dark:text-gray-400">
+                      <MapPin className="w-4 h-4 shrink-0" />
+                      <span>
+                        {profileData.address.IAD_City},{" "}
+                        {profileData.address.IAD_State}
+                        {profileData.address.IAD_Country
+                          ? `, ${profileData.address.IAD_Country}`
+                          : ""}
+                      </span>
+                    </div>
+                  )}
+                </div> */}
               </div>
             </div>
           )}

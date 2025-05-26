@@ -1,40 +1,40 @@
-import InteractiveSidebar from '@/components/institution-dashboard-sidebar';
-import { LogoutButton } from '@/components/logout';
-import Image from 'next/image';
-
+import InteractiveSidebar from "@/components/institution-dashboard-sidebar";
+import { LogoutButton } from "@/components/logout";
+import Image from "next/image";
+// import { redirect } from "next/navigation";
 export const metadata = {
-  title: 'Institution Dashboard | HCJ',
- openGraph: {
-    title: 'Institution Dashboard | HCJ',
- },
-}
+  title: "Institution Dashboard | HCJ",
+  openGraph: {
+    title: "Institution Dashboard | HCJ",
+  },
+};
 
 const menuItems = [
   {
-    name: 'Dashboard',
-    href: '/institutn-dshbrd6051',
-    icon: '/image/institutndashboard/dashboard/dashboard.svg',
+    name: "Dashboard",
+    href: "/institutn-dshbrd6051",
+    icon: "/image/institutndashboard/dashboard/dashboard.svg",
   },
   {
-    name: 'My Profile',
-    href: '/institutn-dshbrd6051/my-prfl6052',
-    icon: '/image/institutndashboard/dashboard/myprofile.svg',
+    name: "My Profile",
+    href: "/institutn-dshbrd6051/my-prfl6052",
+    icon: "/image/institutndashboard/dashboard/myprofile.svg",
   },
   {
-    name: 'Institution Profile',
-    href: '/institutn-dshbrd6051/edu-institutn6053',
-    icon: '/image/institutndashboard/dashboard/eduins.svg',
+    name: "Institution Profile",
+    href: "/institutn-dshbrd6051/edu-institutn6053",
+    icon: "/image/institutndashboard/dashboard/eduins.svg",
   },
   {
-    name: 'Students',
-    href: '#',
-    icon: '/image/institutndashboard/dashboard/students.svg',
+    name: "Students",
+    href: "#",
+    icon: "/image/institutndashboard/dashboard/students.svg",
     dropdown: true,
   },
   {
-    name: 'Team',
-    href: '#',
-    icon: '/image/institutndashboard/dashboard/team.svg',
+    name: "Team",
+    href: "#",
+    icon: "/image/institutndashboard/dashboard/team.svg",
     dropdown: true,
   },
   // {
@@ -43,9 +43,9 @@ const menuItems = [
   //   icon: '/image/institutndashboard/dashboard/message.svg',
   // },
   {
-    name: 'Account Settings',
-    href: '/institutn-dshbrd6051/accnt-sttng6060',
-    icon: '/image/institutndashboard/dashboard/setting.svg',
+    name: "Account Settings",
+    href: "/institutn-dshbrd6051/accnt-sttng6060",
+    icon: "/image/institutndashboard/dashboard/setting.svg",
   },
   // {
   //   name: 'Logout',
@@ -57,52 +57,69 @@ const menuItems = [
 const dropdownItems = {
   Students: [
     {
-      name: 'Registered Students',
-      href: '/institutn-dshbrd6051/rgstr-stdnt6054',
-      icon: '/image/institutndashboard/dashboard/studentregister.svg',
+      name: "Registered Students",
+      href: "/institutn-dshbrd6051/rgstr-stdnt6054",
+      icon: "/image/institutndashboard/dashboard/studentregister.svg",
     },
     {
-      name: 'Invited Students',
-      href: '/institutn-dshbrd6051/invitd-stdnt6066',
-      icon: '/image/institutndashboard/dashboard/studentregister.svg',
+      name: "Invited Students",
+      href: "/institutn-dshbrd6051/invitd-stdnt6066",
+      icon: "/image/institutndashboard/dashboard/studentregister.svg",
     },
     {
-      name: 'Add Students',
-      href: '/institutn-dshbrd6051/add-stdnts6055',
-      icon: '/image/institutndashboard/dashboard/addstudents.svg',
+      name: "Add Students",
+      href: "/institutn-dshbrd6051/add-stdnts6055",
+      icon: "/image/institutndashboard/dashboard/addstudents.svg",
     },
     {
-      name: 'Bulk Import',
-      href: '/institutn-dshbrd6051/stdnt-blk-imprt6056',
-      icon: '/image/institutndashboard/dashboard/bulkupload.svg',
+      name: "Bulk Import",
+      href: "/institutn-dshbrd6051/stdnt-blk-imprt6056",
+      icon: "/image/institutndashboard/dashboard/bulkupload.svg",
     },
-
   ],
   Team: [
     {
-      name: 'Staff',
-      href: '/institutn-dshbrd6051/team-stff6057',
-      icon: '/image/institutndashboard/dashboard/staff.svg',
+      name: "Staff",
+      href: "/institutn-dshbrd6051/team-stff6057",
+      icon: "/image/institutndashboard/dashboard/staff.svg",
     },
     {
-      name: 'Invited Staff',
-      href: '/institutn-dshbrd6051/invitd-stff6067',
-      icon: '/image/institutndashboard/dashboard/staff.svg',
+      name: "Invited Staff",
+      href: "/institutn-dshbrd6051/invitd-stff6067",
+      icon: "/image/institutndashboard/dashboard/staff.svg",
     },
     {
-      name: 'Add Staff Member',
-      href: '/institutn-dshbrd6051/add-stff-membr6058',
-      icon: '/image/institutndashboard/dashboard/addstaffmember.svg',
+      name: "Add Staff Member",
+      href: "/institutn-dshbrd6051/add-stff-membr6058",
+      icon: "/image/institutndashboard/dashboard/addstaffmember.svg",
     },
     {
-      name: 'Bulk Import',
-      href: '/institutn-dshbrd6051/team-bulk-imprt',
-      icon: '/image/institutndashboard/dashboard/bulkupload.svg',
+      name: "Bulk Import",
+      href: "/institutn-dshbrd6051/team-bulk-imprt",
+      icon: "/image/institutndashboard/dashboard/bulkupload.svg",
     },
   ],
 };
 
-export default function InstituteDashboardLayout({ children }) {
+export default async function InstituteDashboardLayout({ children }) {
+  // const locale = await getLocale(); // ✅ first
+  // const session = await getServerSession(authOptions);
+
+  // if (!session) {
+  //   redirect(`/${locale}/login`);
+  //   return null;
+  // }
+
+  // const user = session.user; // use only user object
+  // const ability = defineAbilityFor(user);
+
+  // console.log("Locale in layout:", locale);
+  // console.log("add", ability.can("read", "studentPage"));
+
+  // if (!ability.can("read", "studentPage")) {
+  //   console.log("inside if", `/${locale}/unauthorized`);
+  //   redirect(`/${locale}/unauthorized`);
+  // }
   return (
     <div className="flex flex-col min-h-screen bg-background dark:bg-gray-900">
       <div className="flex flex-1 overflow-hidden">
@@ -121,7 +138,7 @@ export default function InstituteDashboardLayout({ children }) {
             menuItems={menuItems}
             dropdownItems={dropdownItems}
           />
-            <LogoutButton className="w-full mt-4 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" />
+          <LogoutButton className="w-full mt-4 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" />
         </aside>
 
         {/* Main Content */}

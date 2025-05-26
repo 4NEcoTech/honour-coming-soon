@@ -12,6 +12,7 @@ import Project from "@/app/models/hcj_job_seeker_project";
 import Volunteering from "@/app/models/hcj_job_seeker_volunteer_activity";
 import HCJStudent from "@/app/models/hcj_student";
 import Hcj_Job_Seeker from "@/app/models/hcj_job_seeker";
+import IndividualVisibility from "@/app/models/individual_info_visibility";
 
 /**
  * @swagger
@@ -140,6 +141,7 @@ export async function GET(req, context) {
       volunteeringActivities,
       student,
       jobSeeker,
+      visibility, 
     ] = await Promise.all([
       IndividualAddress.findOne({ IAD_Individual_Id: individualId }).lean(),
       SocialLinks.findOne({ SL_Id: individualId }).lean(),
@@ -154,6 +156,8 @@ export async function GET(req, context) {
       Volunteering.find({ HCJ_JSV_Individual_Id: individualId }).lean(),
       HCJStudent.findOne({ HCJ_ST_Individual_Id: individualId }).lean(),
       Hcj_Job_Seeker.findOne({ HCJ_JS_Individual_Id: individualId }).lean(),
+      IndividualVisibility.findOne({ IIV_Individual_Id: individualId }).lean(),
+
     ]);
 
     return NextResponse.json(
@@ -173,6 +177,7 @@ export async function GET(req, context) {
           volunteeringActivities: volunteeringActivities || [],
           resumeUrl: student?.HCJ_ST_Resume_Upload || null,
           locationPreference: jobSeeker?.HCJ_JS_Preferred_Work_Location || null,
+          visibility: visibility || {},
         },
       },
       { status: 200 }

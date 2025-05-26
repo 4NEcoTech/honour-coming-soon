@@ -1,128 +1,3 @@
-// import { NextResponse } from "next/server";
-// import User from "@/app/models/user_table";
-// import IndividualDetails from "@/app/models/individual_details";
-// import IndividualAddress from "@/app/models/individual_address_detail";
-// import SocialProfile from "@/app/models/social_link";
-// import IndividualEducation from "@/app/models/individual_education";
-// import IndividualDocuments from "@/app/models/individual_document_details";
-// import { dbConnect } from "@/app/utils/dbConnect";
-// import { getPaginatedResults } from "@/app/utils/paginationUtils";
-
-
-// export async function GET(request) {
-//   await dbConnect();
-//   const searchParams = new URL(request.url).searchParams;
-
-//   // Define searchable fields
-//   const searchFields = [
-//     "user.UT_User_Name",
-//     "user.UT_User_Email",
-//     "user.UT_User_Phone",
-//     "individualDetails.ID_First_Name",
-//     "individualDetails.ID_Last_Name",
-//     "individualDetails.ID_Email",
-//     "individualDetails.ID_Phone",
-//     "individualAddress.IAD_City",
-//     "individualAddress.IAD_State",
-//     "individualAddress.IAD_Country",
-//   ];
-
-//   // Fetch paginated user verification data
-//   return await getPaginatedResults(
-//     User,
-//     searchParams,
-//     searchFields,
-//     {}, // No projection (Fetch all data first)
-//     async (user) => {
-//       // Fetch Individual Details
-//       const individualDetails = await IndividualDetails.findOne({ ID_User_Id: user._id });
-//       if (!individualDetails) return null;
-
-//       // Fetch Individual Address
-//       const individualAddress = await IndividualAddress.findOne({ IAD_Individual_Id: individualDetails._id });
-
-//       // Fetch Social Profiles
-//       const socialProfiles = await SocialProfile.findOne({ SL_Id: individualDetails._id });
-
-//       // Fetch Education (only for students, return **first record only** instead of an array)
-//       const education =
-//         user.UT_User_Role === "05"
-//           ? await IndividualEducation.findOne({ IE_Individual_Id: individualDetails._id })
-//           : null;
-
-//       // Fetch Documents (return **first document only** instead of an array)
-//       const document = await IndividualDocuments.findOne({ IDD_Individual_Id: individualDetails._id });
-
-//       // If no documents exist, skip user (documents are required for verification)
-//       if (!document) return null;
-
-//       // Format and return user data
-//       return {
-//         user: {
-//           UT_User_Id: user._id,
-//           UT_User_Name: user.UT_User_Name,
-//           UT_User_Email: user.UT_User_Email,
-//           UT_User_Phone: user.UT_User_Phone,
-//           UT_User_Role: user.UT_User_Role,
-//           UT_User_Verification_Status: user.UT_User_Verification_Status,
-//           createdAt: user.createdAt,
-//         },
-//         individualDetails: {
-//           ID_First_Name: individualDetails.ID_First_Name,
-//           ID_Last_Name: individualDetails.ID_Last_Name,
-//           ID_Email: individualDetails.ID_Email,
-//           ID_Phone: individualDetails.ID_Phone,
-//           ID_Gender: individualDetails.ID_Gender,
-//           ID_DOB: individualDetails.ID_DOB,
-//           ID_City: individualDetails.ID_City,
-//           ID_Individual_Role: individualDetails.ID_Individual_Role,
-//         },
-//         individualAddress: individualAddress
-//           ? {
-//               IAD_Address_Line1: individualAddress.IAD_Address_Line1,
-//               IAD_Address_Line2: individualAddress.IAD_Address_Line2,
-//               IAD_City: individualAddress.IAD_City,
-//               IAD_State: individualAddress.IAD_State,
-//               IAD_Country: individualAddress.IAD_Country,
-//               IAD_Pincode: individualAddress.IAD_Pincode,
-//             }
-//           : null,
-//         socialProfiles: socialProfiles
-//           ? {
-//               SL_Website: socialProfiles.SL_Website,
-//               SL_LinkedIn: socialProfiles.SL_LinkedIn,
-//               SL_Facebook: socialProfiles.SL_Facebook,
-//               SL_Twitter: socialProfiles.SL_Twitter,
-//               SL_Instagram: socialProfiles.SL_Instagram,
-//             }
-//           : null,
-//         education: education
-//           ? {
-//               IE_Institute_Name: education.IE_Institute_Name,
-//               IE_Program_Name: education.IE_Program_Name,
-//               IE_Specialization: education.IE_Specialization,
-//               IE_Start_Date: education.IE_Start_Date,
-//               IE_End_Date: education.IE_End_Date,
-//               IE_Program_Status: education.IE_Program_Status,
-//               IE_Score_Grades: education.IE_Score_Grades,
-//               IE_Score_Grades_Value: education.IE_Score_Grades_Value,
-//             }
-//           : null,
-//         documents: document
-//           ? {
-//               IDD_Document1_Type: document.IDD_Document1_Type,
-//               IDD_Document1_Unq_Identifier: document.IDD_Document1_Unq_Identifier,
-//               IDD_Uploaded1_DtTym: document.IDD_Uploaded1_DtTym,
-//               IDD_Verified1_Status: document.IDD_Verified1_Status,
-//               IDD_Individual1_Document: document.IDD_Individual1_Document,
-//             }
-//           : null,
-//       };
-//     }
-//   );
-// }
-
-
 import { NextResponse } from "next/server";
 import User from "@/app/models/user_table";
 import IndividualDetails from "@/app/models/individual_details";
@@ -131,6 +6,165 @@ import SocialProfile from "@/app/models/social_link";
 import IndividualEducation from "@/app/models/individual_education";
 import IndividualDocuments from "@/app/models/individual_document_details";
 import { dbConnect } from "@/app/utils/dbConnect";
+
+/**
+ * @swagger
+ * /api/super-admin/v1/hcjArET61031FetchAllVerificationData:
+ *   get:
+ *     summary: Get paginated and filtered list of users for verification
+ *     description: >
+ *       Fetches users (students, admins, etc.) with their individual details, address, documents, education, and social profiles.  
+ *       Only returns complete and valid user records (e.g. all required linked documents and details must be present).
+ *     tags:
+ *       - Super Admin Verify A user - Admin, Staff, Support, Student
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *         description: Number of users per page
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search keyword to match name, email, phone, location, etc.
+ *       - in: query
+ *         name: [dynamic]
+ *         schema:
+ *           type: string
+ *         description: Additional dynamic filters (e.g., UT_User_Role, UT_User_Verification_Status, etc.). Use `__NOT_NULL__` to filter for non-null values.
+ *     responses:
+ *       200:
+ *         description: List of valid users with full profile information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       user:
+ *                         type: object
+ *                         properties:
+ *                           UT_User_Id:
+ *                             type: string
+ *                           UT_User_Name:
+ *                             type: string
+ *                           UT_User_Email:
+ *                             type: string
+ *                           UT_User_Phone:
+ *                             type: string
+ *                           UT_User_Role:
+ *                             type: string
+ *                           UT_User_Verification_Status:
+ *                             type: string
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                       individualDetails:
+ *                         type: object
+ *                         properties:
+ *                           ID_First_Name:
+ *                             type: string
+ *                           ID_Last_Name:
+ *                             type: string
+ *                           ID_Email:
+ *                             type: string
+ *                           ID_Phone:
+ *                             type: string
+ *                           ID_Gender:
+ *                             type: string
+ *                           ID_DOB:
+ *                             type: string
+ *                             format: date
+ *                           ID_City:
+ *                             type: string
+ *                           ID_Individual_Role:
+ *                             type: string
+ *                       individualAddress:
+ *                         type: object
+ *                         properties:
+ *                           IAD_Address_Line1:
+ *                             type: string
+ *                           IAD_City:
+ *                             type: string
+ *                           IAD_State:
+ *                             type: string
+ *                           IAD_Country:
+ *                             type: string
+ *                           IAD_Pincode:
+ *                             type: string
+ *                       socialProfiles:
+ *                         type: object
+ *                         properties:
+ *                           SL_Website:
+ *                             type: string
+ *                           SL_LinkedIn:
+ *                             type: string
+ *                           SL_Facebook:
+ *                             type: string
+ *                           SL_Twitter:
+ *                             type: string
+ *                           SL_Instagram:
+ *                             type: string
+ *                       education:
+ *                         type: object
+ *                         nullable: true
+ *                         properties:
+ *                           IE_Institute_Name:
+ *                             type: string
+ *                           IE_Program_Name:
+ *                             type: string
+ *                           IE_Specialization:
+ *                             type: string
+ *                           IE_Start_Date:
+ *                             type: string
+ *                             format: date
+ *                           IE_End_Date:
+ *                             type: string
+ *                             format: date
+ *                           IE_Program_Status:
+ *                             type: string
+ *                           IE_Score_Grades:
+ *                             type: string
+ *                           IE_Score_Grades_Value:
+ *                             type: number
+ *                       documents:
+ *                         type: object
+ *                         properties:
+ *                           IDD_Document1_Type:
+ *                             type: string
+ *                           IDD_Document1_Unq_Identifier:
+ *                             type: string
+ *                           IDD_Uploaded1_DtTym:
+ *                             type: string
+ *                             format: date-time
+ *                           IDD_Verified1_Status:
+ *                             type: string
+ *                           IDD_Individual1_Document:
+ *                             type: string
+ *                 total:
+ *                   type: integer
+ *                 totalPages:
+ *                   type: integer
+ *                 currentPage:
+ *                   type: integer
+ *                 batchNumber:
+ *                   type: integer
+ *       400:
+ *         description: Invalid query or pagination parameters
+ *       500:
+ *         description: Internal Server Error
+ */
+
 
 // Custom pagination logic integrated into the API
 export async function GET(request) {

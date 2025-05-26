@@ -1,0 +1,31 @@
+{
+  "HomePage": {
+    "Opportunities_for_every_student": "Opportunities for every student",
+    "Projects_Internships_Flexijobs_Regular_Jobs": "Online Job Fairs | Internships | Flexi Job | Projects | Remote work opportunities",
+    "Marketing_Sales_Design_Development_DevOps_Robotics_ML_AI_Finance_Sketch_Artists_VFX_Animation": "Marketing, Sales, Design, Development, DevOps, Robotics, ML, AI, Finance, Sketch Artists, VFX, Animation",
+    "Register_your_Institution_with_HCJ": "Register your Institution with Honour",
+    "Take_part_in_India_s_biggest_Job_Fair": "Take part in India's largest Job Fair",
+    "Nov_10_Nov_20": "Nov 10 - Nov 20",
+    "Register_here": "Register here",
+    "About_Us": "About Us",
+    "Welcome_to_HCJ_the_leading_platform_designed_to_connect_institutions_students_and_the_dynamic_job_market": "Welcome to Honour, the leading platform designed to connect institutions, students, and the dynamic job market.",
+
+    "At_HCJ_our_mission_is_to_streamline_and_enhance_the_job_seeking_experience": "At Honour, our mission is to streamline and enhance the job-seeking experience by offering institutions a simple and efficient way to upload and manage their students’ profiles. This allows students to showcase their skills and qualifications for job fairs, internships, and a wide range of career opportunities.",
+    "Committed_to_bridging_the_gap_between_academia_and_industry": "We are committed to bridging the gap between academia and industry by providing a seamless platform where students can gain visibility and access to potential employers, while institutions can play a key role in shaping their students' career paths. With Honour, we make the transition from education to employment smoother and more effective.",
+    "Read_more": "Read more",
+    "Partner_Institutions": "Partner Institutions",
+    "Achievers_Central": "Achievers Central",
+    "View_All": " View All",
+    "Featured_Achievers_Of_this_month": "Featured Achievers Of this month",
+    "Give_your_students_access_to_real_world_opportunities": " Give your students access to real-world opportunities",
+    "Get_Started": "Get Started"
+  },
+  "RegistrationWithCredentialForm": {
+    "title": "Institution Registration",
+    "subtitle": "If you are an Institution Administrator,please proceed with registration.",
+    "OTP": "OTP Verification",
+    "OTP_Description": "Enter the OTP code sent to your institution email id",
+    "'Password_title": "Create Password"
+  }
+
+}

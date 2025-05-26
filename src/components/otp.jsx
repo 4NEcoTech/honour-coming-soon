@@ -305,12 +305,12 @@ const formSchema = (t) =>
   z.object({
     pin: z
       .string()
-      .length(4, { message: "PIN must be 4 digits" })
-      .regex(/^\d+$/, { message: "PIN must contain only numbers" }),
+      .length(4, { message: t("6022_16") })
+      .regex(/^\d+$/, { message: t("6022_17") }),
   });
 
 function Otp({ goToNextStep }) {
-  const t = useTranslations("ErrorCode");
+  const t = useTranslations("formErrors");
   const searchParams = useSearchParams();
   const [otp, setOtp] = useState(["", "", "", ""]); // 4 OTP input fields
   const [isVerified, setIsVerified] = useState(false);

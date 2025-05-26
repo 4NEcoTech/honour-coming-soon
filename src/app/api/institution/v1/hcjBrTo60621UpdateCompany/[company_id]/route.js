@@ -1,7 +1,8 @@
-import { getServerSession } from "next-auth";
 import CompanyDetails from "@/app/models/company_details";
-import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/utils/dbConnect";
+import { getTranslator } from "@/i18n/server";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
 /**
  * @swagger
@@ -52,13 +53,20 @@ import { dbConnect } from "@/app/utils/dbConnect";
  */
 
 export async function PATCH(req, { params }) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   try {
     await dbConnect();
 
     const { company_id } = await params;
     if (!company_id) {
       return NextResponse.json(
-        { success: false, message: "Company ID is required" },
+        {
+          success: false,
+          code: "6062_18",
+          title: t("errorCode.6062_18.title"),
+          message: t("errorCode.6062_18.description"),
+        },
         { status: 400 }
       );
     }
@@ -66,7 +74,12 @@ export async function PATCH(req, { params }) {
     const session = await getServerSession(req);
     if (!session || !session.user) {
       return NextResponse.json(
-        { success: false, message: "Unauthorized access" },
+        {
+          success: false,
+          code: "6062_19",
+          title: t("errorCode.6062_19.title"),
+          message: t("errorCode.6062_19.description"),
+        },
         { status: 401 }
       );
     }
@@ -80,19 +93,37 @@ export async function PATCH(req, { params }) {
 
     if (!updatedCompany) {
       return NextResponse.json(
-        { success: false, message: "Company details not found" },
+        {
+          success: false,
+          code: "6062_21",
+          title: t("errorCode.6062_21.title"),
+          message: t("errorCode.6062_21.description"),
+        },
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      { success: true, message: "Company details updated", data: updatedCompany },
+      {
+        success: true,
+        code: "6062_23",
+        title: t("errorCode.6062_23.title"),
+        message: t("errorCode.6062_23.description"),
+        data: updatedCompany,
+      },
       { status: 200 }
     );
   } catch (error) {
     console.error("Error updating company details:", error);
     return NextResponse.json(
-      { success: false, message: "Internal Server Error" },
+      {
+        success: false,
+        code: "6062_17",
+        title: t("errorCode.6062_17.title"),
+        message: t("errorCode.6062_17.description", {
+          message: error.message,
+        }),
+      },
       { status: 500 }
     );
   }

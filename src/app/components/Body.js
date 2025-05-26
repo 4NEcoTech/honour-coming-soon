@@ -1,14 +1,14 @@
 "use client";
+import ProfileCompletionPopup from "@/components/ProfileCompletionPopup";
 import { Button } from "@/components/ui/button";
-import { Link, useRouter } from "@/i18n/routing";
+import { Link } from "@/i18n/routing";
+import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick-theme.css";
 import "slick-carousel/slick/slick.css";
-import ProfileCompletionPopup from "@/components/ProfileCompletionPopup";
-import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 
 const dummyachievers = [
   {
@@ -39,23 +39,24 @@ const dummyachievers = [
 
 export default function Home() {
   const [achievers, setAchievers] = useState([]);
+  const [institutions, setInstitutions] = useState([]);
   const { data: session } = useSession();
-  const t = useTranslations("HomePage");
-  const institutions = [
+  const t = useTranslations("common.HomePage");
+  const dummyInstitutions = [
     { src: "/image/institute/home/7.svg", name: "IIT Delhi" },
     { src: "/image/institute/home/1.svg", name: "NIT Calicut" },
-    { src: "/image/institute/home/2.svg", name: "IIM Banglore" },
-    { src: "/image/institute/home/4.svg", name: "IIM CHennai" },
+    { src: "/image/institute/home/2.svg", name: "IIM Bangalore" },
+    { src: "/image/institute/home/4.svg", name: "IIM Chennai" },
     { src: "/image/institute/home/5.svg", name: "IIT Kanpur" },
     { src: "/image/institute/home/6.svg", name: "IIT MA" },
   ];
 
-  const settings = {
+  const institutionSettings = {
     dots: true,
     infinite: true,
     speed: 800,
     slidesToShow: 6,
-    slidesToScroll: 1,
+    slidesToScroll: 6,
     autoplay: true,
     autoplaySpeed: 3000,
     responsive: [
@@ -110,14 +111,31 @@ export default function Home() {
     ],
   };
 
+  // const getDirectDriveImage = (url) => {
+  //   const match = url?.match(/\/d\/(.*?)\//);
+  //   if (match && match[1]) {
+  //     return `https://drive.google.com/uc?id=${match[1]}`;
+  //   } else if (url?.includes("uc?id=")) {
+  //     return url;
+  //   }
+  //   return "/placeholder.svg";
+  // };
+
   const getDirectDriveImage = (url) => {
-    const match = url?.match(/\/d\/(.*?)\//);
-    if (match && match[1]) {
+    if (!url) return "/image/institute/default-logo.svg"; // Fallback
+
+    // Pattern 1: /file/d/<ID>/view
+    const match = url.match(/\/d\/([^/]+)\//);
+    if (match) {
       return `https://drive.google.com/uc?id=${match[1]}`;
-    } else if (url?.includes("uc?id=")) {
+    }
+
+    // Pattern 2: already in uc?id=<ID>
+    if (url.includes("uc?id=")) {
       return url;
     }
-    return "/placeholder.svg";
+
+    return "/image/institute/default-logo.svg";
   };
 
   useEffect(() => {
@@ -127,7 +145,7 @@ export default function Home() {
           "/api/super-admin/v1/hcjArET61081AchieverCentral?HCJ_AC_Status=01"
         );
         const data = await res.json();
-        console.log("data", data);
+        //  console.log("data", data);
         const formatted = (data?.data || []).map((item) => ({
           src: getDirectDriveImage(item.HCJ_AC_Achievers_Photo),
           name: item.HCJ_AC_Achievers_Name,
@@ -142,6 +160,22 @@ export default function Home() {
     };
 
     fetchVerifiedAchievers();
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/hcj/v1/hcjArET60021fetchVerifyInstitution")
+      .then((res) => res.json())
+      .then((data) => {
+        const mapped = data.data.map((item) => ({
+          src: getDirectDriveImage(item.CD_Company_Logo),
+          name: item.CD_Company_Name,
+        }));
+        setInstitutions(mapped);
+      })
+      .catch((err) => {
+        console.error("Failed to load institutions", err);
+        setInstitutions(dummyInstitutions);
+      });
   }, []);
 
   return (
@@ -182,7 +216,7 @@ export default function Home() {
               <div className="relative max-w-sm lg:max-w-md w-full h-auto">
                 {" "}
                 <Image
-                  src="/image/institute/home/hero.svg"
+                  src="/image/institute/home/hero3.png"
                   alt="Student with laptop"
                   width={500}
                   height={500}
@@ -217,8 +251,7 @@ export default function Home() {
         </section>
         <section
           id="about"
-          className="bg-transparent py-10 px-4 md:py-16 md:px-8 lg:px-20"
-        >
+          className="bg-transparent py-10 px-4 md:py-16 md:px-8 lg:px-20">
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
             <div className="relative w-full max-w-md mx-auto">
               <div className="relative">
@@ -309,6 +342,70 @@ export default function Home() {
           </Slider>
         </section> */}
 
+        <section className="container mx-auto p-6 md:p-12 relative">
+          <div className="flex justify-between items-center mb-4 px-6 md:px-12">
+            <h2 className="text-3xl lg:text-4xl xl:text-5xl font-semibold text-gray-800 dark:text-gray-100">
+              {t("Partner_Institutions")}
+            </h2>
+            <Image
+              src="/image/institute/home/arrow.svg"
+              alt="Arrow Icon"
+              width={400}
+              height={200}
+              className="hidden md:block"
+            />
+          </div>
+
+          {/* Slider */}
+          {institutions.length > 3 ? (
+            <Slider {...institutionSettings}>
+              {institutions.map((institution, index) => (
+                <div
+                  key={index}
+                  className="relative rounded-lg overflow-hidden p-4 mx-4 sm:mx-2">
+                  <div className="w-full h-40 sm:h-48 md:h-56 lg:h-64 relative">
+                    <Image
+                      src={institution.src}
+                      alt={institution.name}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 25vw"
+                      className="object-contain rounded-md bg-white"
+                    />
+                  </div>
+                  <div className="text-left mt-4">
+                    <p className="text-xs text-gray-800 dark:text-gray-100">
+                      {institution.name}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </Slider>
+          ) : (
+            <Slider {...institutionSettings}>
+              {dummyInstitutions.map((institution, index) => (
+                <div
+                  key={index}
+                  className="relative rounded-lg overflow-hidden p-4 mx-4 sm:mx-2">
+                  <div className="w-full h-40 sm:h-48 md:h-56 lg:h-64 relative">
+                    <Image
+                      src={institution.src}
+                      alt={institution.name}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 25vw"
+                      className="object-contain rounded-md bg-white"
+                    />
+                  </div>
+                  <div className="text-center mt-4">
+                    <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                      {institution.name}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </Slider>
+          )}
+        </section>
+
         {/* Achiever Central Section */}
 
         <section className="container mx-auto p-6 md:p-12">
@@ -325,23 +422,35 @@ export default function Home() {
                 className="w-12 h-12 ml-4"
               />
             </div>
-            <Link href="/achvr-cntrl6007">
-              <Button variant="link">{t("View_All")}</Button>
-            </Link>
-          </div>
-
-          <div className="flex px-6 md:px-12 flex-col md:flex-row justify-between items-start md:items-center mt-2">
-            <h3 className="text-base md:text-3xl font-semibold text-green-500 dark:text-green-400">
-              {t("Featured_Achievers_Of_this_month")}
-            </h3>
             <div className="mt-2 md:mt-0">
               <Image
                 src="/image/institute/home/arrow.svg"
                 alt="Achievers Banner"
                 width={400}
                 height={200}
-                className="block"
+                className="hidden md:block"
               />
+            </div>
+          </div>
+
+          <div className="flex px-6 md:px-12 flex-col md:flex-row justify-between items-start md:items-center mt-2">
+            {/* Left - Heading */}
+            <h3 className="text-base md:text-3xl font-semibold text-green-500 dark:text-green-400">
+              {t("Featured_Achievers_Of_this_month")}
+            </h3>
+
+            {/* Right - Buttons */}
+            <div className="flex gap-4 mt-2 md:mt-0">
+              <Link href="/achr-cntrl-stdnt">
+                <Button className="px-6 w-36 font-medium text-white rounded-md">
+                  Send Nomination
+                </Button>
+              </Link>
+              <Link href="/achvr-cntrl6007">
+                <Button className="px-6 w-36 bg-white dark:bg-gray-800 border border-primary text-primary dark:text-white hover:bg-[#77C6FA] dark:hover:bg-gray-700 hover:text-primary dark:hover:text-white rounded-md">
+                  View All
+                </Button>
+              </Link>
             </div>
           </div>
 
@@ -378,8 +487,7 @@ export default function Home() {
                 {achievers.map((achiever, index) => (
                   <div
                     key={index}
-                    className="relative rounded-lg overflow-hidden p-4 mx-4 sm:mx-2"
-                  >
+                    className="relative rounded-lg overflow-hidden p-4 mx-4 sm:mx-2">
                     <div className="w-full h-72 sm:h-56 md:h-64 lg:h-72 relative">
                       <Image
                         src={achiever.src || "/placeholder.svg"}
@@ -409,8 +517,7 @@ export default function Home() {
                 {dummyachievers.map((achiever, index) => (
                   <div
                     key={index}
-                    className="relative rounded-lg overflow-hidden p-4 mx-4 sm:mx-2"
-                  >
+                    className="relative rounded-lg overflow-hidden p-4 mx-4 sm:mx-2">
                     <div className="w-full h-72 sm:h-56 md:h-64 lg:h-72 relative">
                       <Image
                         src={achiever.src || "/placeholder.svg"}
@@ -439,18 +546,19 @@ export default function Home() {
         </section>
 
         {/* Gradient Banner 2 */}
-        <section className="container mx-auto flex flex-col md:flex-row bg-gradient-to-r from-blue-500 to-green-500 dark:from-primary/80 dark:to-green-600 text-center md:text-left p-6 md:p-10 text-white mt-8 items-start md:items-center justify-start md:justify-center gap-4 md:gap-6">
-          <h2 className="text-2xl md:text-3xl font-semibold">
-            {t("Give_your_students_access_to_real_world_opportunities")}
-          </h2>
-          <Link href="/rgstrtn6021">
-            <Button
-              size="lg"
-              className="mx-2 px-6 py-3 bg-primary text-sm md:text-lg text-white rounded-md"
-            >
-              {t("Get_Started")}
-            </Button>
-          </Link>
+        <section className="py-8 px-4 md:py-12 md:px-8 lg:px-16 bg-gradient-to-r from-blue-500 to-green-500 dark:from-primary/80 dark:to-green-600 text-white">
+          <div className="container mx-auto flex flex-col md:flex-row text-center md:text-left items-start md:items-center justify-start md:justify-center gap-4 md:gap-6">
+            <h2 className="text-2xl md:text-3xl font-semibold">
+              {t("Give_your_students_access_to_real_world_opportunities")}
+            </h2>
+            <Link href="/rgstrtn6021">
+              <Button
+                size="lg"
+                className="mx-2 px-6 py-3 bg-primary text-sm md:text-lg text-white rounded-md">
+                {t("Get_Started")}
+              </Button>
+            </Link>
+          </div>
         </section>
       </div>
     </>

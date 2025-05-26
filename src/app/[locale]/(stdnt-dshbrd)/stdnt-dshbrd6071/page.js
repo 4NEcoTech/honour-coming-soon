@@ -315,11 +315,9 @@ export default function Page() {
       </div>
 
       {/* Activity Chart */}
-      <Card className="mt-10 p-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+      {/* <Card className="mt-10 p-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
         <div className="flex flex-col gap-6">
           <h2 className="text-xl font-semibold">Students adding activities</h2>
-
-          {/* Time Filters */}
           <div className="flex gap-2 sm:gap-4">
             {timeFilters.map((filter) => (
               <Button
@@ -337,7 +335,7 @@ export default function Page() {
             ))}
           </div>
 
-          {/* Chart */}
+  
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
@@ -382,7 +380,7 @@ export default function Page() {
             </ResponsiveContainer>
           </div>
         </div>
-      </Card>
+      </Card> */}
     </div>
   );
 }

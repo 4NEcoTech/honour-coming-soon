@@ -12,16 +12,46 @@ import { useToast } from "@/hooks/use-toast";
 import { useSession } from "next-auth/react";
 import { useChangePassword } from "@/hooks/useChangePassword"; //  Using API Hook
 
+// const passwordSchema = z
+//   .object({
+//     currentPassword: z.string().min(6, "Current password must be at least 6 characters"),
+//     newPassword: z.string().min(8, "New password must be at least 8 characters"),
+//     confirmPassword: z.string(),
+//   })
+//   .refine((data) => data.newPassword === data.confirmPassword, {
+//     message: "New password and confirm password must match",
+//     path: ["confirmPassword"],
+//   });
+
 const passwordSchema = z
   .object({
-    currentPassword: z.string().min(6, "Current password must be at least 6 characters"),
-    newPassword: z.string().min(8, "New password must be at least 8 characters"),
+    currentPassword: z
+      .string()
+      .min(12, { message: "6023_0 Current password must be at least 12 characters." }),
+
+    newPassword: z
+      .string()
+      .min(12, { message: "6023_1 Password must be at least 12 characters." })
+      .regex(/[A-Z]/, {
+        message: "6023_2 Password must contain at least one uppercase letter.",
+      })
+      .regex(/[a-z]/, {
+        message: "6023_3 Password must contain at least one lowercase letter.",
+      })
+      .regex(/\d/, {
+        message: "6023_4 Password must contain at least one number.",
+      })
+      .regex(/[^A-Za-z0-9]/, {
+        message: "6023_5 Password must contain at least one special character.",
+      }),
+
     confirmPassword: z.string(),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "New password and confirm password must match",
+    message: "6023_7 Passwords must match.",
     path: ["confirmPassword"],
   });
+
 
 export default function PasswordForm({ setPasswordChange }) {
   const { toast } = useToast();
@@ -75,7 +105,7 @@ export default function PasswordForm({ setPasswordChange }) {
             className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
             onClick={() => setShowPassword((prev) => ({ ...prev, current: !prev.current }))}
           >
-            {showPassword.current ? <EyeOff className="h-5 w-5 text-primary" /> : <Eye className="h-5 w-5 text-primary" />}
+            {showPassword.current ? <Eye className="h-5 w-5 text-primary" /> : <EyeOff className="h-5 w-5 text-primary" />}
           </span>
         </div>
         <p className="text-red-500 text-sm">{form.formState.errors.currentPassword?.message}</p>
@@ -94,7 +124,7 @@ export default function PasswordForm({ setPasswordChange }) {
             className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
             onClick={() => setShowPassword((prev) => ({ ...prev, new: !prev.new }))}
           >
-            {showPassword.new ? <EyeOff className="h-5 w-5 text-primary" /> : <Eye className="h-5 w-5 text-primary" />}
+            {showPassword.new ? <Eye className="h-5 w-5 text-primary" /> : <EyeOff className="h-5 w-5 text-primary" />}
           </span>
         </div>
         <p className="text-red-500 text-sm">{form.formState.errors.newPassword?.message}</p>
@@ -113,7 +143,7 @@ export default function PasswordForm({ setPasswordChange }) {
             className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
             onClick={() => setShowPassword((prev) => ({ ...prev, confirm: !prev.confirm }))}
           >
-            {showPassword.confirm ? <EyeOff className="h-5 w-5 text-primary" /> : <Eye className="h-5 w-5 text-primary" />}
+            {showPassword.confirm ? <Eye className="h-5 w-5 text-primary" /> : <EyeOff className="h-5 w-5 text-primary" />}
           </span>
         </div>
         <p className="text-red-500 text-sm">{form.formState.errors.confirmPassword?.message}</p>

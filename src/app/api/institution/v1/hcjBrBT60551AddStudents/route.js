@@ -1,10 +1,10 @@
+import { getTranslator } from "@/i18n/server";
 import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import Student from "../../../../models/hcj_student";
 import { generateAuditTrail } from "../../../../utils/audit-trail";
 import { dbConnect } from "../../../../utils/dbConnect";
-import { uploadToGoogleDrive } from "../../../../utils/googleDrive";
 
 /**
  * @swagger
@@ -15,51 +15,92 @@ import { uploadToGoogleDrive } from "../../../../utils/googleDrive";
  *     requestBody:
  *       required: true
  *       content:
- *         multipart/form-data:
+ *         application/json:
  *           schema:
  *             type: object
  *             properties:
- *               institutionNumber:
+ *               HCJ_ST_InstituteNum:
  *                 type: string
  *                 example: "12345"
- *               institutionName:
+ *               HCJ_ST_Institution_Name:
  *                 type: string
  *                 example: "XYZ University"
- *               firstName:
+ *               HCJ_ST_Student_First_Name:
  *                 type: string
  *                 example: "John"
- *               lastName:
+ *               HCJ_ST_Student_Last_Name:
  *                 type: string
  *                 example: "Doe"
- *               institutionEmail:
+ *               HCJ_ST_Educational_Email:
  *                 type: string
  *                 format: email
  *                 example: "john.doe@example.com"
- *               phoneNumber:
+ *               HCJ_ST_Phone_Number:
  *                 type: string
  *                 example: "+919876543210"
- *               gender:
+ *               HCJ_ST_Gender:
  *                 type: string
  *                 enum: ["Male", "Female", "Other"]
- *               dateOfBirth:
+ *               HCJ_ST_DOB:
  *                 type: string
  *                 format: date
  *                 example: "2000-05-15"
- *               country:
+ *               HCJ_ST_Student_Country:
  *                 type: string
  *                 example: "India"
- *               documentDomicile:
+ *               HCJ_ST_Student_Pincode:
+ *                 type: string
+ *                 example: "123456"
+ *               HCJ_ST_Student_State:
+ *                 type: string
+ *                 example: "Maharashtra"
+ *               HCJ_ST_Student_City:
+ *                 type: string
+ *                 example: "Mumbai"
+ *               HCJ_ST_Address:
+ *                 type: string
+ *                 example: "123 Main Street"
+ *               HCJ_ST_Enrollment_Year:
+ *                 type: string
+ *                 example: "2023"
+ *               HCJ_ST_Student_Program_Name:
+ *                 type: string
+ *                 example: "Computer Science"
+ *               HCJ_ST_Class_Of_Year:
+ *                 type: string
+ *                 example: "2027"
+ *               HCJ_ST_Student_Branch_Specialization:
+ *                 type: string
+ *                 example: "Artificial Intelligence"
+ *               HCJ_ST_Score_Grade_Type:
+ *                 type: string
+ *                 example: "Percentage"
+ *               HCJ_ST_Score_Grade:
+ *                 type: string
+ *                 example: "85%"
+ *               HCJ_ST_Student_Document_Domicile:
  *                 type: string
  *                 example: "Residence Proof"
- *               documentType:
+ *               HCJ_ST_Student_Document_Type:
  *                 type: string
  *                 example: "Aadhar Card"
- *               documentNumber:
+ *               HCJ_ST_Student_Document_Number:
  *                 type: string
  *                 example: "1234-5678-9012"
- *               photo:
+ *               HCJ_ST_Educational_Alternate_Email:
  *                 type: string
- *                 format: binary
+ *                 format: email
+ *                 example: "john.doe.alternate@example.com"
+ *               HCJ_ST_Alternate_Phone_Number:
+ *                 type: string
+ *                 example: "+919876543211"
+ *               HCJ_Student_Documents_Image:
+ *                 type: string
+ *                 format: uri
+ *                 example: "https://drive.google.com/photo-url"
+ *               language:
+ *                 type: string
+ *                 example: "en"
  *     responses:
  *       201:
  *         description: Student added successfully
@@ -69,11 +110,12 @@ import { uploadToGoogleDrive } from "../../../../utils/googleDrive";
  *         description: Server error
  */
 export async function POST(req) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   try {
     await dbConnect();
 
-    const formData = await req.formData();
-    const data = Object.fromEntries(formData.entries());
+    const data = await req.json();
     const userLang = data.language || "en";
 
     const requiredFields = [
@@ -96,19 +138,15 @@ export async function POST(req) {
       "HCJ_ST_Student_Branch_Specialization",
     ];
 
-    // ?removed from teh  above list
-    //     "HCJ_ST_Score_Grade_Type",
-    // "HCJ_ST_Score_Grade",
-    // "HCJ_ST_Student_Document_Domicile",
-    // "HCJ_ST_Student_Document_Type",
-    // "HCJ_ST_Student_Document_Number",
-
-    // console.log(data, "data")
-
     for (let field of requiredFields) {
       if (!data[field]) {
         return NextResponse.json(
-          { error: `${field} is required` },
+          {
+            success: false,
+            code: "6055_36",
+            title: t("errorCode.6055_36.title"),
+            message: t("errorCode.6055_36.description", { field }),
+          },
           { status: 400 }
         );
       }
@@ -118,7 +156,12 @@ export async function POST(req) {
       data.HCJ_ST_DOB = new Date(data.HCJ_ST_DOB);
     } else {
       return NextResponse.json(
-        { error: "Invalid date format for HCJ_ST_DOB" },
+        {
+          success: false,
+          code: "6055_37",
+          title: t("errorCode.6055_37.title"),
+          message: t("errorCode.6055_37.description"),
+        },
         { status: 400 }
       );
     }
@@ -129,17 +172,14 @@ export async function POST(req) {
 
     if (existingStudent) {
       return NextResponse.json(
-        { error: "Student with this email already exists" },
+        {
+          success: false,
+          code: "6055_38",
+          title: t("errorCode.6055_38.title"),
+          message: t("errorCode.6055_38.description"),
+        },
         { status: 400 }
       );
-    }
-
-    let photoUrl = "";
-    const photo = formData.get("photo");
-    if (photo && photo instanceof File) {
-      const buffer = Buffer.from(await photo.arrayBuffer());
-      const filename = `student_photo_${Date.now()}_${photo.name}`;
-      photoUrl = await uploadToGoogleDrive(buffer, filename, photo.type);
     }
 
     const auditTrail = await generateAuditTrail(req);
@@ -161,7 +201,6 @@ export async function POST(req) {
       HCJ_ST_Enrollment_Year: data.HCJ_ST_Enrollment_Year,
       HCJ_ST_Student_Program_Name: data.HCJ_ST_Student_Program_Name,
       HCJ_ST_Score_Grade_Type: data.HCJ_ST_Score_Grade_Type || "N/A",
-
       HCJ_ST_Score_Grade: data.HCJ_ST_Score_Grade || "N/A",
       HCJ_ST_Student_Document_Domicile:
         data.HCJ_ST_Student_Document_Domicile || "N/A",
@@ -173,7 +212,7 @@ export async function POST(req) {
       HCJ_ST_Alternate_Phone_Number:
         data.HCJ_ST_Alternate_Phone_Number || undefined,
       HCJ_ST_Class_Of_Year: data.HCJ_ST_Class_Of_Year,
-      HCJ_Student_Documents_Image: photoUrl,
+      HCJ_Student_Documents_Image: data.HCJ_Student_Documents_Image || "",
       HCJ_ST_Student_Branch_Specialization:
         data.HCJ_ST_Student_Branch_Specialization,
       HCJ_ST_Audit_Trail: [auditTrail],
@@ -186,6 +225,7 @@ export async function POST(req) {
       {
         id: newStudent._id,
         ...data,
+        mobileApp: true,
       },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
@@ -202,7 +242,9 @@ export async function POST(req) {
       },
     });
 
+    // const signupUrl = `${process.env.NEXT_PUBLIC_APP_URL}/${userLang}/student-signup?token=${signupToken}`;
     const signupUrl = `${process.env.NEXT_PUBLIC_APP_URL}/${userLang}/student-signup?token=${signupToken}`;
+    const mobileDeepLink = `hcj://register?token=${signupToken}`;
 
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
@@ -220,45 +262,54 @@ export async function POST(req) {
             <li>Institution: ${data.HCJ_ST_Institution_Name}</li>
             <li>Program: ${data.HCJ_ST_Student_Program_Name}</li>
             <li>Address: ${data.HCJ_ST_Address}</li>
-            <li>Photo: ${photoUrl || "Not uploaded"}</li>
+            <li>Photo: ${
+              data.HCJ_Student_Documents_Image || "Not uploaded"
+            }</li>
           </ul>
           <p>Please review the registration in the admin dashboard.</p>
         </div>
       `,
     });
 
+    // Update the email template to handle both web and mobile
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: data.HCJ_ST_Educational_Email,
       subject: "Complete Your Registration - Honour Career Junction",
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>Welcome to Honour Career Junction!</h2>
-          <p>Dear ${data.HCJ_ST_Student_First_Name},</p>
-          <p>You've been invited to join Honour Career Junction by ${data.HCJ_ST_Institution_Name}.</p>
-          <p>Please click the button below to complete your registration:</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${signupUrl}" style="
-              background-color: #007bff;
-              color: white;
-              padding: 12px 24px;
-              text-decoration: none;
-              border-radius: 4px;
-              display: inline-block;
-            ">Complete Registration</a>
-          </div>
-          <p>This link will expire in 7 days.</p>
-          <p>If you didn't request this invitation, please ignore this email.</p>
-        </div>
-      `,
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2>Welcome to Honour Career Junction!</h2>
+      <p>Dear ${data.HCJ_ST_Student_First_Name},</p>
+      <p>You've been invited to join Honour Career Junction by ${data.HCJ_ST_Institution_Name}.</p>
+      <p>Please click the button below to complete your registration:</p>
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${signupUrl}"
+           onclick="window.location.href='${mobileDeepLink}'; return false;"
+           style="
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 4px;
+            display: inline-block;
+          ">
+          Complete Registration
+        </a>
+      </div>
+      <p>This link will expire in 7 days.</p>
+      <p>If you didn't request this invitation, please ignore this email.</p>
+    </div>
+  `,
     });
 
     return NextResponse.json(
       {
-        message: "Student added successfully",
+        success: false,
+        code: "6055_23",
+        title: t("errorCode.6055_23.title"),
+        message: t("errorCode.6055_23.description"),
         studentId: newStudent._id,
         signupToken,
-        photoUrl,
       },
       { status: 201 }
     );
@@ -266,9 +317,10 @@ export async function POST(req) {
     console.error("Error adding student:", error);
     return NextResponse.json(
       {
-        error: "Failed to add student",
-        details:
-          process.env.NODE_ENV === "development" ? error.message : undefined,
+        success: false,
+        code: "6055_30",
+        title: t("errorCode.6055_30.title"),
+        message: t("errorCode.6055_30.description"),
       },
       { status: 500 }
     );

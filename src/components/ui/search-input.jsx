@@ -34,13 +34,13 @@ export function SearchInput({ value, onChange, placeholder = "Search...", classN
 
       {showFilterIcon && (
         <div className="absolute inset-y-0 right-4 flex items-center">
-          <Image
+          {/* <Image
             src="/image/institute/EducationalInstitute/filter.svg"
             alt="Filter"
             width={20}
             height={20}
             className="w-5 h-5"
-          />
+          /> */}
         </div>
       )}
     </div>

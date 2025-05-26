@@ -5,8 +5,6 @@ function page() {
     <div>
        <h3>Draft Page</h3>
        <h3>Draft Page</h3>
-       <h3>Draft Page</h3>
-       <h3>Draft Page</h3>
     </div>
   )
 }

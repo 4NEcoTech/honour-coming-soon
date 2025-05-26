@@ -147,7 +147,21 @@ export async function PATCH(req) {
     //  Step 4: Update User Verification Status
     await User.updateOne(
       { _id: userId },
-      { $set: { UT_User_Verification_Status: "01" } }
+      { $set: { UT_User_Verification_Status: "01",
+        UT_User_Status: "01",
+       } }
+    );
+
+    //  Step 4.1: Update Individual Status to Verified ("01")
+    await IndividualDetails.updateOne(
+      { _id: individualDetails._id },
+      { $set: { ID_Individual_Status: "01" } }
+    );
+
+    //  Step 4.2: Update all Documents' Verified Status to "01"
+    await IndividualDocuments.updateMany(
+      { IDD_Individual_Id: individualDetails._id },
+      { $set: { IDD_Verified1_Status: "01" } }
     );
 
     // 🔍 Step 5: If user is a student (Role: 05), update HCJ_ST_Individual_Id

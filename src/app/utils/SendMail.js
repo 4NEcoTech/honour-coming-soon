@@ -88,27 +88,25 @@ export async function sendInstitutionVerificationEmail(
   }
 }
 
-
-
 export async function sendUserVerificationEmail(toEmail, userName) {
-    try {
-      // Configure the transporter
-      const transporter = nodemailer.createTransport({
-        service: "gmail", // Or use SMTP settings if using another provider
-        auth: {
-          user: process.env.EMAIL_USER, // Your email
-          pass: process.env.EMAIL_PASS, // Your app password (or SMTP password)
-        },
-      });
-  
-      const userLang = "en"; // Change this based on user's language if required
-  
-      // Define email content
-      const mailOptions = {
-        from: `"Honour Career Junction" <${process.env.EMAIL_USER}>`,
-        to: toEmail,
-        subject: "Your Account is Verified!",
-        html: `
+  try {
+    // Configure the transporter
+    const transporter = nodemailer.createTransport({
+      service: "gmail", // Or use SMTP settings if using another provider
+      auth: {
+        user: process.env.EMAIL_USER, // Your email
+        pass: process.env.EMAIL_PASS, // Your app password (or SMTP password)
+      },
+    });
+
+    const userLang = "en"; // Change this based on user's language if required
+
+    // Define email content
+    const mailOptions = {
+      from: `"Honour Career Junction" <${process.env.EMAIL_USER}>`,
+      to: toEmail,
+      subject: "Your Account is Verified!",
+      html: `
           <p>Dear <strong>${userName}</strong>,</p>
           <p>Congratulations! Your account has been successfully verified on Honour Career Junction.</p>
           <p>You can now:</p>
@@ -126,92 +124,151 @@ export async function sendUserVerificationEmail(toEmail, userName) {
           <p>Need any help? Contact us at <a href="mailto:thehonourenterprise@gmail.com">thehonourenterprise@gmail.com</a>.</p>
           <p>Best regards,<br>Honour Career Junction Team</p>
         `,
-      };
-  
-      // Send the email
-      const info = await transporter.sendMail(mailOptions);
+    };
+
+    // Send the email
+    const info = await transporter.sendMail(mailOptions);
     //  console.log("User Verification Email Sent: ", info.messageId);
-      return true;
-    } catch (error) {
-      console.error("Error sending user verification email:", error);
-      return false;
-    }
+    return true;
+  } catch (error) {
+    console.error("Error sending user verification email:", error);
+    return false;
   }
+}
 
+export async function sendStudentUpdateEmail(
+  toEmail,
+  studentName,
+  institutionName,
+  signupUrl,
+  mobileDeepLink
+) {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
 
-  export async function sendStudentUpdateEmail(toEmail, studentName, institutionName) {
-    try {
-      // Configure the transporter
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      });
-  
-      // Define email content
-      const mailOptions = {
-        from: `"Honour Career Junction" <${process.env.EMAIL_USER}>`,
-        to: toEmail,
-        subject: "Your Profile has been Updated!",
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2>Your Profile has been Updated</h2>
-            <p>Dear <strong>${studentName}</strong>,</p>
-            <p>Your student profile at <strong>${institutionName}</strong> has been successfully updated.</p>
-            <p>If you made this change, no further action is required.</p>
-            <p>If this was not done by you, please contact our support team immediately.</p>
-            <p>Best regards,<br>Honour Career Junction Team</p>
+    const mailOptions = {
+      from: `"Honour Career Junction" <${process.env.EMAIL_USER}>`,
+      to: toEmail,
+      subject: "Your Profile has been Updated!",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>Your Profile has been Updated</h2>
+          <p>Dear <strong>${studentName}</strong>,</p>
+          <p>Your student profile at <strong>${institutionName}</strong> has been successfully updated.</p>
+      
+          <p>If you haven't completed your profile yet, please click the appropriate option below:</p>
+      
+          <div style="text-align: center; margin: 20px 0;">
+            <a href="${signupUrl}" style="background-color: #24B5F4; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+              Complete Profile (Web)
+            </a>
           </div>
-        `,
-      };
-  
-      // Send the email
-      const info = await transporter.sendMail(mailOptions);
-    //  console.log("Student Update Email Sent: ", info.messageId);
-      return true;
-    } catch (error) {
-      console.error("Error sending student update email:", error);
-      return false;
-    }
+      
+          <p style="text-align: center;">or</p>
+      
+          <div style="text-align: center; margin: 20px 0;">
+            <a href="${mobileDeepLink}" style="color: #24B5F4; font-weight: bold;">
+              Open in Mobile App
+            </a>
+          </div>
+      
+          <p>If this update was not done by you, please contact support immediately.</p>
+          <p>Best regards,<br/>Honour Career Junction Team</p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error("Error sending student update email:", error);
+    return false;
   }
+}
 
+export async function sendStaffUpdateEmail(
+  toEmail,
+  staffName,
+  institutionName,
+  signupUrl
+) {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
 
-  export async function sendStaffUpdateEmail(toEmail, staffName, institutionName) {
-    try {
-      // Configure the transporter
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      });
-  
-      // Define email content
-      const mailOptions = {
-        from: `"Honour Career Junction" <${process.env.EMAIL_USER}>`,
-        to: toEmail,
-        subject: "Your Profile has been Updated!",
-        html: `
+    const mailOptions = {
+      from: `"Honour Career Junction" <${process.env.EMAIL_USER}>`,
+      to: toEmail,
+      subject: "Your Profile has been Updated!",
+      html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2>Your Profile has been Updated</h2>
             <p>Dear <strong>${staffName}</strong>,</p>
             <p>Your staff profile at <strong>${institutionName}</strong> has been successfully updated.</p>
-            <p>If you made this change, no further action is required.</p>
-            <p>If this was not done by you, please contact our support team immediately.</p>
+            <p>If you haven't completed your profile yet, please click the button below to do so:</p>
+            <p><a href="${signupUrl}" style="padding: 10px 20px; background-color: #24B5F4; color: white; border-radius: 5px; text-decoration: none;">Complete Profile</a></p>
+            <p>If this update was not done by you, please contact support immediately.</p>
             <p>Best regards,<br>Honour Career Junction Team</p>
           </div>
         `,
-      };
-  
-      // Send the email
-      const info = await transporter.sendMail(mailOptions);
-    //  console.log("Staff Update Email Sent: ", info.messageId);
-      return true;
-    } catch (error) {
-      console.error("Error sending staff update email:", error);
-      return false;
-    }
+    };
+
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error("Error sending staff update email:", error);
+    return false;
   }
+}
+
+
+export async function sendCompanyStaffUpdateEmail(
+  toEmail,
+  staffName,
+  institutionName,
+  signupUrl
+) {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: `"Honour Career Junction" <${process.env.EMAIL_USER}>`,
+      to: toEmail,
+      subject: "Your Profile has been Updated!",
+      html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Your Profile has been Updated</h2>
+            <p>Dear <strong>${staffName}</strong>,</p>
+            <p>Your staff profile at <strong>${institutionName}</strong> has been successfully updated.</p>
+            <p>If you haven't completed your profile yet, please click the button below to do so:</p>
+            <p><a href="${signupUrl}" style="padding: 10px 20px; background-color: #24B5F4; color: white; border-radius: 5px; text-decoration: none;">Complete Profile</a></p>
+            <p>If this update was not done by you, please contact support immediately.</p>
+            <p>Best regards,<br>Honour Career Junction Team</p>
+          </div>
+        `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error("Error sending staff update email:", error);
+    return false;
+  }
+}

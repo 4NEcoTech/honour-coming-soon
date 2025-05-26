@@ -1,8 +1,9 @@
-import mongoose from "mongoose";
-import DocumentDetails from "@/app/models/individual_document_details";
 import IndividualDetails from "@/app/models/individual_details";
-import { dbConnect } from "@/app/utils/dbConnect";
+import DocumentDetails from "@/app/models/individual_document_details";
 import { generateAuditTrail } from "@/app/utils/audit-trail";
+import { dbConnect } from "@/app/utils/dbConnect";
+import { getTranslator } from "@/i18n/server";
+import mongoose from "mongoose";
 
 /**
  * @swagger
@@ -10,7 +11,7 @@ import { generateAuditTrail } from "@/app/utils/audit-trail";
  *   post:
  *     summary: Submit a Admin Document Record
  *     description: |
- *       Saves a new document record for a Admin, including domicile, document type, unique identifier, and URL. 
+ *       Saves a new document record for a Admin, including domicile, document type, unique identifier, and URL.
  *       Stores an audit trail entry and sets the verification status to pending (`02`).
  *     tags: [Admin Documents Saved]
  *     requestBody:
@@ -63,8 +64,9 @@ import { generateAuditTrail } from "@/app/utils/audit-trail";
  *         description: Internal Server Error
  */
 
-
 export async function POST(req) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   await dbConnect();
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -80,8 +82,6 @@ export async function POST(req) {
       IDD_Individual1_Document,
     } = body;
 
-    console.log("IDD_Individual_Id", IDD_Individual_Id)
-
     if (
       !IDD_Individual_Id ||
       !IDD_Document1_Domicile ||
@@ -90,7 +90,12 @@ export async function POST(req) {
       !IDD_Individual1_Document
     ) {
       return new Response(
-        JSON.stringify({ success: false, message: "Missing required fields" }),
+        JSON.stringify({
+          success: false,
+          code: "6027_5",
+          title: t(`errorCode.6027_5.title`),
+          message: t(`errorCode.6027_5.description`),
+        }),
         { status: 400 }
       );
     }
@@ -98,16 +103,28 @@ export async function POST(req) {
     // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(IDD_Individual_Id)) {
       return new Response(
-        JSON.stringify({ success: false, message: "Invalid User ID" }),
+        JSON.stringify({
+          success: false,
+          code: "6027_6",
+          title: t(`errorCode.6027_6.title`),
+          message: t(`errorCode.6027_6.description`),
+        }),
         { status: 400 }
       );
     }
 
-    const user = await IndividualDetails.findById(IDD_Individual_Id).session(session);
+    const user = await IndividualDetails.findById(IDD_Individual_Id).session(
+      session
+    );
 
     if (!user) {
       return new Response(
-        JSON.stringify({ success: false, message: "User not found" }),
+        JSON.stringify({
+          success: false,
+          code: "6027_7",
+          title: t(`errorCode.6027_7.title`),
+          message: t(`errorCode.6027_7.description`),
+        }),
         { status: 404 }
       );
     }
@@ -132,7 +149,13 @@ export async function POST(req) {
     session.endSession();
 
     return new Response(
-      JSON.stringify({ success: true, message: "Document saved" }),
+      JSON.stringify({
+        success: true,
+        code: "6027_8",
+        title: t(`errorCode.6027_8.title`),
+        message: t(`errorCode.6027_8.description`),
+      }),
+
       { status: 201 }
     );
   } catch (err) {
@@ -140,7 +163,14 @@ export async function POST(req) {
     session.endSession();
     console.error("Submit Error:", err);
     return new Response(
-      JSON.stringify({ success: false, message: err.message || "Internal error" }),
+      JSON.stringify({
+        success: false,
+        code: "6027_9",
+        title: t(`errorCode.6027_9.title`),
+        message: t(`errorCode.6027_9.description`, {
+          message: err.message,
+        }),
+      }),
       { status: 500 }
     );
   }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useAbility } from "@/Casl/CaslContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +13,7 @@ import { Link } from "@/i18n/routing";
 import Image from "next/image";
 
 export default function RegisteredStudentPopup({ student, isOpen, onClose }) {
+  const ability = useAbility();
   if (!student) return null;
 
   const initials = student.name
@@ -42,7 +44,8 @@ export default function RegisteredStudentPopup({ student, isOpen, onClose }) {
                 />
                 <span className="text-sm text-muted-foreground">Verified</span>
               </div>
-              <div className="flex items-center text-sm text-muted-foreground">
+              {/* commented because follower / following functionality is not implemented */}
+              {/* <div className="flex items-center text-sm text-muted-foreground">
                 <Image
                   src="/image/institutndashboard/dashpage/popup/follower.svg"
                   alt="Followers"
@@ -51,20 +54,32 @@ export default function RegisteredStudentPopup({ student, isOpen, onClose }) {
                   className="mr-1"
                 />
                 0 Followers
-              </div>
+              </div> */}
             </div>
           </div>
         </DialogHeader>
 
         <div className="flex space-x-4 mt-2">
-          <Link href="/stdnt-prfl" className="flex-1">
-            <Button className="w-full border bg-gray border-gray-300 py-2 px-4 text-gray-700 rounded-md hover:bg-blue-300">
-              View Profile
-            </Button>
-          </Link>
-          <Button className="flex-1 w-full border bg-primary text-white py-2 px-4 rounded-md hover:bg-primary/90">
+          {ability.can("read", "Student") ? (
+            <Link href="/stdnt-prfl" className="flex-1">
+              <Button className="w-full border bg-gray border-gray-300 py-2 px-4 text-gray-700 rounded-md hover:bg-blue-300">
+                View Profile
+              </Button>
+            </Link>
+          ) : (
+            <div className="flex-1">
+              <Button
+                disabled
+                className="cursor-not-allowed w-full border bg-gray border-gray-300 py-2 px-4 text-gray-700 rounded-md hover:bg-blue-300">
+                View Profile
+              </Button>
+            </div>
+          )}
+
+          {/* commented this button  because  the follower and following functionality is not  implemented */}
+          {/* <Button className="flex-1 w-full border bg-primary text-white py-2 px-4 rounded-md hover:bg-primary/90">
             Follow
-          </Button>
+          </Button> */}
         </div>
 
         <div className="grid gap-4 py-4">

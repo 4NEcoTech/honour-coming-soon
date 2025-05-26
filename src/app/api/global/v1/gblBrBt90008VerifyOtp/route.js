@@ -1,9 +1,9 @@
-import User from '@/app/models/user_table';
-import OTPVerification from '@/app/models/otp_verification';
-import { dbConnect } from '@/app/utils/dbConnect';
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
-
+import OTPVerification from "@/app/models/otp_verification";
+import User from "@/app/models/user_table";
+import { dbConnect } from "@/app/utils/dbConnect";
+import { getTranslator } from "@/i18n/server";
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 /**
  * @swagger
  * /api/global/v1/gblBrBt90008VerifyOtp:
@@ -158,25 +158,26 @@ import { NextResponse } from 'next/server';
  *                   example: "6022_12 An unexpected error occurred: [error details]"
  */
 
-
 export async function POST(request) {
+  const locale = request.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
+
   try {
     const requestBody = await request.json();
     const { otp, email: requestEmail, role: requestRole } = requestBody;
-    console.log('otp, email, role:', otp, requestEmail, requestRole);
 
     const cookieStore = await cookies();
-    const userEmailCookie = cookieStore.get('user_email');
-    const userRoleCookie = cookieStore.get('user_role');
+    const userEmailCookie = cookieStore.get("user_email");
+    const userRoleCookie = cookieStore.get("user_role");
     let email = userEmailCookie ? userEmailCookie.value : requestEmail;
     let role = requestRole || (userRoleCookie ? userRoleCookie.value : null);
 
     if (!email) {
       return NextResponse.json(
         {
-          code: '6022_6',
-          title: 'Email not found',
-          message: '6022_6 User email not found in cookies or request body.',
+          code: "6022_6",
+          title: t(`errorCode.6022_6.title`),
+          message: t(`errorCode.6022_6.description`),
         },
         { status: 400 }
       );
@@ -185,9 +186,9 @@ export async function POST(request) {
     if (!role) {
       return NextResponse.json(
         {
-          code: '6022_13',
-          title: 'User role not found',
-          message: '6022_13 User role not found in cookies or request body.',
+          code: "6022_13",
+          title: t(`errorCode.6022_13.title`),
+          message: t(`errorCode.6022_13.description`),
         },
         { status: 400 }
       );
@@ -195,18 +196,22 @@ export async function POST(request) {
 
     if (!Array.isArray(otp)) {
       return NextResponse.json(
-        { title: 'Invalid OTP format', message: 'OTP should be an array.' },
+        {
+          code: "6022_5",
+          title: t(`errorCode.6022_5.title`),
+          message: t(`errorCode.6022_5.description`),
+        },
         { status: 400 }
       );
     }
 
-    const OTP = otp.join('');
+    const OTP = otp.join("");
     if (!OTP || !/^\d{4}$/.test(OTP)) {
       return NextResponse.json(
         {
-          code: '6022_7',
-          title: 'Invalid OTP format',
-          message: '6022_7 Invalid OTP format. Must be a 4-digit number.',
+          code: "6022_7",
+          title: t(`errorCode.6022_7.title`),
+          message: t(`errorCode.6022_7.description`),
         },
         { status: 400 }
       );
@@ -221,9 +226,9 @@ export async function POST(request) {
     if (!existingUser) {
       return NextResponse.json(
         {
-          code: '6022_8',
-          title: 'User not found.',
-          message: '6022_8 User not found. Please register first.',
+          code: "6022_8",
+          title: t(`errorCode.6022_8.title`),
+          message: t(`errorCode.6022_8.description`),
         },
         { status: 404 }
       );
@@ -237,9 +242,9 @@ export async function POST(request) {
     if (!otpRecord) {
       return NextResponse.json(
         {
-          code: '6022_14',
-          title: 'OTP not found',
-          message: '6022_14 No OTP record found for this user.',
+          code: "6022_14",
+          title: t(`errorCode.6022_14.title`),
+          message: t(`errorCode.6022_14.description`),
         },
         { status: 404 }
       );
@@ -247,12 +252,15 @@ export async function POST(request) {
 
     // Check OTP expiration
     const currentTime = new Date();
-    if (!otpRecord.OV_OTP_Expiry || new Date(otpRecord.OV_OTP_Expiry) < currentTime) {
+    if (
+      !otpRecord.OV_OTP_Expiry ||
+      new Date(otpRecord.OV_OTP_Expiry) < currentTime
+    ) {
       return NextResponse.json(
         {
-          code: '6022_9',
-          title: 'OTP expired!',
-          message: '6022_9 OTP has expired. Please request a new one.',
+          code: "6022_9",
+          title: t(`errorCode.6022_9.title`),
+          message: t(`errorCode.6022_9.description`),
         },
         { status: 400 }
       );
@@ -263,9 +271,9 @@ export async function POST(request) {
     if (!isOtpValid) {
       return NextResponse.json(
         {
-          code: '6022_10',
-          title: 'Invalid OTP.',
-          message: '6022_10 Invalid OTP. Please try again.',
+          code: "6022_10",
+          title: t(`errorCode.6022_10.title`),
+          message: t(`errorCode.6022_10.description`),
         },
         { status: 400 }
       );
@@ -277,23 +285,23 @@ export async function POST(request) {
     // Update user's email verification status
     await User.updateOne(
       { _id: existingUser._id },
-      { $set: { UT_Email_Verified: '02' } }
+      { $set: { UT_Email_Verified: "02" } }
     );
 
     return NextResponse.json(
       {
-        code: '6022_11',
-        title: 'OTP verified successfully.',
-        message: '6022_11 OTP verified successfully.',
+        code: "6022_11",
+        title: t(`errorCode.6022_11.title`),
+        message: t(`errorCode.6022_11.description`),
       },
       { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
       {
-        code: '6022_12',
-        title: 'Error verifying OTP',
-        message: `6022_12 An unexpected error occurred: ${error.message}`,
+        code: "6022_12",
+        title: t(`errorCode.6022_12.title`),
+        message: t(`errorCode.6022_12.description`, { message: error.message }),
       },
       { status: 500 }
     );

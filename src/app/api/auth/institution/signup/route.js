@@ -1,12 +1,12 @@
-import User from '@/app/models/user_table';
-import OTPVerification from '@/app/models/otp_verification';
-import { dbConnect } from '@/app/utils/dbConnect';
-import { sendEmail } from '@/app/utils/SendMail';
-import crypto from 'crypto';
-import jwt from 'jsonwebtoken';
-import { NextResponse } from 'next/server';
-import { generateAuditTrail } from '@/app/utils/audit-trail';
-
+import OTPVerification from "@/app/models/otp_verification";
+import User from "@/app/models/user_table";
+import { generateAuditTrail } from "@/app/utils/audit-trail";
+import { dbConnect } from "@/app/utils/dbConnect";
+import { sendEmail } from "@/app/utils/SendMail";
+import { getTranslator } from "@/i18n/server";
+import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import { NextResponse } from "next/server";
 /**
  * @swagger
  * /api/auth/institution/signup:
@@ -140,7 +140,6 @@ import { generateAuditTrail } from '@/app/utils/audit-trail';
  *                       example: "Something went wrong."
  */
 
-
 /**
  * Generates a JWT token for authenticated users.
  */
@@ -148,7 +147,7 @@ const generateJwtToken = (user) => {
   return jwt.sign(
     { id: user._id, email: user.UT_User_Id, role: user.UT_User_Role },
     process.env.NEXTAUTH_SECRET,
-    { expiresIn: '1d' }
+    { expiresIn: "1d" }
   );
 };
 
@@ -160,22 +159,22 @@ const generateOtp = () => {
 };
 
 export const POST = async (request) => {
-  const locale = request.headers.get('accept-language') || 'en';
-  console.log(`Locale detected: ${locale}`);
+  const locale = request.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
 
   try {
     const { email } = await request.json();
 
     if (!email) {
       return NextResponse.json(
-        { message: 'Email is required.' },
+        { message: "Email is required." },
         { status: 400 }
       );
     }
 
     if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
       return NextResponse.json(
-        { message: 'Invalid email format.' },
+        { message: "Invalid email format." },
         { status: 400 }
       );
     }
@@ -189,21 +188,24 @@ export const POST = async (request) => {
       if (user.UT_User_Role !== "06") {
         return NextResponse.json(
           {
-            code: '6091_7',
-            title: 'User Already Registered with a Different Role',
-            message: `This email is already registered with role ID ${user.UT_User_Role}. Cannot sign up as Institution.`,
+            code: "6021_7",
+            title: t(`errorCode.6021_7.title`),
+            message: t(`errorCode.6021_7.description`, {
+              UT_User_Role: user.UT_User_Role, // replace this with dynamic role value
+            }),
           },
           { status: 409 }
         );
       }
 
-      if (user.UT_Email_Verified === '02') {
+      if (user.UT_Email_Verified === "02") {
         return NextResponse.json(
           {
-            code: '6091_5',
-            title: 'Email Already Registered',
-            message: 'This email address is already registered. Please login.',
-            link: '/login',
+            code: "6021_7",
+            title: t(`errorCode.6021_7.title`),
+            message: t(`errorCode.6021_7.description`, {
+              UT_User_Role: user.UT_User_Role, // replace this with dynamic role value
+            }),
           },
           { status: 409 }
         );
@@ -225,9 +227,9 @@ export const POST = async (request) => {
     if (!emailSent) {
       return NextResponse.json(
         {
-          code: '6091_3',
-          title: 'OTP Email Failed',
-          message: 'Failed to send OTP email. Please try again later.',
+          code: "6021_8",
+          title: t(`errorCode.6021_8.title`),
+          message: t(`errorCode.6021_8.description`),
         },
         { status: 500 }
       );
@@ -237,8 +239,8 @@ export const POST = async (request) => {
     if (!user) {
       user = new User({
         UT_User_Id: email,
-        UT_User_Role: '06', // Assign role "06" for Institution
-        UT_Login_Type: '02',
+        UT_User_Role: "06", // Assign role "06" for Institution
+        UT_Login_Type: "02",
         UT_Audit_Trail: [auditTrail],
       });
       await user.save();
@@ -251,7 +253,7 @@ export const POST = async (request) => {
         OV_Email: email,
         OV_OTP: Number(otp),
         OV_OTP_Expiry: otpExpiry,
-        OV_Updated_At: new Date()
+        OV_Updated_At: new Date(),
       },
       { upsert: true, new: true }
     );
@@ -262,9 +264,9 @@ export const POST = async (request) => {
     // Create the response and set cookies
     const response = NextResponse.json(
       {
-        code: '6091_4',
-        title: 'OTP Sent',
-        message: 'An OTP has been sent to your email address.',
+        code: "6091_4",
+        title: "OTP Sent",
+        message: "An OTP has been sent to your email address.",
         token,
         user: {
           _id: user._id,
@@ -278,23 +280,31 @@ export const POST = async (request) => {
     );
 
     response.headers.set(
-      'Set-Cookie',
+      "Set-Cookie",
       [
-        `token=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${60 * 60 * 24}`,
-        `user_email=${email}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${60 * 60 * 24}`,
-        `user_id=${user._id}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${60 * 60 * 24}`,
-        `user_role=${user.UT_User_Role}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${60 * 60 * 24}`,
-      ].join(', ')
+        `token=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${
+          60 * 60 * 24
+        }`,
+        `user_email=${email}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${
+          60 * 60 * 24
+        }`,
+        `user_id=${
+          user._id
+        }; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${60 * 60 * 24}`,
+        `user_role=${
+          user.UT_User_Role
+        }; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${60 * 60 * 24}`,
+      ].join(", ")
     );
 
     return response;
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error("Unexpected error:", error);
     return NextResponse.json(
       {
-        code: '6091_6',
-        title: 'Internal Server Error',
-        message: error.message || 'Something went wrong.',
+        code: "6021_9",
+        title: t(`errorCode.6021_9.title`),
+        message: t(`errorCode.6021_9.description`),
       },
       { status: 500 }
     );

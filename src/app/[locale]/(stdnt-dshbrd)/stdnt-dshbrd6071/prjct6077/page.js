@@ -18,8 +18,6 @@ export default function ProjectsPage() {
   const { toast } = useToast();
   const { data: session } = useSession();
   //  console.log(session)
-
-  // ... existing state declarations ...
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState(null);
 
@@ -127,15 +125,15 @@ export default function ProjectsPage() {
   const handleSubmitProject = async (formData) => {
     // Transform frontend data to match API structure
     const apiData = {
-      HCJ_JSP_Job_Seeker_Id: "64c2d76c9bdf5c44f8c44e1e", // You might want to make this dynamic
-      HCJ_JSP_Individual_Id: "64c2d76c9bdf5c44f8c44e1e", // You might want to make this dynamic
+      HCJ_JSP_Job_Seeker_Id: session?.user?.jobSeekerId, // You might want to make this dynamic
+      HCJ_JSP_Individual_Id: session?.user?.individualId, // You might want to make this dynamic
       HCJ_JSP_Project_Name: formData.title,
       HCJ_JSP_Company_Name: formData.company,
       HCJ_JSP_Start_Date: formData.startDate,
       HCJ_JSP_End_Date: formData.endDate,
       HCJ_JSP_Project_Status: formData.status,
       HCJ_JSP_Project_Description: formData.description,
-      HCJ_JSP_Session_Id: "session123", // You might want to make this dynamic
+      HCJ_JSP_Session_Id: `session_${Date.now()}`, // You might want to make this dynamic
     };
 
     try {

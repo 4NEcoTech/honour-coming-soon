@@ -1,7 +1,8 @@
-import User from "@/app/models/user_table";
 import OTPVerification from "@/app/models/otp_verification";
+import User from "@/app/models/user_table";
 import { dbConnect } from "@/app/utils/dbConnect";
 import { sendEmail } from "@/app/utils/SendMail";
+import { getTranslator } from "@/i18n/server";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -109,6 +110,8 @@ import { NextResponse } from "next/server";
  */
 
 export async function POST(request) {
+  const locale = request.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   try {
     const requestBody = await request.json();
     const { email: requestEmail, role: requestRole } = requestBody;
@@ -120,8 +123,8 @@ export async function POST(request) {
       return NextResponse.json(
         {
           code: "6022_1",
-          title: "Email not found",
-          message: "6022_1 User email not found in cookies or request body.",
+          title: t(`errorCode.6022_1.title`),
+          message: t(`errorCode.6022_1.description`),
         },
         { status: 400 }
       );
@@ -141,8 +144,8 @@ export async function POST(request) {
       return NextResponse.json(
         {
           code: "6022_2",
-          title: "User not found",
-          message: "6022_2 User not found. Please register first.",
+          title: t(`errorCode.6022_2.title`),
+          message: t(`errorCode.6022_2.description`),
         },
         { status: 404 }
       );
@@ -188,8 +191,8 @@ export async function POST(request) {
       return NextResponse.json(
         {
           code: "6022_3",
-          title: "Failed to send OTP email",
-          message: "6022_3 Failed to send OTP email. Please try again later.",
+          title: t(`errorCode.6022_3.title`),
+          message: t(`errorCode.6022_3.description`),
         },
         { status: 500 }
       );
@@ -198,8 +201,8 @@ export async function POST(request) {
     return NextResponse.json(
       {
         code: "6022_4",
-        title: "OTP Resent Successfully",
-        message: "6022_4 OTP resent successfully. Please check your email.",
+        title: t(`errorCode.6022_4.title`),
+        message: t(`errorCode.6022_4.description`),
       },
       { status: 200 }
     );
@@ -207,9 +210,9 @@ export async function POST(request) {
     console.error("Error resending OTP:", error);
     return NextResponse.json(
       {
-        code: "6022_5",
-        title: "Internal server error",
-        message: "6022_5 An unexpected error occurred. Please try again.",
+        code: "6022_15",
+        title: t(`errorCode.6022_15.title`),
+        message: t(`errorCode.6022_15.description`),
       },
       { status: 500 }
     );

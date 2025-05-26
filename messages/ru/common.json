@@ -1,0 +1,29 @@
+{
+  "HomePage": {
+    "Opportunities_for_every_student": "Возможности для каждого студента",
+    "Projects_Internships_Flexijobs_Regular_Jobs": "Онлайн-ярмарки вакансий | Стажировки | Гибкая работа | Проекты | Удалённые вакансии",
+    "Marketing_Sales_Design_Development_DevOps_Robotics_ML_AI_Finance_Sketch_Artists_VFX_Animation": "Маркетинг, Продажи, Дизайн, Разработка, DevOps, Робототехника, Машинное обучение, ИИ, Финансы, Художники, VFX, Анимация",
+    "Register_your_Institution_with_HCJ": "Зарегистрируйте ваше учебное заведение в HCJ",
+    "Take_part_in_India_s_biggest_Job_Fair": "Примите участие в крупнейшей ярмарке вакансий в Индии",
+    "Nov_10_Nov_20": "10 ноября – 20 ноября",
+    "Register_here": "Зарегистрироваться здесь",
+    "About_Us": "О нас",
+    "Welcome_to_HCJ_the_leading_platform_designed_to_connect_institutions_students_and_the_dynamic_job_market": "Добро пожаловать в HCJ — ведущую платформу, созданную для соединения учебных заведений, студентов и динамичного рынка труда.",
+    "At_HCJ_our_mission_is_to_streamline_and_enhance_the_job_seeking_experience": "Наша миссия в HCJ — упростить и улучшить процесс поиска работы, предлагая учебным заведениям простой и эффективный способ загрузки и управления профилями студентов. Это позволяет студентам демонстрировать свои навыки и квалификацию на ярмарках вакансий, стажировках и карьерных мероприятиях.",
+    "Committed_to_bridging_the_gap_between_academia_and_industry": "Мы стремимся преодолеть разрыв между образованием и промышленностью, предоставляя удобную платформу, на которой студенты могут получить видимость и доступ к потенциальным работодателям, а учебные заведения — играть ключевую роль в формировании карьерного пути студентов. С HCJ переход от образования к трудоустройству становится проще и эффективнее.",
+    "Read_more": "Читать далее",
+    "Partner_Institutions": "Партнёрские учреждения",
+    "Achievers_Central": "Центр достижений",
+    "View_All": "Посмотреть все",
+    "Featured_Achievers_Of_this_month": "Выдающиеся студенты месяца",
+    "Give_your_students_access_to_real_world_opportunities": "Предоставьте своим студентам доступ к реальным возможностям",
+    "Get_Started": "Начать"
+  },
+  "RegistrationWithCredentialForm": {
+    "title": "Регистрация учреждения",
+    "subtitle": "Если вы администратор учреждения, пожалуйста, продолжите регистрацию.",
+    "OTP": "Подтверждение OTP",
+    "OTP_Description": "Введите OTP-код, отправленный на вашу электронную почту учреждения",
+    "'Password_title": "Создать пароль"
+  }
+}

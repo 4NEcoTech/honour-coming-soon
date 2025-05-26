@@ -96,8 +96,12 @@ import { dbConnect } from "@/app/utils/dbConnect";
  */
 
 //  Strong Password Regex (12+ characters, 1 uppercase, 1 lowercase, 1 number, 1 special character)
+// const passwordRegex =
+//   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/;
+
 const passwordRegex =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/;
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$/;
+
 
 export async function POST(req) {
   try {

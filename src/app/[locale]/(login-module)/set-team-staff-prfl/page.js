@@ -1,35 +1,39 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { toast } from "@/hooks/use-toast"
-import { useRouter } from "@/i18n/routing"
-import { useSession } from "next-auth/react"
-import { useEffect, useState } from "react"
-import AddressDetails from "./addrss-dtls/page"
-import PersonalDetails from "./prsnl-dtls/page"
-import SocialLinks from "./socl-lnks/page"
-import { getUserById } from "@/app/utils/indexDB"
-
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "@/hooks/use-toast";
+import { useRouter } from "@/i18n/routing";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import AddressDetails from "./addrss-dtls/page";
+import PersonalDetails from "./prsnl-dtls/page";
+import SocialLinks from "./socl-lnks/page";
+import { getUserById } from "@/app/utils/indexDB";
 
 export default function Page() {
-  const [activeTab, setActiveTab] = useState("personal")
-  const [progress, setProgress] = useState(0)
+  const [activeTab, setActiveTab] = useState("personal");
+  const [progress, setProgress] = useState(0);
   const [formData, setFormData] = useState({
     personal: null,
     address: null,
     social: [],
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { data: session, update } = useSession()
-  const router = useRouter()
+  const { data: session, update } = useSession();
+  const router = useRouter();
+  const [companyId, setCompanyId] = useState(null);
 
   // Function to check if an object has CCP_ prefixed fields
   const hasCCPFields = (obj) => {
-    return obj && typeof obj === "object" && Object.keys(obj).some((key) => key.startsWith("CCP_"))
-  }
+    return (
+      obj &&
+      typeof obj === "object" &&
+      Object.keys(obj).some((key) => key.startsWith("CCP_"))
+    );
+  };
 
   // Function to map CCP data to form structure
   const mapCCPDataToFormStructure = (ccpData) => {
@@ -44,9 +48,11 @@ export default function Page() {
       designation: ccpData.CCP_Contact_Person_Designation || "",
       profileHeadline: "", // Not available in token
       gender: ccpData.CCP_Contact_Person_Gender || "",
-      dob: ccpData.CCP_Contact_Person_DOB ? new Date(ccpData.CCP_Contact_Person_DOB).toISOString().split("T")[0] : "",
+      dob: ccpData.CCP_Contact_Person_DOB
+        ? new Date(ccpData.CCP_Contact_Person_DOB).toISOString().split("T")[0]
+        : "",
       photoUrl: ccpData.CCP_Contact_Person_Profile_Picture || "",
-    }
+    };
 
     // Map address data
     const address = {
@@ -57,90 +63,122 @@ export default function Page() {
       pincode: ccpData.CCP_Contact_Person_Pincode || "",
       state: ccpData.CCP_Contact_Person_State || "",
       city: ccpData.CCP_Contact_Person_City || "",
-    }
+    };
 
     // Initialize social data as empty array
-    const social = []
+    const social = [];
 
-    return { personal, address, social }
-  }
+    return { personal, address, social };
+  };
 
-
+  // Load data from localStorage first
   useEffect(() => {
     const savedData = localStorage.getItem("formData")
-    const parsedData = savedData ? JSON.parse(savedData) : null
-  
-    const tokenData = session?.user?.token
-    const fullSession = session?.user || session
-    const fullData =
-      hasCCPFields(formData) ? formData :
-      hasCCPFields(tokenData) ? tokenData :
-      hasCCPFields(fullSession) ? fullSession :
-      null
-  
-    if (fullData) {
-      console.log("Using CCP data from session or formData")
-      const mapped = mapCCPDataToFormStructure(fullData)
-      setFormData(mapped)
-      updateProgress(mapped)
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData)
+        setFormData(parsedData)
+        updateProgress(parsedData)
+      } catch (error) {
+        console.error("Error parsing saved form data:", error)
+      }
+    }
+  }, [])
+
+  // Check for CCP data in session or directly in formData
+  useEffect(() => {
+    // If formData already has CCP fields, map it to the correct structure
+    if (hasCCPFields(formData)) {
+    //  console.log("Found CCP data in formData, mapping to form structure")
+      const mappedData = mapCCPDataToFormStructure(formData)
+      setFormData(mappedData)
+      updateProgress(mappedData)
       return
     }
-  
-    if (parsedData && parsedData.personal && parsedData.address) {
-      console.log("Using data from localStorage")
-      setFormData(parsedData)
-      updateProgress(parsedData)
+
+    // Check if session has token data
+    if (session?.user?.token && hasCCPFields(session.user.token)) {
+    //  console.log("Found CCP data in session token, mapping to form structure")
+      const mappedData = mapCCPDataToFormStructure(session.user.token)
+      setFormData(mappedData)
+      updateProgress(mappedData)
       return
     }
-  
-    // Fallback to IndexedDB
+
+    // Check if session itself has CCP fields
+    if (session && hasCCPFields(session)) {
+    //  console.log("Found CCP data in session, mapping to form structure")
+      const mappedData = mapCCPDataToFormStructure(session)
+      setFormData(mappedData)
+      updateProgress(mappedData)
+      return
+    }
+
+    // Check if session.user has CCP fields
+    if (session?.user && hasCCPFields(session.user)) {
+      console.log("Found CCP data in session.user, mapping to form structure")
+      const mappedData = mapCCPDataToFormStructure(session.user)
+      setFormData(mappedData)
+      updateProgress(mappedData)
+      return
+    }
+
+    // If no CCP data found, try to get from IndexDB
     const tempId = localStorage.getItem("temp_team_member_id")
     if (tempId) {
       getUserById(tempId)
         .then((data) => {
-          if (hasCCPFields(data)) {
-            console.log("Using data from IndexedDB")
-            const mapped = mapCCPDataToFormStructure(data)
-            setFormData(mapped)
-            updateProgress(mapped)
-          } else {
-            setFormData(data)
-            updateProgress(data)
+          if (data) {
+            setCompanyId(data?.CCP_Company_Id);
+          //  console.log("om", companyId)
+            // Check if IndexDB data has CCP fields
+            if (hasCCPFields(data)) {
+            //  console.log("Found CCP data in IndexDB, mapping to form structure")
+              const mappedData = mapCCPDataToFormStructure(data)
+              setFormData(mappedData)
+              updateProgress(mappedData)
+            } else {
+              // Data is already in the correct structure
+              setFormData(data)
+              updateProgress(data)
+            }
           }
+        //  console.log("data from IndexDB:", data)
         })
-        .catch((err) => console.error("IndexedDB fetch failed:", err))
+        .catch((err) => console.error("Error fetching user:", err))
         .finally(() => setIsSubmitting(false))
     } else {
       setIsSubmitting(false)
     }
   }, [session])
-  
 
   const updateProgress = (data) => {
-    const steps = ["personal", "address", "social"]
-    const completedSteps = steps.filter((step) => data[step] !== null).length
-    setProgress((completedSteps / steps.length) * 100)
-  }
+    const steps = ["personal", "address", "social"];
+    const completedSteps = steps.filter((step) => data[step] !== null).length;
+    setProgress((completedSteps / steps.length) * 100);
+  };
 
   const updateFormData = (step, data) => {
     setFormData((prev) => {
-      const newFormData = { ...prev, [step]: data }
-      localStorage.setItem("formData", JSON.stringify(newFormData))
-      updateProgress(newFormData)
-      return newFormData
-    })
-  }
+      const newFormData = { ...prev, [step]: data };
+      localStorage.setItem("formData", JSON.stringify(newFormData));
+      updateProgress(newFormData);
+      return newFormData;
+    });
+  };
 
   const tabs = [
     { id: "personal", label: "Personal Details" },
     { id: "address", label: "Address Details" },
     { id: "social", label: "Social Links" },
-  ]
+  ];
 
   const canNavigateToTab = (tabId) => {
-    const tabIndex = tabs.findIndex((tab) => tab.id === tabId)
-    return tabs.slice(0, tabIndex).every((tab) => formData[tab.id] !== null)
-  }
+    const tabIndex = tabs.findIndex((tab) => tab.id === tabId);
+    return tabs.slice(0, tabIndex).every((tab) => formData[tab.id] !== null);
+  };
+
+  console.log("om", companyId)
 
   const handleSubmitProfile = async () => {
     // Validate required fields
@@ -149,11 +187,11 @@ export default function Page() {
         title: "Missing information",
         description: "Please complete all required sections before submitting.",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       // 1. Prepare the submission data
@@ -163,7 +201,9 @@ export default function Page() {
         ID_First_Name: formData.personal.firstName,
         ID_Last_Name: formData.personal.lastName,
         ID_Phone: formData.personal.phone,
+        ID_Alternate_Phone: formData.personal.alternatePhone,
         ID_Email: formData.personal.corporateEmail,
+        ID_Alternate_Email: formData.personal.alternateEmail,
         ID_Gender: formData.personal.gender || "01", // Default gender code
         ID_DOB: formData.personal.dob || "",
         ID_Profile_Picture: formData.personal.photoUrl || "",
@@ -196,49 +236,57 @@ export default function Page() {
         // URL configuration
         lang: router.locale || "en",
         route: "ecolink",
-      }
+      };
 
       // 2. Process social links if they exist
       if (Array.isArray(formData.social) && formData.social.length) {
         formData.social.forEach((item) => {
           try {
             if (item?.url && item?.platform) {
-              const platformKey = `SL_${item.platform}_Url`
-              if (Object.prototype.hasOwnProperty.call(submitData, platformKey)) {
-                submitData[platformKey] = item.url
+              const platformKey = `SL_${item.platform}_Url`;
+              if (
+                Object.prototype.hasOwnProperty.call(submitData, platformKey)
+              ) {
+                submitData[platformKey] = item.url;
               }
             }
           } catch (error) {
-            console.warn("Error processing social link:", item, error)
+            console.warn("Error processing social link:", item, error);
           }
-        })
+        });
       }
 
       // 3. Submit to API
-      const response = await fetch("/api/institution/v1/hcjBrBT60241CreateAdminProfile", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(submitData),
-      })
+      const response = await fetch(
+        "/api/institution/v1/hcjBrBT60241CreateAdminProfile",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(submitData),
+        }
+      );
 
-      const result = await response.json()
+      const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || "Failed to create profile")
+        throw new Error(result.message || "Failed to create profile");
       }
 
       // 4. Handle success
       toast({
         title: "Success!",
         description: "Your profile has been created successfully.",
-      })
+      });
 
       // Clear form data from local storage
-      localStorage.removeItem("formData")
+      localStorage.removeItem("formData");
 
       // Update session with the new individualId
+
+     
+
       await update({
         ...session,
         user: {
@@ -247,23 +295,26 @@ export default function Page() {
           hasProfilePicture: !!formData.personal.photoUrl,
           first_name: result.first_name,
           last_name: result.last_name,
+          companyId: companyId || session.user.companyId || null,
+          profileImage: result.profileImage || formData.personal.photoUrl || "",
         },
-      })
+      });
 
       // 5. Redirect to next page
-      router.push("/admin-dcmnt6027")
+      router.push("/admin-dcmnt6027");
     } catch (error) {
-      console.error("Profile submission error:", error)
+      console.error("Profile submission error:", error);
 
       toast({
         title: "Error",
-        description: error.message || "An error occurred while creating your profile.",
+        description:
+          error.message || "An error occurred while creating your profile.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 py-8 px-4">
@@ -275,7 +326,11 @@ export default function Page() {
           <Progress value={progress} className="h-2" />
         </CardHeader>
         <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
             <TabsList className="grid w-full grid-cols-3 mb-8">
               {tabs.map((tab) => (
                 <TabsTrigger
@@ -291,9 +346,10 @@ export default function Page() {
 
             <TabsContent value="personal">
               <PersonalDetails
+                key={formData.personal?.firstName || "empty"}
                 onSubmit={(data) => {
-                  updateFormData("personal", data)
-                  setActiveTab("address")
+                  updateFormData("personal", data);
+                  setActiveTab("address");
                 }}
                 initialData={formData.personal}
                 isSubmitting={false}
@@ -303,8 +359,8 @@ export default function Page() {
             <TabsContent value="address">
               <AddressDetails
                 onSubmit={(data) => {
-                  updateFormData("address", data)
-                  setActiveTab("social")
+                  updateFormData("address", data);
+                  setActiveTab("social");
                 }}
                 onBack={() => setActiveTab("personal")}
                 initialData={formData.address}
@@ -315,8 +371,8 @@ export default function Page() {
             <TabsContent value="social">
               <SocialLinks
                 onSubmit={(data) => {
-                  updateFormData("social", data)
-                  handleSubmitProfile()
+                  updateFormData("social", data);
+                  handleSubmitProfile();
                 }}
                 onBack={() => setActiveTab("address")}
                 initialData={formData.social}
@@ -327,5 +383,5 @@ export default function Page() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

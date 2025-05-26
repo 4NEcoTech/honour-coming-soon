@@ -1,15 +1,20 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { Link } from '@/i18n/routing';
-import { usePathname } from 'next/navigation';
-import React, { useState } from 'react';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { useAbility } from "@/Casl/CaslContext";
+import { Link } from "@/i18n/routing";
+// import { useAbility } from "@casl/react";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import React, { useState } from "react";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 export default function InteractiveSidebar({ menuItems, dropdownItems }) {
   const [openDropdowns, setOpenDropdowns] = useState({});
-  const pathname = usePathname();
+  const [activeMenu, setActiveMenu] = useState(null);
 
+  const pathname = usePathname();
+  const ability = useAbility(); // Assuming you have a useAbility hook to get the current ability
+  // console.log("ability", ability.can("read", "Student"));
   const toggleDropdown = (menuName) => {
     setOpenDropdowns((prevState) => ({
       ...prevState,
@@ -36,9 +41,10 @@ export default function InteractiveSidebar({ menuItems, dropdownItems }) {
 
   const renderDropdownItems = (items, level = 1) => {
     return (
-      <ul className={`mt-2 space-y-2 ${level === 1 ? 'pl-8' : 'pl-4'}`}>
+      <ul className={`mt-2 space-y-2 ${level === 1 ? "pl-8" : "pl-4"}`}>
         {items.map((item) => (
           <li key={item.name}>
+            
             <Link
               href={item.href}
               className={`flex items-center  hover:text-blue-500 dark:hover:text-blue-400 ${
@@ -49,7 +55,7 @@ export default function InteractiveSidebar({ menuItems, dropdownItems }) {
               }`}
               scroll={false}>
               <Image
-                src={item.icon || '/placeholder.svg'}
+                src={item.icon || "/placeholder.svg"}
                 alt={item.name}
                 width={24}
                 height={24}
@@ -74,11 +80,11 @@ export default function InteractiveSidebar({ menuItems, dropdownItems }) {
             className={`relative cursor-pointer text-gray-700 rounded-lg flex items-center p-2 ${
               (item.dropdown && isDropdownActive(dropdownItems[item.name])) ||
               (!item.dropdown && isActive(item.href))
-               ? "bg-gradient-to-r from-blue-500 to-green-500 text-white"
+                ? "bg-gradient-to-r from-blue-500 to-green-500 text-white"
                 : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
             }`}>
             <Image
-              src={item.icon || '/placeholder.svg'}
+              src={item.icon || "/placeholder.svg"}
               alt={item.name}
               width={24}
               height={24}
@@ -90,8 +96,8 @@ export default function InteractiveSidebar({ menuItems, dropdownItems }) {
               className={`flex-grow ${
                 (item.dropdown && isDropdownActive(dropdownItems[item.name])) ||
                 (!item.dropdown && isActive(item.href))
-                  ? 'font-semibold'
-                  : ''
+                  ? "font-semibold"
+                  : ""
               }`}>
               {item.name}
             </Link>

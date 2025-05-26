@@ -1,10 +1,12 @@
 "use client";
+import { useAbility } from "@/Casl/CaslContext";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "@/i18n/routing";
+import { CalendarClock, MailCheck, Phone } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useSession } from "next-auth/react";
 
 export default function Page() {
   // States to hold fetched data
@@ -12,16 +14,63 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { data: session, status } = useSession();
-  //  console.log(session)
+  const ability = useAbility();
+  // console.log("aman", session)
 
   const institutionId = session?.user?.individualId;
-  console.log("Fetching data for institution ID:", institutionId);
+  const companyId = session?.user?.companyId;
+
+  //  console.log("Fetching data for institution ID:", institutionId);
+
+  // useEffect(() => {
+  //   // Wait until the session is fully loaded
+  //   if (status !== "authenticated") return;
+
+  //   // Fetch institution profile data
+  //   const fetchProfileData = async () => {
+  //     try {
+  //       if (!session || !session.user) {
+  //         setError("Unauthorized: Please log in");
+  //         setLoading(false);
+  //         return;
+  //       }
+
+  //       // Get institution ID dynamically
+
+  //       if (!institutionId) {
+  //         setError("Institution ID not found");
+  //         setLoading(false);
+  //         return;
+  //       }
+
+  //       console.log("Fetching data for institution ID:", institutionId);
+
+  //       const response = await fetch(
+  //         `/api/institution/v1/hcjArET60531FetchInstitutionData/${institutionId}`
+  //       );
+
+  //       const data = await response.json();
+  //       console.log("API Response:", data);
+
+  //       if (!response.ok) {
+  //         setError(data.message || "Failed to load institution data");
+  //       } else {
+  //         setProfileData(data.data);
+  //       }
+  //     } catch (err) {
+  //       console.error("Error fetching institution data:", err);
+  //       setError("Internal Server Error");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchProfileData();
+  // }, [session, status]); // Re-run when session changes
 
   useEffect(() => {
-    // Wait until the session is fully loaded
     if (status !== "authenticated") return;
 
-    // Fetch institution profile data
     const fetchProfileData = async () => {
       try {
         if (!session || !session.user) {
@@ -30,30 +79,42 @@ export default function Page() {
           return;
         }
 
-        // Get institution ID dynamically
+        const userRole = session.user.role;
+        let apiUrl = "";
 
-        if (!institutionId) {
-          setError("Institution ID not found");
+        if (userRole === "06") {
+          const institutionId = session.user.individualId;
+          if (!institutionId) {
+            setError("Institution ID not found");
+            setLoading(false);
+            return;
+          }
+          apiUrl = `/api/institution/v1/hcjArET60531FetchInstitutionData/${institutionId}`;
+        } else if (["07", "08"].includes(userRole)) {
+          // const companyId = session.user.company_id;
+          const companyId = session?.user?.companyId;
+          if (!companyId) {
+            setError("Company ID not found");
+            setLoading(false);
+            return;
+          }
+          apiUrl = `/api/institution/v1/hcjArET60532FetchInstitutionDataForStaff/${companyId}`;
+        } else {
+          setError("Invalid user role");
           setLoading(false);
           return;
         }
 
-        console.log("Fetching data for institution ID:", institutionId);
-
-        const response = await fetch(
-          `/api/institution/v1/hcjArET60531FetchInstitutionData/${institutionId}`
-        );
-
+        const response = await fetch(apiUrl);
         const data = await response.json();
-        console.log("API Response:", data);
 
         if (!response.ok) {
-          setError(data.message || "Failed to load institution data");
+          setError(data.message || "Failed to load data");
         } else {
           setProfileData(data.data);
         }
       } catch (err) {
-        console.error("Error fetching institution data:", err);
+        console.error("Error fetching data:", err);
         setError("Internal Server Error");
       } finally {
         setLoading(false);
@@ -61,7 +122,7 @@ export default function Page() {
     };
 
     fetchProfileData();
-  }, [session, status]); // Re-run when session changes
+  }, [session, status]);
 
   // Wait for authentication state to load
   if (status === "loading") {
@@ -132,7 +193,9 @@ export default function Page() {
         <div className="relative h-52 bg-gray-200">
           {companyDetails?.CD_Company_Cover_Profile ? (
             <Image
-              src={companyDetails.CD_Company_Cover_Profile}
+              src={
+                companyDetails.CD_Company_Cover_Profile || "/image/cover.png"
+              }
               alt="Cover Photo"
               layout="fill"
               objectFit="cover"
@@ -145,10 +208,7 @@ export default function Page() {
       <div className="container mx-auto flex flex-col sm:flex-row items-start md:items-start justify-between mb-5 sm:px-16">
         <div className="flex flex-col items-center sm:items-start">
           <Image
-            src={
-              companyDetails?.CD_Company_Logo ||
-              "/image/institutndashboard/dashpage/myprofile/inslogo.svg"
-            }
+            src={companyDetails?.CD_Company_Logo || "/image/profile.png"}
             alt="Profile Photo"
             width={100}
             height={100}
@@ -162,20 +222,45 @@ export default function Page() {
         </div>
 
         <div className="flex gap-2">
-          <Link href={`/institution/${institutionId}`}>
+          {/* <Link href={`/institution/${institutionId}`}>
+            <Button className="w-32 px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 hover:text-white">
+              Preview
+            </Button>
+          </Link> */}
+          <Link href={`/institution/${companyId}`}>
             <Button className="w-32 px-6 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 hover:text-white">
               Preview
             </Button>
           </Link>
-          <Link href="/institutn-dshbrd6051/institutn-prfl-edit6062">
-            <Button className="w-32 px-6 py-2 bg-primary text-white rounded-md">
+          {ability.can("update", "Institution") ? (
+            <Link href="/institutn-dshbrd6051/institutn-prfl-edit6062">
+              <Button className="w-32 px-6 py-2 bg-primary text-white rounded-md">
+                Edit
+              </Button>
+            </Link>
+          ) : (
+            <Button
+              disabled
+              className="w-32 px-6 py-2 bg-primary text-white rounded-md">
               Edit
             </Button>
-          </Link>
+          )}
         </div>
       </div>
       {/* Details Section */}
       <div className="container mx-auto px-5 sm:px-16">
+        {/** Establishment Year */}
+        <div className="flex items-center">
+          <CalendarClock className="w-5 h-5 mr-2 text-primary" />
+          <h4 className="text-lg font-semibold">Establishment Year</h4>
+        </div>
+        <div className="flex items-center mb-3">
+          <p>
+            {companyDetails?.CD_Company_Establishment_Year ||
+              "Add your company's establishment year here.."}
+          </p>
+        </div>
+
         {/* About */}
         <div className="flex items-center">
           <Image
@@ -193,6 +278,7 @@ export default function Page() {
               "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."}
           </p>
         </div>
+
         {/* Location */}
         <div className="flex items-center mb-3">
           <Image
@@ -213,18 +299,6 @@ export default function Page() {
                 } - ${companyAddress.CAD_Pincode}`
               : "Address not available"}
           </span>
-        </div>
-
-        {/* Position */}
-        <div className="flex items-center mb-3">
-          <Image
-            src="/image/institutndashboard/dashpage/myprofile/student.svg"
-            alt="Position"
-            width={24}
-            height={24}
-            className="mr-2"
-          />
-          <span>600+ Students</span>
         </div>
 
         {/* Institution */}
@@ -259,7 +333,7 @@ export default function Page() {
         </div>
         <div className="flex items-center mb-3">
           <p>
-            {companyDetails?.CD_Company_About ||
+            {companyDetails?.CD_Company_Mission ||
               "Our mission is to foster innovation and excellence in education, preparing students for a future of success and leadership."}
           </p>
         </div>
@@ -304,26 +378,23 @@ export default function Page() {
         <div className="mb-3">
           <div className="flex items-center mb-3">
             <Image
-              src="/image/institutndashboard/dashpage/myprofile/www.svg"
-              alt="Website"
-              width={24}
-              height={24}
-              className="mr-2"
-            />
-            <span>
-              {companyDetails?.CD_Company_Website || "www.website.com"}
-            </span>
-          </div>
-          <div className="flex items-center mb-3">
-            <Image
               src="/image/institutndashboard/dashpage/myprofile/phone.svg"
               alt="Phone"
               width={24}
               height={24}
               className="mr-2"
             />
-            <span>{companyDetails?.CD_Phone_Number || "8861597163"}</span>
+            <span>{companyDetails?.CD_Phone_Number || "+91xxxxxxxxx"}</span>
           </div>
+
+          <div className="flex items-center mb-3">
+            <Phone className="w-5 h-5 mr-2 text-primary" />
+            <span className="text-gray-500 mr-1">Alternate:</span>
+            <span>
+              {companyDetails?.CD_Alternate_Phone_Number || "+91xxxxxxxxx"}
+            </span>
+          </div>
+
           <div className="flex items-center mb-3">
             <Image
               src="/image/institutndashboard/dashpage/myprofile/email.svg"
@@ -332,8 +403,14 @@ export default function Page() {
               height={24}
               className="mr-2"
             />
+            <span>{companyDetails?.CD_Company_Email || "xyz@gmail.com"}</span>
+          </div>
+
+          <div className="flex items-center mb-3">
+            <MailCheck className="w-5 h-5 mr-2 text-primary" />
+            <span className="text-gray-500 mr-1">Alternate:</span>
             <span>
-              {companyDetails?.CD_Company_Email || "jayakumar@gmail.com"}
+              {companyDetails?.CD_Company_Alternate_Email || "xyz@gmail.com"}
             </span>
           </div>
         </div>
@@ -352,13 +429,11 @@ export default function Page() {
           </div>
 
           <div className="flex gap-2">
-            {/* Website */}
             {companyDetails?.CD_Company_Website && (
               <a
                 href={companyDetails.CD_Company_Website}
                 target="_blank"
-                rel="noopener noreferrer"
-              >
+                rel="noopener noreferrer">
                 <Image
                   src="/image/institutndashboard/dashpage/myprofile/www.svg"
                   alt="Website"
@@ -374,8 +449,7 @@ export default function Page() {
               <a
                 href={socialLinks.SL_LinkedIn_Profile}
                 target="_blank"
-                rel="noopener noreferrer"
-              >
+                rel="noopener noreferrer">
                 <Image
                   src="/image/institutndashboard/dashpage/myprofile/linkedin.svg"
                   alt="LinkedIn"
@@ -391,8 +465,7 @@ export default function Page() {
               <a
                 href={socialLinks.SL_Facebook_Url}
                 target="_blank"
-                rel="noopener noreferrer"
-              >
+                rel="noopener noreferrer">
                 <Image
                   src="/image/institutndashboard/dashpage/myprofile/fb.svg"
                   alt="Facebook"
@@ -408,8 +481,7 @@ export default function Page() {
               <a
                 href={socialLinks.SL_Instagram_Url}
                 target="_blank"
-                rel="noopener noreferrer"
-              >
+                rel="noopener noreferrer">
                 <Image
                   src="/image/institutndashboard/dashpage/myprofile/ig.svg"
                   alt="Instagram"
@@ -425,8 +497,7 @@ export default function Page() {
               <a
                 href={socialLinks.SL_Portfolio_Url}
                 target="_blank"
-                rel="noopener noreferrer"
-              >
+                rel="noopener noreferrer">
                 <Image
                   src="/image/institutndashboard/dashpage/myprofile/four.svg"
                   alt="Portfolio"

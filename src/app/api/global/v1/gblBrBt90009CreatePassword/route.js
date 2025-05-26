@@ -1,5 +1,6 @@
 import User from "@/app/models/user_table";
 import { dbConnect } from "@/app/utils/dbConnect";
+import { getTranslator } from "@/i18n/server";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
@@ -113,26 +114,23 @@ import { NextResponse } from "next/server";
  */
 
 // Helper function to validate password
-function validateInput(data) {
+function validateInput(data, t) {
   const errors = {};
 
   if (!data.password || data.password.length < 12) {
-    errors.password = "6023_1 Password must be at least 12 characters.";
+    errors.password = t(`formErrors.6023_1`);
   } else {
     if (!/[A-Z]/.test(data.password)) {
-      errors.password =
-        "6023_2 Password must contain at least one uppercase letter.";
+      errors.password = t(`formErrors.6023_2`);
     }
     if (!/[a-z]/.test(data.password)) {
-      errors.password =
-        "6023_3 Password must contain at least one lowercase letter.";
+      errors.password = t(`formErrors.6023_3`);
     }
     if (!/\d/.test(data.password)) {
-      errors.password = "6023_4 Password must contain at least one number.";
+      errors.password = t(`formErrors.6023_4`);
     }
     if (!/[@$!%*?&]/.test(data.password)) {
-      errors.password =
-        "6023_5 Password must contain at least one special character.";
+      errors.password = t(`formErrors.6023_5`);
     }
   }
 
@@ -145,11 +143,13 @@ function validateInput(data) {
 
 // API route handler
 export async function POST(req) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   try {
     const body = await req.json();
 
     // Validate input
-    const errors = validateInput(body);
+    const errors = validateInput(body, t);
     if (Object.keys(errors).length > 0) {
       return NextResponse.json({ errors }, { status: 400 });
     }
@@ -162,8 +162,8 @@ export async function POST(req) {
       return NextResponse.json(
         {
           code: "6023_8",
-          title: "User details missing",
-          message: "User email or role not found in cookies.",
+          title: t(`errorCode.6023_8.title`),
+          message: t(`errorCode.6023_8.description`),
         },
         { status: 400 }
       );
@@ -172,7 +172,6 @@ export async function POST(req) {
     await dbConnect();
 
     const storedRole = userRole.value.toString(); // Ensure role is a string
-
 
     // Find user using email & role
     const existingUser = await User.findOne({
@@ -184,8 +183,8 @@ export async function POST(req) {
       return NextResponse.json(
         {
           code: "6023_9",
-          title: "User not found",
-          message: "Please register first.",
+          title: t(`errorCode.6023_9.title`),
+          message: t(`errorCode.6023_9.description`),
         },
         { status: 404 }
       );
@@ -216,8 +215,8 @@ export async function POST(req) {
     const response = NextResponse.json(
       {
         code: "6023_10",
-        title: "Password created successfully!",
-        message: "Password created successfully!",
+        title: t(`errorCode.6023_10.title`),
+        message: t(`errorCode.6023_10.description`),
         token,
         email: existingUser.UT_Email,
         role: storedRole, // This role will be used for role-based redirection on the client
@@ -264,8 +263,8 @@ export async function POST(req) {
     return NextResponse.json(
       {
         code: "6023_11",
-        title: "Internal Server Error",
-        message: error.message,
+        title: t(`errorCode.6023_11.title`),
+        message: t(`errorCode.6023_11.description`, { message: error.message }),
       },
       { status: 500 }
     );

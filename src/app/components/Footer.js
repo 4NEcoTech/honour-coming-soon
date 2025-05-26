@@ -56,7 +56,7 @@ export default function Footer() {
   // ];
 
   const companyLinks = [
-    { name: "About us", href: `/#about` },
+    { name: "About us", href: `/about6016` },
     { name: "Achiever's Central", href: `/achvr-cntrl6007` },
     { name: "How it works", href: `/hwit-wrks6004` },
     { name: "Contact us", href: `/cntct6011` },
@@ -114,7 +114,7 @@ export default function Footer() {
 
           {/* Dark Mode Logo */}
           <Image
-            src="/image/logo/darkfooterlogo.png" // Your dark mode logo
+            src="/image/logo/darkheaderlogo.png" // Your dark mode logo
             alt="HCJ Footer Logo Dark"
             width={100}
             height={40}

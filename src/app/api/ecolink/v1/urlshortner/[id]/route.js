@@ -4,6 +4,75 @@ import EcoLink from "@/app/models/ecl_ecolink";
 import SocialLink from '@/app/models/social_link';
 import mongoose from "mongoose";
 
+/**
+ * @swagger
+ * /api/ecolink/v1/urlshortner/{id}:
+ *   get:
+ *     summary: Get public profile data of an individual
+ *     description: >
+ *       Fetches public profile data of a user using one of the following identifiers:  
+ *       - MongoDB `_id`  
+ *       - `ID_User_Id`  
+ *       - Email address (case-insensitive)  
+ *       
+ *       Combines data from:
+ *       - `individual_details`
+ *       - `ecl_ecolink`
+ *       - `social_link`
+ *       
+ *       Fails with `404` if the individual or their EcoLink is not found.
+ *     tags:
+ *       - Get Admin Ecolink For Mobile Application
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: MongoDB `_id`, `ID_User_Id`, or email address of the user
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Public profile data retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   description: Merged object from individual_details, ecl_ecolink, and social_link
+ *       404:
+ *         description: Individual or EcoLink not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                 error:
+ *                   type: string
+ */
+
+
 export async function GET(request, context) {
   try {
     await dbConnect();

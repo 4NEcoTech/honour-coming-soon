@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { AdminSocialPlatformsSchema } from '@/app/validation/adminSchema';
-import { Button } from '@/components/ui/button';
+import { adminSchema } from "@/app/validation/adminSchema";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -9,16 +9,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { zodResolver } from '@hookform/resolvers/zod';
+} from "@/components/ui/select";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ChevronLeft,
   Facebook,
@@ -31,71 +31,67 @@ import {
   Twitter,
   User,
   X,
-} from 'lucide-react';
-import * as React from 'react';
-import { useForm } from 'react-hook-form';
-
-// const socialSchema = z.object({
-//   platform: z.string().min(1, 'Platform is required'),
-//   url: z.string().url('Please enter a valid URL'),
-// });
+} from "lucide-react";
+import { useTranslations } from "next-intl";
+import * as React from "react";
+import { useForm } from "react-hook-form";
 
 const socialPlatforms = [
   {
-    value: 'linkedin',
-    label: 'LinkedIn URL',
+    value: "linkedin",
+    label: "LinkedIn URL",
     icon: <Linkedin className="h-5 w-5 text-blue-600" />,
-    placeholder: 'https://linkedin.com/in/username',
-    apiField: 'SL_LinkedIn_Profile',
+    placeholder: "https://linkedin.com/in/username",
+    apiField: "SL_LinkedIn_Profile",
   },
   {
-    value: 'website',
-    label: 'Website URL',
+    value: "website",
+    label: "Website URL",
     icon: <Globe className="h-5 w-5 text-blue-500" />,
-    placeholder: 'https://example.com',
-    apiField: 'SL_Website_Url',
+    placeholder: "https://example.com",
+    apiField: "SL_Website_Url",
   },
   {
-    value: 'instagram',
-    label: 'Instagram URL',
+    value: "instagram",
+    label: "Instagram URL",
     icon: <Instagram className="h-5 w-5 text-pink-600" />,
-    placeholder: 'https://instagram.com/username',
-    apiField: 'SL_Instagram_Url',
+    placeholder: "https://instagram.com/username",
+    apiField: "SL_Instagram_Url",
   },
   {
-    value: 'facebook',
-    label: 'Facebook URL',
+    value: "facebook",
+    label: "Facebook URL",
     icon: <Facebook className="h-5 w-5 text-blue-700" />,
-    placeholder: 'https://facebook.com/username',
-    apiField: 'SL_Facebook_Url',
+    placeholder: "https://facebook.com/username",
+    apiField: "SL_Facebook_Url",
   },
   {
-    value: 'twitter',
-    label: 'Twitter URL',
+    value: "twitter",
+    label: "Twitter URL",
     icon: <Twitter className="h-5 w-5 text-blue-400" />,
-    placeholder: 'https://twitter.com/username',
-    apiField: 'SL_Twitter_Url',
+    placeholder: "https://twitter.com/username",
+    apiField: "SL_Twitter_Url",
   },
   {
-    value: 'pinterest',
-    label: 'Pinterest URL',
+    value: "pinterest",
+    label: "Pinterest URL",
     icon: <Link className="h-5 w-5 text-red-600" />,
-    placeholder: 'https://pinterest.com/username',
-    apiField: 'SL_Pinterest_Url',
+    placeholder: "https://pinterest.com/username",
+    apiField: "SL_Pinterest_Url",
   },
   {
-    value: 'custom',
-    label: 'Custom URL',
+    value: "custom",
+    label: "Custom URL",
     icon: <Link className="h-5 w-5 text-purple-600" />,
-    placeholder: 'https://example.com/custom',
-    apiField: 'SL_Custom_Url',
+    placeholder: "https://example.com/custom",
+    apiField: "SL_Custom_Url",
   },
   {
-    value: 'portfolio',
-    label: 'Portfolio URL',
+    value: "portfolio",
+    label: "Portfolio URL",
     icon: <User className="h-5 w-5 text-gray-600" />,
-    placeholder: 'https://example.com/portfolio',
-    apiField: 'SL_Portfolio_Url',
+    placeholder: "https://example.com/portfolio",
+    apiField: "SL_Portfolio_Url",
   },
 ];
 
@@ -106,12 +102,18 @@ export default function SocialLinks({
   onBack,
 }) {
   const [profiles, setProfiles] = React.useState(initialData?.profiles || []);
-
+  const t = useTranslations("formErrors");
+  const Schema = adminSchema(t);
   const form = useForm({
-    resolver: zodResolver(AdminSocialPlatformsSchema),
+    resolver: zodResolver(
+      Schema.pick({
+        platform: true,
+        url: true,
+      })
+    ),
     defaultValues: {
-      platform: '',
-      url: '',
+      platform: "",
+      url: "",
     },
   });
 
@@ -128,15 +130,6 @@ export default function SocialLinks({
     newProfiles.splice(index, 1);
     setProfiles(newProfiles);
   };
-
-  // console.log('profiles', profiles);
-
-  //   const profileObject = profiles.reduce((acc, item) => {
-  //     acc[item.platform] = item.url; // Set key as platform, value as URL
-  //     return acc;
-  //   }, {});
-  // console.log("profileObject", profileObject);
-  console.log('profiles', profiles);
   const handleSubmit = () => {
     const updatedProfiles = profiles || [];
     if (initialData) {
@@ -198,11 +191,11 @@ export default function SocialLinks({
                       <Input
                         {...field}
                         placeholder={
-                          form.watch('platform')
+                          form.watch("platform")
                             ? socialPlatforms.find(
-                                (p) => p.value === form.watch('platform')
+                                (p) => p.value === form.watch("platform")
                               )?.placeholder
-                            : 'Paste your social profile URL'
+                            : "Paste your social profile URL"
                         }
                         className="w-full rounded-md border-gray-300 focus:border-blue-400 focus:ring-blue-400"
                       />
@@ -218,7 +211,7 @@ export default function SocialLinks({
             type="button"
             onClick={handleAddProfile}
             className="w-full text-white flex items-center justify-center gap-2"
-            disabled={!form.watch('platform') || !form.watch('url')}>
+            disabled={!form.watch("platform") || !form.watch("url")}>
             <PlusCircle className="h-4 w-4" /> Add Profile
           </Button>
         </form>
@@ -268,13 +261,9 @@ export default function SocialLinks({
           className="flex items-center justify-center gap-1 text-white"
           onClick={handleSubmit}
           disabled={isSubmitting}>
+          {isSubmitting && <Loader2 className="animate-spin" />}
 
-            {isSubmitting && (
-              <Loader2 className="animate-spin" />
-            )}
-
-
-          {isSubmitting ? 'Submitting...' : 'Complete Profile'}
+          {isSubmitting ? "Submitting..." : "Complete Profile"}
         </Button>
       </div>
     </div>

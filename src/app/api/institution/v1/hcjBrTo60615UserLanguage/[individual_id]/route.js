@@ -1,7 +1,8 @@
-import { getServerSession } from "next-auth";
 import JobSeekerLanguages from "@/app/models/hcj_job_seeker_languages";
-import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/utils/dbConnect";
+import { getTranslator } from "@/i18n/server";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
 /**
  * @swagger
@@ -79,13 +80,20 @@ import { dbConnect } from "@/app/utils/dbConnect";
  */
 
 export async function POST(req, { params }) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   try {
     await dbConnect();
     const { individual_id } = await params;
 
     if (!individual_id) {
       return NextResponse.json(
-        { success: false, message: "Individual ID is required" },
+        {
+          success: false,
+          code: "6061_30",
+          title: t("errorCode.6061_30.title"),
+          message: t("errorCode.6061_30.description"),
+        },
         { status: 400 }
       );
     }
@@ -93,7 +101,13 @@ export async function POST(req, { params }) {
     const session = await getServerSession(req);
     if (!session || !session.user) {
       return NextResponse.json(
-        { success: false, message: "Unauthorized access" },
+        {
+          success: false,
+          code: "6061_31",
+          title: t("errorCode.6061_31.title"),
+          message: t("errorCode.6061_31.description"),
+          message: "Unauthorized access",
+        },
         { status: 401 }
       );
     }
@@ -103,12 +117,23 @@ export async function POST(req, { params }) {
       HCJ_JSL_Id,
       HCJ_JSL_Language,
       HCJ_JSL_Language_Proficiency_Level,
-      HCJ_JSL_Language_Proficiency
+      HCJ_JSL_Language_Proficiency,
     } = await req.json();
 
-    if (!HCJ_JSL_Source || !HCJ_JSL_Id || !HCJ_JSL_Language || !HCJ_JSL_Language_Proficiency_Level || !HCJ_JSL_Language_Proficiency) {
+    if (
+      !HCJ_JSL_Source ||
+      !HCJ_JSL_Id ||
+      !HCJ_JSL_Language ||
+      !HCJ_JSL_Language_Proficiency_Level ||
+      !HCJ_JSL_Language_Proficiency
+    ) {
       return NextResponse.json(
-        { success: false, message: "All language fields are required" },
+        {
+          success: false,
+          code: "6061_32",
+          title: t("errorCode.6061_32.title"),
+          message: t("errorCode.6061_32.description"),
+        },
         { status: 400 }
       );
     }
@@ -118,32 +143,50 @@ export async function POST(req, { params }) {
       HCJ_JSL_Id,
       HCJ_JSL_Language,
       HCJ_JSL_Language_Proficiency_Level,
-      HCJ_JSL_Language_Proficiency
+      HCJ_JSL_Language_Proficiency,
     });
 
     await newLanguage.save();
 
     return NextResponse.json(
-      { success: true, message: "User language added successfully", data: newLanguage },
+      {
+        success: true,
+        code: "6061_33",
+        title: t("errorCode.6061_33.title"),
+        message: t("errorCode.6061_33.description"),
+        data: newLanguage,
+      },
       { status: 201 }
     );
   } catch (error) {
     console.error("Error adding user language:", error);
     return NextResponse.json(
-      { success: false, message: "Internal Server Error" },
+      {
+        success: false,
+        code: "6061_34",
+        title: t("errorCode.6061_34.title"),
+        message: t(`errorCode.6061_34.description`, { message: error.message }),
+      },
       { status: 500 }
     );
   }
 }
 
 export async function GET(req, { params }) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   try {
     await dbConnect();
     const { individual_id } = await params;
 
     if (!individual_id) {
       return NextResponse.json(
-        { success: false, message: "Individual ID is required" },
+        {
+          success: false,
+          code: "6061_35",
+          title: t("errorCode.6061_35.title"),
+          message: t("errorCode.6061_35.description"),
+        },
         { status: 400 }
       );
     }
@@ -151,7 +194,12 @@ export async function GET(req, { params }) {
     const session = await getServerSession(req);
     if (!session || !session.user) {
       return NextResponse.json(
-        { success: false, message: "Unauthorized access" },
+        {
+          success: false,
+          code: "6061_36",
+          title: t("errorCode.6061_36.title"),
+          message: t("errorCode.6061_36.description"),
+        },
         { status: 401 }
       );
     }
@@ -162,19 +210,35 @@ export async function GET(req, { params }) {
 
     if (!userLanguages || userLanguages.length === 0) {
       return NextResponse.json(
-        { success: false, message: "No languages found for the user" },
+        {
+          success: false,
+          code: "6061_37",
+          title: t("errorCode.6061_37.title"),
+          message: t("errorCode.6061_37.description"),
+        },
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      { success: true, message: "User languages retrieved successfully", data: userLanguages },
+      {
+        success: true,
+        code: "6061_38",
+        title: t("errorCode.6061_38.title"),
+        message: t("errorCode.6061_38.description"),
+        data: userLanguages,
+      },
       { status: 200 }
     );
   } catch (error) {
     console.error("Error fetching user languages:", error);
     return NextResponse.json(
-      { success: false, message: "Internal Server Error" },
+      {
+        success: false,
+        code: "6061_39",
+        title: t("errorCode.6061_39.title"),
+        message: t(`errorCode.6061_39.description`, { message: error.message }),
+      },
       { status: 500 }
     );
   }

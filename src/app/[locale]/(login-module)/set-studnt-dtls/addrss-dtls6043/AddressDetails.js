@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { StudentAddressSchema } from '@/app/validation/studentSchema';
-import { Button } from '@/components/ui/button';
+import studentSchema from "@/app/validation/studentSchema";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -9,8 +9,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -18,43 +18,54 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { toast } from '@/hooks/use-toast';
-import { zodResolver } from '@hookform/resolvers/zod';
-import React from 'react';
-import { useForm } from 'react-hook-form';
-
+} from "@/components/ui/select";
+import { toast } from "@/hooks/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
+import React from "react";
+import { useForm } from "react-hook-form";
 
 export default function AddressDetails({
   initialData,
   isSubmitting,
   onSubmit,
 }) {
+  const t = useTranslations("formErrors");
+  const Schema = studentSchema(t);
   const form = useForm({
-    resolver: zodResolver(StudentAddressSchema),
+    resolver: zodResolver(
+      Schema.pick({
+        HCJ_ST_Student_Country: true,
+        HCJ_ST_Student_City: true,
+        HCJ_ST_Student_Pincode: true,
+        HCJ_ST_Student_State: true,
+        HCJ_ST_Address: true,
+      })
+    ),
+    mode: "onChange",
     defaultValues: {
-      HCJ_ST_Student_Country: '',
-      HCJ_ST_Student_Pincode: '',
-      HCJ_ST_Student_State: '',
-      HCJ_ST_Student_City: '',
-      HCJ_ST_Address: '',
+      HCJ_ST_Student_Country: "",
+      HCJ_ST_Student_Pincode: "",
+      HCJ_ST_Student_State: "",
+      HCJ_ST_Student_City: "",
+      HCJ_ST_Address: "",
     },
   });
 
   // ✅ Mapping Function for Initial Data
   const mapToFormFields = (data) => ({
-    HCJ_ST_Student_Country: data.HCJ_ST_Student_Country || '',
-    HCJ_ST_Student_Pincode: data.HCJ_ST_Student_Pincode || '',
-    HCJ_ST_Student_State: data.HCJ_ST_Student_State || '',
-    HCJ_ST_Student_City: data.HCJ_ST_Student_City || '',
-    HCJ_ST_Address: data.HCJ_ST_Address || '',
+    HCJ_ST_Student_Country: data.HCJ_ST_Student_Country || "",
+    HCJ_ST_Student_Pincode: data.HCJ_ST_Student_Pincode || "",
+    HCJ_ST_Student_State: data.HCJ_ST_Student_State || "",
+    HCJ_ST_Student_City: data.HCJ_ST_Student_City || "",
+    HCJ_ST_Address: data.HCJ_ST_Address || "",
   });
 
   React.useEffect(() => {
     if (initialData && Object.keys(initialData).length > 0) {
       const mappedData = mapToFormFields(initialData);
 
-      console.log('initialData', initialData);
+      console.log("initialData", initialData);
       form.reset(mappedData); // ✅ Reset with mapped data
     }
   }, [initialData, form]);
@@ -66,23 +77,22 @@ export default function AddressDetails({
       );
       const data = await response.json();
       if (data?.data?.state && data?.data?.city) {
-        form.setValue('HCJ_ST_Student_State', data?.data?.state, {
+        form.setValue("HCJ_ST_Student_State", data?.data?.state, {
           shouldValidate: true,
         });
-        form.setValue('HCJ_ST_Student_City', data?.data?.city, {
+        form.setValue("HCJ_ST_Student_City", data?.data?.city, {
           shouldValidate: true,
         });
       } else {
-        throw new Error('Invalid pincode');
+        throw new Error("Invalid pincode");
       }
     } catch (err) {
-      form.setValue('HCJ_ST_Student_State', '');
-      form.setValue('HCJ_ST_Student_City', '');
+      form.setValue("HCJ_ST_Student_State", "");
+      form.setValue("HCJ_ST_Student_City", "");
       toast({
-        title: 'Error',
-        description:
-          'Failed to fetch address details. Please check the pincode.',
-        variant: 'destructive',
+        title: err.title,
+        description: err.message,
+        variant: "destructive",
       });
     }
   };
@@ -99,7 +109,7 @@ export default function AddressDetails({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((data) => onSubmit('address', data))}
+        onSubmit={form.handleSubmit((data) => onSubmit("address", data))}
         className="space-y-6">
         <FormField
           control={form.control}
@@ -129,7 +139,10 @@ export default function AddressDetails({
           name="HCJ_ST_Student_Pincode"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-primary"> Pincode <span className="text-destructive">*</span></FormLabel>
+              <FormLabel className="text-primary">
+                {" "}
+                Pincode <span className="text-destructive">*</span>
+              </FormLabel>
               <FormControl>
                 <Input
                   {...field}
@@ -150,7 +163,9 @@ export default function AddressDetails({
           name="HCJ_ST_Student_State"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel className="text-primary">State <span className="text-destructive">*</span></FormLabel>
+              <FormLabel className="text-primary">
+                State <span className="text-destructive">*</span>
+              </FormLabel>
               {Array.isArray(field.value) ? (
                 // Show Dropdown when state is an array
                 <Select onValueChange={field.onChange} value={field.value}>
@@ -182,7 +197,9 @@ export default function AddressDetails({
           name="HCJ_ST_Student_City"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-primary">City <span className="text-destructive">*</span></FormLabel>
+              <FormLabel className="text-primary">
+                City <span className="text-destructive">*</span>
+              </FormLabel>
               <FormControl>
                 <Input
                   {...field}
@@ -199,7 +216,9 @@ export default function AddressDetails({
           name="HCJ_ST_Address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-primary">Address <span className="text-destructive">*</span></FormLabel>
+              <FormLabel className="text-primary">
+                Address <span className="text-destructive">*</span>
+              </FormLabel>
               <FormControl>
                 <Input {...field} placeholder="Enter Your address" />
               </FormControl>
@@ -209,7 +228,7 @@ export default function AddressDetails({
         />
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? 'Submitting...' : 'Next'}
+          {isSubmitting ? "Submitting..." : "Next"}
         </Button>
       </form>
     </Form>

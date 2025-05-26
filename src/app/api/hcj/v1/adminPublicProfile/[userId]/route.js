@@ -3,14 +3,16 @@ import User from "@/app/models/user_table";
 import IndividualDetails from "@/app/models/individual_details";
 import IndividualAddress from "@/app/models/individual_address_detail";
 import SocialLinks from "@/app/models/social_link";
+import IndividualVisibility from "@/app/models/individual_info_visibility"; // New import
 import { dbConnect } from "@/app/utils/dbConnect";
+import JobSeekerLanguages from "@/app/models/hcj_job_seeker_languages"; // adjust path if needed
 
 /**
  * @swagger
  * /api/hcj/v1/adminPublicProfile/{userId}:
  *   get:
  *     summary: Get Admin Public Profile
- *     description: Fetches public details of an admin user including individual details, address, and social links.
+ *     description: Fetches public details of an admin user including individual details, address, social links, and visibility settings.
  *     tags: [Admin Public Profile]
  *     parameters:
  *       - in: path
@@ -22,26 +24,6 @@ import { dbConnect } from "@/app/utils/dbConnect";
  *     responses:
  *       200:
  *         description: Admin public profile retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 message:
- *                   type: string
- *                 data:
- *                   type: object
- *                   properties:
- *                     user:
- *                       type: object
- *                     individualDetails:
- *                       type: object
- *                     address:
- *                       type: object
- *                     socialLinks:
- *                       type: object
  *       400:
  *         description: User ID is required
  *       404:
@@ -53,29 +35,28 @@ import { dbConnect } from "@/app/utils/dbConnect";
 export async function GET(req, { params }) {
   try {
     await dbConnect();
-    const userId = await params?.userId;
+    const userId = params?.userId;
 
     if (!userId) {
       return NextResponse.json({ success: false, message: "User ID is required" }, { status: 400 });
     }
 
-    // Fetch User Profile Data
     const user = await User.findById(userId).lean();
     if (!user) {
       return NextResponse.json({ success: false, message: "User not found" }, { status: 404 });
     }
 
-    // Fetch Individual Details
     const individualDetails = await IndividualDetails.findOne({ ID_User_Id: user._id }).lean();
-
     if (!individualDetails) {
       return NextResponse.json({ success: false, message: "Individual details not found" }, { status: 404 });
     }
 
-    // Fetch Related Data Concurrently
-    const [address, socialLinks] = await Promise.all([
+    // Fetch address, social links, and visibility settings in parallel 
+    const [address, socialLinks, visibilitySettings, languages] = await Promise.all([
       IndividualAddress.findOne({ IAD_Individual_Id: individualDetails._id }).lean(),
       SocialLinks.findOne({ SL_Id: individualDetails._id }).lean(),
+      IndividualVisibility.findOne({ IIV_Individual_Id: individualDetails._id }).lean(),
+      JobSeekerLanguages.find({ HCJ_JSL_Id: individualDetails._id }).lean(),
     ]);
 
     return NextResponse.json({
@@ -86,6 +67,8 @@ export async function GET(req, { params }) {
         individualDetails,
         address: address || null,
         socialLinks: socialLinks || null,
+        visibility: visibilitySettings || null, //  Send visibility also
+        languages: languages || [],
       },
     });
   } catch (error) {

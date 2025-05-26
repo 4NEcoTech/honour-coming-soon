@@ -1,15 +1,16 @@
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import mongoose from 'mongoose';
-import User from '@/app/models/user_table';
-import IndividualDetails from '@/app/models/individual_details';
-import AddressDetails from '@/app/models/individual_address_detail';
-import SocialProfile from '@/app/models/social_link';
-import EcoLink from '@/app/models/ecl_ecolink';
-import IndividualDesignation from '@/app/models/ecl_individual_details'; // Import the designation model
-import { cookies } from 'next/headers';
-import { dbConnect } from '@/app/utils/dbConnect';
-import { queueEcoLinkCreation } from '@/app/utils/admin-queue';
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import IndividualDesignation from "@/app/models/ecl_individual_details"; // Import the designation model
+import AddressDetails from "@/app/models/individual_address_detail";
+import IndividualDetails from "@/app/models/individual_details";
+import IndividualVisibility from "@/app/models/individual_info_visibility";
+import SocialProfile from "@/app/models/social_link";
+import User from "@/app/models/user_table";
+import { queueEcoLinkCreation } from "@/app/utils/admin-queue";
+import { dbConnect } from "@/app/utils/dbConnect";
+import { getTranslator } from "@/i18n/server";
+import mongoose from "mongoose";
+import { getServerSession } from "next-auth";
+import { cookies } from "next/headers";
 
 /**
  * @swagger
@@ -17,7 +18,7 @@ import { queueEcoLinkCreation } from '@/app/utils/admin-queue';
  *   post:
  *     summary: Create Admin/User Profile
  *     description: |
- *       Creates a full user profile (Admin or general user) with individual details, address, social links, and current designation. 
+ *       Creates a full user profile (Admin or general user) with individual details, address, social links, and current designation.
  *       Also sets a cookie for `individual_id` and queues EcoLink creation in the background.
  *     tags: [Admin/User Profile and EcoLink Creation]
  *     requestBody:
@@ -124,8 +125,9 @@ import { queueEcoLinkCreation } from '@/app/utils/admin-queue';
  *         description: Internal server error
  */
 
-
 export async function POST(req) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   try {
     const startTime = Date.now();
     await dbConnect();
@@ -136,7 +138,12 @@ export async function POST(req) {
 
     if (!sessionId) {
       return new Response(
-        JSON.stringify({ success: false, message: 'Unauthorized' }), 
+        JSON.stringify({
+          code: "6024_16",
+          success: false,
+          title: t(`errorCode.6024_16.title`),
+          message: t(`errorCode.6024_16.description`),
+        }),
         { status: 401 }
       );
     }
@@ -144,7 +151,12 @@ export async function POST(req) {
     const user = await User.findById(sessionId);
     if (!user) {
       return new Response(
-        JSON.stringify({ success: false, message: 'User not found' }), 
+        JSON.stringify({
+          success: false,
+          code: "6024_17",
+          title: t(`errorCode.6024_17.title`),
+          message: t(`errorCode.6024_17.description`),
+        }),
         { status: 404 }
       );
     }
@@ -160,7 +172,9 @@ export async function POST(req) {
         ID_First_Name: body.ID_First_Name,
         ID_Last_Name: body.ID_Last_Name,
         ID_Phone: body.ID_Phone,
+        ID_Alternate_Phone: body.ID_Alternate_Phone,
         ID_Email: body.ID_Email,
+        ID_Alternate_Email: body.ID_Alternate_Email,
         ID_DOB: body.ID_DOB,
         ID_Gender: body.ID_Gender,
         ID_Individual_Role: user.UT_User_Role,
@@ -176,9 +190,9 @@ export async function POST(req) {
       // Create designation record in ECL_INDIVIDUAL_DTLS
       const designationRecord = new IndividualDesignation({
         ECL_EID_Individual_Id: savedIndividualDetails._id,
-        ECL_EID_Current_Designation: body.ID_Individual_Designation || '',
+        ECL_EID_Current_Designation: body.ID_Individual_Designation || "",
         ECL_EID_Session_Id: Date.now(),
-        ECL_EID_Audit_Trail: 'Profile created via API'
+        ECL_EID_Audit_Trail: "Profile created via API",
       });
       await designationRecord.save({ session });
 
@@ -186,7 +200,7 @@ export async function POST(req) {
       await Promise.all([
         new AddressDetails({
           IAD_Individual_Id: savedIndividualDetails._id,
-          IAD_Address_Type: '02',
+          IAD_Address_Type: "02",
           IAD_Address_Line1: body.IAD_Address_Line1,
           IAD_City: body.IAD_City,
           IAD_State: body.IAD_State,
@@ -200,17 +214,31 @@ export async function POST(req) {
         new SocialProfile({
           SL_Id: savedIndividualDetails._id,
           SL_Individual_Role: savedIndividualDetails.ID_Individual_Role,
-          SL_Product_Identifier: '10000',
-          SL_Social_Profile_Name: body.SL_Social_Profile_Name || '',
-          SL_LinkedIn_Profile: body.SL_LinkedIn_Profile || '',
-          SL_Website_Url: body.SL_Website_Url || '',
-          SL_Instagram_Url: body.SL_Instagram_Url || '',
-          SL_Facebook_Url: body.SL_Facebook_Url || '',
-          SL_Twitter_Url: body.SL_Twitter_Url || '',
-          SL_Pinterest_Url: body.SL_Pinterest_Url || '',
-          SL_Custom_Url: body.SL_Custom_Url || '',
-          SL_Portfolio_Url: body.SL_Portfolio_Url || '',
-        }).save({ session })
+          SL_Product_Identifier: "000001000",
+          SL_Social_Profile_Name: body.SL_Social_Profile_Name || "",
+          SL_LinkedIn_Profile: body.SL_LinkedIn_Profile || "",
+          SL_Website_Url: body.SL_Website_Url || "",
+          SL_Instagram_Url: body.SL_Instagram_Url || "",
+          SL_Facebook_Url: body.SL_Facebook_Url || "",
+          SL_Twitter_Url: body.SL_Twitter_Url || "",
+          SL_Pinterest_Url: body.SL_Pinterest_Url || "",
+          SL_Custom_Url: body.SL_Custom_Url || "",
+          SL_Portfolio_Url: body.SL_Portfolio_Url || "",
+        }).save({ session }),
+
+        new IndividualVisibility({
+          IIV_Individual_Id: savedIndividualDetails._id,
+          IIV_Phone_Number: true, // Default visibility ON
+          IIV_Email: true, // Default visibility ON
+          IIV_BirthDate: false, // Optional birthdate hide
+          IIV_Address_Line1: true,
+          IIV_Address_Line2: false,
+          IIV_Landmark: false,
+          IIV_Pincode: true,
+          IIV_Website_Url_Visibility: true,
+          IIV_Creation_DtTym: new Date(),
+          IIV_Audit_Trail: [],
+        }).save({ session }),
       ]);
 
       // Commit transaction quickly
@@ -228,53 +256,61 @@ export async function POST(req) {
         city: body.IAD_City,
         state: body.IAD_State,
         website: body.SL_Website_Url,
-        lang: body.lang || 'en',
-        route: body.route || 'user-ecolink',
-        designation: body.ID_Individual_Designation 
+        lang: body.lang || "en",
+        route: body.route || "user-ecolink",
+        designation: body.ID_Individual_Designation,
       });
 
       // Set cookie
       const cookieStore = await cookies();
-      cookieStore.set('individual_id', savedIndividualDetails._id.toString(), {
+      cookieStore.set("individual_id", savedIndividualDetails._id.toString(), {
         httpOnly: true,
-        path: '/',
+        path: "/",
         maxAge: 60 * 60 * 24 * 7,
       });
 
-      console.log(`Profile created in ${Date.now() - startTime}ms`);
-      
+      //  console.log(`Profile created in ${Date.now() - startTime}ms`);
+
       return new Response(
         JSON.stringify({
           success: true,
-          message: 'Profile created successfully!',
+          code: "6024_18",
+          title: t(`errorCode.6024_18.title`),
+          message: t(`errorCode.6024_18.description`),
           individualId: savedIndividualDetails._id.toString(),
           hasProfilePicture: !!body.ID_Profile_Picture,
           first_name: body.ID_First_Name,
           last_name: body.ID_Last_Name,
+          profileImage: body.ID_Profile_Picture || null,
         }),
         { status: 201 }
       );
-
     } catch (error) {
       await session.abortTransaction();
       session.endSession();
-      console.error('Transaction Error:', error);
+      console.error("Transaction Error:", error);
       return new Response(
-        JSON.stringify({ 
-          success: false, 
-          message: 'Profile creation failed', 
-          error: error.message 
+        JSON.stringify({
+          success: false,
+          code: "6024_19",
+          title: t(`errorCode.6024_19.title`),
+          message: t(`errorCode.6024_19.description`),
+          error: error.message,
         }),
         { status: 500 }
       );
     }
   } catch (error) {
-    console.error('Profile Creation Error:', error);
+    console.error("Profile Creation Error:", error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        message: 'Internal Server Error', 
-        error: error.message 
+      JSON.stringify({
+        success: false,
+        code: "6024_20",
+        title: t(`errorCode.6024_20.title`),
+        message: t(`errorCode.6024_20.description`, {
+          message: error.message,
+        }),
+        error: error.message,
       }),
       { status: 500 }
     );

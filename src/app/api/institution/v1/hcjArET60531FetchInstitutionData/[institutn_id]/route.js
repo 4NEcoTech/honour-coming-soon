@@ -1,11 +1,12 @@
-import { getServerSession } from "next-auth";
-import IndividualDetails from "@/app/models/individual_details";
-import CompanyDetails from "@/app/models/company_details";
 import CompanyAddress from "@/app/models/company_address_details";
-import SocialLinks from "@/app/models/social_link";
+import CompanyDetails from "@/app/models/company_details";
 import CompanyDocuments from "@/app/models/company_kyc_details";
-import { NextResponse } from "next/server";
+import IndividualDetails from "@/app/models/individual_details";
+import SocialLinks from "@/app/models/social_link";
 import { dbConnect } from "@/app/utils/dbConnect";
+import { getTranslator } from "@/i18n/server";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
 /**
  * @swagger
@@ -39,6 +40,8 @@ import { dbConnect } from "@/app/utils/dbConnect";
  */
 
 export async function GET(req, { params }) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   try {
     await dbConnect();
 
@@ -46,7 +49,12 @@ export async function GET(req, { params }) {
     const { institutn_id } = await params;
     if (!institutn_id) {
       return NextResponse.json(
-        { success: false, message: "Institution ID is required" },
+        {
+          success: false,
+          code: "6062_13",
+          title: t("errorCode.6062_13.title"),
+          message: t("errorCode.6062_13.description"),
+        },
         { status: 400 }
       );
     }
@@ -55,18 +63,28 @@ export async function GET(req, { params }) {
     const session = await getServerSession(req);
     if (!session || !session.user) {
       return NextResponse.json(
-        { success: false, message: "Unauthorized access" },
+        {
+          success: false,
+          code: "6062_14",
+          title: t("errorCode.6062_14.title"),
+          message: t("errorCode.6062_14.description"),
+        },
         { status: 401 }
       );
     }
 
-    console.log("Fetching details for institution ID:", institutn_id);
-
     // Fetch Individual Details
-    const individualDetails = await IndividualDetails.findById(institutn_id).lean();
+    const individualDetails = await IndividualDetails.findById(
+      institutn_id
+    ).lean();
     if (!individualDetails) {
       return NextResponse.json(
-        { success: false, message: "Individual details not found" },
+        {
+          success: false,
+          code: "6062_15",
+          title: t("errorCode.6062_15.title"),
+          message: t("errorCode.6062_15.description"),
+        },
         { status: 404 }
       );
     }
@@ -78,7 +96,12 @@ export async function GET(req, { params }) {
 
     if (!companyDetails) {
       return NextResponse.json(
-        { success: false, message: "Institution details not found" },
+        {
+          success: false,
+          code: "6062_15",
+          title: t("errorCode.6062_15.title"),
+          message: t("errorCode.6062_15.description"),
+        },
         { status: 404 }
       );
     }
@@ -93,7 +116,9 @@ export async function GET(req, { params }) {
     return NextResponse.json(
       {
         success: true,
-        message: "Institution details retrieved successfully",
+        code: "6062_16",
+        title: t("errorCode.6062_16.title"),
+        message: t("errorCode.6062_16.description"),
         data: {
           individualDetails,
           companyDetails,
@@ -107,9 +132,15 @@ export async function GET(req, { params }) {
   } catch (error) {
     console.error("Error fetching institution details:", error);
     return NextResponse.json(
-      { success: false, message: "Internal Server Error" },
+      {
+        success: false,
+        code: "6062_17",
+        title: t("errorCode.6062_17.title"),
+        message: t("errorCode.6062_17.description", {
+          message: error.message,
+        }),
+      },
       { status: 500 }
     );
   }
 }
-

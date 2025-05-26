@@ -1,10 +1,13 @@
-'use client';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Link } from '@/i18n/routing';
-import { useSession } from 'next-auth/react';
-import Image from 'next/image';
-import { useEffect, useState } from 'react';
+"use client";
+import { useAbility } from "@/Casl/CaslContext";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Link } from "@/i18n/routing";
+import { MailCheck, Phone } from "lucide-react";
+import { useSession } from "next-auth/react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { SlCalender } from "react-icons/sl";
 
 export default function ProfilePage() {
   // States to hold fetched data
@@ -13,20 +16,27 @@ export default function ProfilePage() {
   const [error, setError] = useState(null);
   const { data: session, status } = useSession();
   const [languages, setLanguages] = useState([]);
+  const roleMapping = {
+    "06": "Administrator",
+    "07": "Team Member",
+    "08": "Support Staff",
+  };
 
-  console.log('Session Data:', session);
-  console.log('Auth Status:', status);
+  const ability = useAbility();
+
+  // console.log('Session Data:', session);
+  // console.log('Auth Status:', status);
 
   useEffect(() => {
     // Prevent API call until session is fully available
-    if (status !== 'authenticated') return;
+    if (status !== "authenticated") return;
 
     // Fetch profile data from API
     const fetchProfileData = async () => {
       try {
         if (!session || !session.user) {
-          console.log('Session Error: User not authenticated');
-          setError('Unauthorized: Please log in');
+          console.log("Session Error: User not authenticated");
+          setError("Unauthorized: Please log in");
           setLoading(false);
           return;
         }
@@ -34,29 +44,29 @@ export default function ProfilePage() {
         const administratorId = session.user.id;
 
         if (!administratorId) {
-          console.log('Administrator ID not found in session');
-          setError('User ID not found');
+          console.log("Administrator ID not found in session");
+          setError("User ID not found");
           setLoading(false);
           return;
         }
 
-        console.log('Fetching data for administrator ID:', administratorId);
+        console.log("Fetching data for administrator ID:", administratorId);
 
         const response = await fetch(
           `/api//institution/v1/hcjArET60521FetchAdminData/${administratorId}`
         );
 
         const data = await response.json();
-        console.log('API Response:', data);
+        console.log("API Response:", data);
 
         if (!response.ok) {
-          setError(data.message || 'Failed to load profile data');
+          setError(data.message || "Failed to load profile data");
         } else {
           setProfileData(data.data);
         }
       } catch (err) {
-        console.error('Error fetching profile data:', err);
-        setError('Internal Server Error');
+        console.error("Error fetching profile data:", err);
+        setError("Internal Server Error");
       } finally {
         setLoading(false);
       }
@@ -81,13 +91,13 @@ export default function ProfilePage() {
           const data = await response.json();
 
           if (response.ok && data.success) {
-            console.log('Languages data:', data.data);
+            console.log("Languages data:", data.data);
             setLanguages(data.data);
           } else {
-            console.error('Failed to fetch languages:', data.message);
+            console.error("Failed to fetch languages:", data.message);
           }
         } catch (err) {
-          console.error('Error fetching languages:', err);
+          console.error("Error fetching languages:", err);
         }
       };
 
@@ -96,7 +106,7 @@ export default function ProfilePage() {
   }, [profileData]);
 
   // Render loading skeletons
-  if (loading || status === 'loading') {
+  if (loading || status === "loading") {
     return (
       <div className="max-w-full mx-auto p-5">
         <div className="text-center mb-5">
@@ -141,7 +151,7 @@ export default function ProfilePage() {
   // Destructure fetched profile data
   const { user, individualDetails, address, socialLinks, documents } =
     profileData || {};
-  const userId = user?._id || 'defaultUserId';
+  const userId = user?._id || "defaultUserId";
 
   return (
     <div className="max-w-full mx-auto text-pretty mb-10">
@@ -151,9 +161,11 @@ export default function ProfilePage() {
         <div className="relative h-52 bg-gray-200">
           {individualDetails?.ID_Cover_Photo ? (
             <Image
-              src={`https://drive.google.com/thumbnail?id=${
-                individualDetails.ID_Cover_Photo.split('=')[1]
-              }`}
+              src={
+                `https://drive.google.com/thumbnail?id=${
+                  individualDetails.ID_Cover_Photo.split("=")[1]
+                }` || "/image/cover.png"
+              }
               alt="Cover Photo"
               layout="fill"
               objectFit="cover"
@@ -171,9 +183,9 @@ export default function ProfilePage() {
             src={
               individualDetails?.ID_Profile_Picture
                 ? `https://drive.google.com/thumbnail?id=${
-                    individualDetails.ID_Profile_Picture.split('=')[1]
+                    individualDetails.ID_Profile_Picture.split("=")[1]
                   }`
-                : '/image/institutndashboard/dashpage/myprofile/profile.svg'
+                : "/image/profile.png"
             }
             alt="Profile Photo"
             width={100}
@@ -185,12 +197,12 @@ export default function ProfilePage() {
               {individualDetails?.ID_First_Name &&
               individualDetails?.ID_Last_Name
                 ? `${individualDetails.ID_First_Name} ${individualDetails.ID_Last_Name}`
-                : 'Jaya Kumar'}
+                : "Jaya Kumar"}
             </h2>
 
             <p className="text-gray-600">
-              {individualDetails?.ID_Individual_Designation ||
-                'Administrator at IIT Delhi'}
+              {individualDetails?.ID_Profile_Headline ||
+                "Add a short headline that describes you..."}
             </p>
           </div>
         </div>
@@ -200,34 +212,22 @@ export default function ProfilePage() {
               Preview
             </button>
           </Link>
-          <Link href="/institutn-dshbrd6051/my-prfl-edit6061">
+          {ability.can("manage", "PersonalInfo") ? (
+            <Link href="/institutn-dshbrd6051/my-prfl-edit6061">
+              <button className="w-32 px-6 py-2 bg-primary text-white rounded-md">
+                Edit
+              </button>
+            </Link>
+          ) : (
             <button className="w-32 px-6 py-2 bg-primary text-white rounded-md">
               Edit
             </button>
-          </Link>
+          )}
         </div>
       </div>
 
       {/* Details Section */}
       <div className="container mx-auto px-5 sm:px-16">
-        {/* Profile Headline */}
-        <div className="flex items-center">
-          <Image
-            src="/image/institutndashboard/dashpage/myprofile/about.svg"
-            alt="About"
-            width={24}
-            height={24}
-            className="mr-2"
-          />
-          <h4 className="text-lg font-semibold">Profile Headline</h4>
-        </div>
-        <div className="flex items-center mb-3">
-          <p className={'pl-5'}>
-            {individualDetails?.ID_Profile_Headline ||
-              "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."}
-          </p>
-        </div>
-
         {/* Location */}
         <div className="flex items-center mb-3">
           <Image
@@ -240,10 +240,9 @@ export default function ProfilePage() {
           <span>
             {address
               ? `${address.IAD_Address_Line1}, ${address.IAD_Address_Line2}, ${address.IAD_City}, ${address.IAD_State}, ${address.IAD_Pincode}`
-              : 'Metro, JP Nagar Depot, 25, Old Madras Rd, Bengaluru, Karnataka 560038'}
+              : "Metro, JP Nagar Depot, 25, Old Madras Rd, Bengaluru, Karnataka 560038"}
           </span>
         </div>
-
         {/* Position */}
         <div className="flex items-center mb-3">
           <Image
@@ -254,10 +253,9 @@ export default function ProfilePage() {
             className="mr-2"
           />
           <span>
-            {individualDetails?.ID_Individual_Designation || 'Administrator'}
+            {individualDetails?.ID_Individual_Designation || "Administrator"}
           </span>
         </div>
-
         {/* Institution */}
         <div className="flex items-center mb-3">
           <Image
@@ -267,72 +265,68 @@ export default function ProfilePage() {
             height={24}
             className="mr-2"
           />
+          {/* <span>
+            {individualDetails?.ID_Individual_Role === "06"
+              ? "Administrator"
+              : "Unknown Role"}
+          </span> */}
           <span>
-            {individualDetails?.ID_Individual_Role === '06'
-              ? 'Administrator'
-              : 'Unknown Role'}
+            {roleMapping[individualDetails?.ID_Individual_Role] ||
+              "Unknown Role"}
           </span>
         </div>
-
         {/* Language */}
-        <div className="flex items-center mb-3">
-          <Image
-            src="/image/institutndashboard/dashpage/myprofile/language.svg"
-            alt="Language"
-            width={24}
-            height={24}
-            className="mr-2"
-          />
-          <h4 className="text-lg font-semibold">Language</h4>
-        </div>
-        <div>
-          <ul className="pl-5 list-none">
-            {languages && languages.length > 0 ? (
-              languages.map((lang, index) => (
-                <li key={index} className="mb-3">
-                  <div className="text-base font-medium capitalize">
-                    {lang.HCJ_JSL_Language}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {lang.HCJ_JSL_Language_Proficiency_Level === '01' &&
-                      'Basic'}
-                    {lang.HCJ_JSL_Language_Proficiency_Level === '02' &&
-                      'Intermediate'}
-                    {lang.HCJ_JSL_Language_Proficiency_Level === '03' &&
-                      'Fluent'}
-                    {lang.HCJ_JSL_Language_Proficiency_Level === '04' &&
-                      'Native'}
-                    {!['01', '02', '03', '04'].includes(
-                      lang.HCJ_JSL_Language_Proficiency_Level
-                    ) && 'Unknown'}
-                  </div>
-                  {lang.HCJ_JSL_Language_Proficiency &&
-                    lang.HCJ_JSL_Language_Proficiency.length > 0 && (
-                      <div className="text-xs text-gray-400 mt-1">
-                        {lang.HCJ_JSL_Language_Proficiency.includes('01') &&
-                          'Reading '}
-                        {lang.HCJ_JSL_Language_Proficiency.includes('02') &&
-                          'Writing '}
-                        {lang.HCJ_JSL_Language_Proficiency.includes('03') &&
-                          'Speaking '}
+        {languages && languages.length > 0 && (
+          <>
+            <div className="flex items-center mb-3">
+              <Image
+                src="/image/institutndashboard/dashpage/myprofile/language.svg"
+                alt="Language"
+                width={24}
+                height={24}
+                className="mr-2"
+              />
+              <h4 className="text-lg font-semibold">Language</h4>
+            </div>
+            <div>
+              <ul className="pl-5 list-none">
+                {languages &&
+                  languages.length > 0 &&
+                  languages.map((lang, index) => (
+                    <li key={index} className="mb-3">
+                      <div className="text-base font-medium capitalize">
+                        {lang.HCJ_JSL_Language}
                       </div>
-                    )}
-                </li>
-              ))
-            ) : (
-              <>
-                <li className="mb-3">
-                  <div className="text-base font-medium">English</div>
-                  <div className="text-sm text-gray-500">Fluent</div>
-                </li>
-                <li className="mb-3">
-                  <div className="text-base font-medium">Hindi</div>
-                  <div className="text-sm text-gray-500">Native</div>
-                </li>
-              </>
-            )}
-          </ul>
-        </div>
+                      <div className="text-sm text-gray-500">
+                        {lang.HCJ_JSL_Language_Proficiency_Level === "01" &&
+                          "Basic"}
+                        {lang.HCJ_JSL_Language_Proficiency_Level === "02" &&
+                          "Intermediate"}
+                        {lang.HCJ_JSL_Language_Proficiency_Level === "03" &&
+                          "Fluent"}
+                        {lang.HCJ_JSL_Language_Proficiency_Level === "04" &&
+                          "Native"}
+                        {!["01", "02", "03", "04"].includes(
+                          lang.HCJ_JSL_Language_Proficiency_Level
+                        ) && "Unknown"}
+                      </div>
+                      {lang.HCJ_JSL_Language_Proficiency &&
+                        lang.HCJ_JSL_Language_Proficiency.length > 0 && (
+                          <div className="text-xs text-gray-400 mt-1">
+                            {lang.HCJ_JSL_Language_Proficiency.includes("01") &&
+                              "Reading "}
+                            {lang.HCJ_JSL_Language_Proficiency.includes("02") &&
+                              "Writing "}
+                            {lang.HCJ_JSL_Language_Proficiency.includes("03") &&
+                              "Speaking "}
+                          </div>
+                        )}
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          </>
+        )}
 
         {/* About */}
         <div className="flex items-center">
@@ -343,29 +337,17 @@ export default function ProfilePage() {
             height={24}
             className="mr-2"
           />
+
           <h4 className="text-lg font-semibold">About</h4>
         </div>
         <div className="flex items-center mb-3">
-          <p className={'pl-5'}>
+          <p className={"pl-5"}>
             {individualDetails?.ID_About ||
-              "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s."}
+              "Add something about yourself here..."}
           </p>
         </div>
-
         {/* Contact Information */}
         <div className="mb-3">
-          <div className="flex items-center mb-3">
-            <Image
-              src="/image/institutndashboard/dashpage/myprofile/www.svg"
-              alt="Website"
-              width={24}
-              height={24}
-              className="mr-2"
-            />
-            <span className="text-primary">
-              {socialLinks?.SL_Website_Url || 'www.website.com'}
-            </span>
-          </div>
           <div className="flex items-center mb-3">
             <Image
               src="/image/institutndashboard/dashpage/myprofile/phone.svg"
@@ -374,7 +356,15 @@ export default function ProfilePage() {
               height={24}
               className="mr-2"
             />
-            <span>{individualDetails?.ID_Phone || '8861597163'}</span>
+
+            <span>{individualDetails?.ID_Phone || "+91xxxxxxxxxx"}</span>
+          </div>
+          <div className="flex items-center mb-3">
+            <Phone className="w-5 h-5 mr-2 text-primary" />
+            <span className="text-gray-500 mr-1">Alternate:</span>
+            <span>
+              {individualDetails?.ID_Alternate_Phone || "+91xxxxxxxxxx"}
+            </span>
           </div>
           <div className="flex items-center mb-3">
             <Image
@@ -384,10 +374,49 @@ export default function ProfilePage() {
               height={24}
               className="mr-2"
             />
-            <span>{individualDetails?.ID_Email || 'jayakumar@gmail.com'}</span>
-          </div>
-        </div>
 
+            <span>{individualDetails?.ID_Email || "xyz@gmail.com"}</span>
+          </div>
+          <div className="flex items-center mb-3">
+            <MailCheck className="w-5 h-5 mr-2 text-primary" />
+            <span className="text-gray-500 mr-1">Alternate:</span>
+            <span>
+              {individualDetails?.ID_Alternate_Email || "xyz@gmail.com"}
+            </span>
+          </div>
+          <div className="flex items-center mb-3">
+            <SlCalender className="w-5 h-5 mr-2 text-primary" />
+
+            <span className="text-gray-500 mr-1">Joined Year</span>
+            <span>
+              {individualDetails?.createdAt
+                ? new Date(individualDetails.createdAt).toLocaleDateString(
+                    "en-US",
+                    {
+                      year: "numeric",
+                      month: "long",
+                    }
+                  )
+                : "N/A"}
+            </span>
+          </div>
+          {socialLinks?.SL_Website_Url && (
+            <a
+              href={socialLinks.SL_Website_Url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center mb-3">
+              <Image
+                src="/image/institutndashboard/dashpage/myprofile/www.svg"
+                alt="Website"
+                width={24}
+                height={24}
+                className="mr-2 cursor-pointer"
+              />
+              <span className="text-primary">{socialLinks.SL_Website_Url}</span>
+            </a>
+          )}
+        </div>
         {/* Social Share */}
         <div className="flex flex-col items-start mb-3">
           <div className="flex mb-3">

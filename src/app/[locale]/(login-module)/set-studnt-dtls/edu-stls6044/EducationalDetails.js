@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { StudentEducationSchema } from '@/app/validation/studentSchema';
-import { Button } from '@/components/ui/button';
+import studentSchema from "@/app/validation/studentSchema";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -9,63 +9,76 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+} from "@/components/ui/select";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 
 // Predefined options for Select
 const years = [
-  { label: '1st', value: '1' },
-  { label: '2nd', value: '2' },
-  { label: '3rd', value: '3' },
-  { label: '4th', value: '4' },
+  { label: "1st", value: "1" },
+  { label: "2nd", value: "2" },
+  { label: "3rd", value: "3" },
+  { label: "4th", value: "4" },
 ];
 
 const gradeTypes = [
-  { label: 'Percentage', value: 'percentage' },
-  { label: 'CGPA', value: 'cgpa' },
-  { label: 'Grade', value: 'grade' },
+  { label: "Percentage", value: "percentage" },
+  { label: "CGPA", value: "cgpa" },
+  { label: "Grade", value: "grade" },
 ];
 
 export default function EducationalDetails({ initialData, onSubmit }) {
+  const t = useTranslations("formErrors");
+  const Schema = studentSchema(t);
   // ✅ Define default values (best practice)
   const defaultValues = {
-    HCJ_ST_Institution_Name: '',
-    HCJ_ST_Enrollment_Year: '',
-    HCJ_ST_Class_Of_Year: '',
-    HCJ_ST_Student_Program_Name: '',
-    HCJ_ST_Student_Branch_Specialization: '',
-    year: '',
-    HCJ_ST_Score_Grade_Type: '',
-    HCJ_ST_Score_Grade: '',
+    HCJ_ST_Institution_Name: "",
+    HCJ_ST_Enrollment_Year: "",
+    HCJ_ST_Class_Of_Year: "",
+    HCJ_ST_Student_Program_Name: "",
+    HCJ_ST_Student_Branch_Specialization: "",
+    year: "",
+    HCJ_ST_Score_Grade_Type: "",
+    HCJ_ST_Score_Grade: "",
   };
 
   // ✅ React Hook Form Setup
   const form = useForm({
-    resolver: zodResolver(StudentEducationSchema),
+    resolver: zodResolver(
+      Schema.pick({
+        HCJ_ST_Institution_Name: true,
+        HCJ_ST_Enrollment_Year: true,
+        HCJ_ST_Student_Program_Name: true,
+        HCJ_ST_Class_Of_Year: true,
+        HCJ_ST_Student_Branch_Specialization: true,
+        HCJ_ST_Score_Grade_Type: true,
+        HCJ_ST_Score_Grade: true,
+      })
+    ),
     defaultValues, // Use default values
   });
 
   // ✅ Mapping Function for Initial Data (Best Practice)
   const mapToFormFields = (data) => ({
-    HCJ_ST_Institution_Name: data?.HCJ_ST_Institution_Name || '',
-    HCJ_ST_Enrollment_Year: data?.HCJ_ST_Enrollment_Year || '',
-    HCJ_ST_Class_Of_Year: data?.HCJ_ST_Class_Of_Year || '',
-    HCJ_ST_Student_Program_Name: data?.HCJ_ST_Student_Program_Name || '',
+    HCJ_ST_Institution_Name: data?.HCJ_ST_Institution_Name || "",
+    HCJ_ST_Enrollment_Year: data?.HCJ_ST_Enrollment_Year || "",
+    HCJ_ST_Class_Of_Year: data?.HCJ_ST_Class_Of_Year || "",
+    HCJ_ST_Student_Program_Name: data?.HCJ_ST_Student_Program_Name || "",
     HCJ_ST_Student_Branch_Specialization:
-      data?.HCJ_ST_Student_Branch_Specialization || '',
-    year: data?.year || '',
-    HCJ_ST_Score_Grade_Type: data?.HCJ_ST_Score_Grade_Type || '',
-    HCJ_ST_Score_Grade: data?.HCJ_ST_Score_Grade || '',
+      data?.HCJ_ST_Student_Branch_Specialization || "",
+    year: data?.year || "",
+    HCJ_ST_Score_Grade_Type: data?.HCJ_ST_Score_Grade_Type || "",
+    HCJ_ST_Score_Grade: data?.HCJ_ST_Score_Grade || "",
   });
 
   // ✅ Load Initial Data into the Form
@@ -81,7 +94,7 @@ export default function EducationalDetails({ initialData, onSubmit }) {
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((data) => onSubmit('educational', data))}
+        onSubmit={form.handleSubmit((data) => onSubmit("educational", data))}
         className="space-y-6">
         {/* Institution Name (Disabled) */}
         <FormField
@@ -89,7 +102,9 @@ export default function EducationalDetails({ initialData, onSubmit }) {
           name="HCJ_ST_Institution_Name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-primary">Institution Name <span className="text-destructive">*</span></FormLabel>
+              <FormLabel className="text-primary">
+                Institution Name <span className="text-destructive">*</span>
+              </FormLabel>
               <FormControl>
                 <Input {...field} disabled />
               </FormControl>
@@ -97,14 +112,17 @@ export default function EducationalDetails({ initialData, onSubmit }) {
             </FormItem>
           )}
         />
-  
+
         {/* Program Enrolled Year (Disabled) */}
         <FormField
           control={form.control}
           name="HCJ_ST_Enrollment_Year"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-primary">Program Enrolled Year <span className="text-destructive">*</span></FormLabel>
+              <FormLabel className="text-primary">
+                Program Enrolled Year{" "}
+                <span className="text-destructive">*</span>
+              </FormLabel>
               <FormControl>
                 <Input {...field} disabled />
               </FormControl>
@@ -119,7 +137,9 @@ export default function EducationalDetails({ initialData, onSubmit }) {
           name="HCJ_ST_Class_Of_Year"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-primary">Class of the Year <span className="text-destructive">*</span></FormLabel>
+              <FormLabel className="text-primary">
+                Class of the Year <span className="text-destructive">*</span>
+              </FormLabel>
               <FormControl>
                 <Input {...field} disabled />
               </FormControl>
@@ -134,7 +154,9 @@ export default function EducationalDetails({ initialData, onSubmit }) {
           name="HCJ_ST_Student_Program_Name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-primary">Program Name <span className="text-destructive">*</span></FormLabel>
+              <FormLabel className="text-primary">
+                Program Name <span className="text-destructive">*</span>
+              </FormLabel>
               <FormControl>
                 <Input {...field} disabled />
               </FormControl>
@@ -149,7 +171,10 @@ export default function EducationalDetails({ initialData, onSubmit }) {
           name="HCJ_ST_Student_Branch_Specialization"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-primary">Branch/Specialization <span className="text-destructive">*</span></FormLabel>
+              <FormLabel className="text-primary">
+                Branch/Specialization{" "}
+                <span className="text-destructive">*</span>
+              </FormLabel>
               <FormControl>
                 <Input {...field} disabled />
               </FormControl>

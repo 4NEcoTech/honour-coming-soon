@@ -1,7 +1,8 @@
-import { getServerSession } from "next-auth";
 import SocialLinks from "@/app/models/social_link";
-import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/utils/dbConnect";
+import { getTranslator } from "@/i18n/server";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
 /**
  * @swagger
@@ -46,13 +47,20 @@ import { dbConnect } from "@/app/utils/dbConnect";
  */
 
 export async function PATCH(req, { params }) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   try {
     await dbConnect();
 
     const { social_id } = await params;
     if (!social_id) {
       return NextResponse.json(
-        { success: false, message: "Social Links ID is required" },
+        {
+          success: false,
+          code: "6061_51",
+          title: t("errorCodes.6061_51.title"),
+          message: t("errorCodes.6061_51.message"),
+        },
         { status: 400 }
       );
     }
@@ -60,7 +68,12 @@ export async function PATCH(req, { params }) {
     const session = await getServerSession(req);
     if (!session || !session.user) {
       return NextResponse.json(
-        { success: false, message: "Unauthorized access" },
+        {
+          success: false,
+          code: "6061_36",
+          title: t("errorCodes.6061_36.title"),
+          message: t("errorCodes.6061_36.message"),
+        },
         { status: 401 }
       );
     }
@@ -74,19 +87,38 @@ export async function PATCH(req, { params }) {
 
     if (!updatedSocialLinks) {
       return NextResponse.json(
-        { success: false, message: "Social links not found" },
+        {
+          success: false,
+          code: "6061_52",
+          title: t("errorCodes.6061_52.title"),
+          message: t("errorCodes.6061_52.message"),
+        },
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      { success: true, message: "Social links updated", data: updatedSocialLinks },
+      {
+        success: true,
+
+        code: "6061_53",
+        title: t("errorCodes.6061_53.title"),
+        message: t("errorCodes.6061_53.message"),
+        data: updatedSocialLinks,
+      },
       { status: 200 }
     );
   } catch (error) {
     console.error("Error updating social links:", error);
     return NextResponse.json(
-      { success: false, message: "Internal Server Error" },
+      {
+        success: false,
+        code: "6061_46",
+        title: t("errorCodes.6061_46.title"),
+        message: t("errorCodes.6061_46.message", {
+          message: error.message,
+        }),
+      },
       { status: 500 }
     );
   }

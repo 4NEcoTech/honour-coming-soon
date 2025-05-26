@@ -1,11 +1,12 @@
-import { getServerSession } from "next-auth";
-import User from "@/app/models/user_table";
-import IndividualDetails from "@/app/models/individual_details";
 import IndividualAddress from "@/app/models/individual_address_detail";
-import SocialLinks from "@/app/models/social_link";
+import IndividualDetails from "@/app/models/individual_details";
 import IndividualDocuments from "@/app/models/individual_document_details";
-import { NextResponse } from "next/server";
+import SocialLinks from "@/app/models/social_link";
+import User from "@/app/models/user_table";
 import { dbConnect } from "@/app/utils/dbConnect";
+import { getTranslator } from "@/i18n/server";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
 /**
  * @swagger
@@ -70,15 +71,21 @@ import { dbConnect } from "@/app/utils/dbConnect";
  *         description: Internal Server Error
  */
 
-
 export async function GET(req, { params }) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   try {
     await dbConnect();
 
     const { administrator_id } = await params;
     if (!administrator_id) {
       return NextResponse.json(
-        { success: false, message: "Administrator ID is required" },
+        {
+          success: false,
+          code: "6052_1",
+          title: t("errorCode.6052_1.title"),
+          message: t("errorCode.6052_1.description"),
+        },
         { status: 400 }
       );
     }
@@ -87,7 +94,12 @@ export async function GET(req, { params }) {
     const session = await getServerSession(req);
     if (!session || !session.user) {
       return NextResponse.json(
-        { success: false, message: "Unauthorized access" },
+        {
+          success: false,
+          code: "6052_2",
+          title: t("errorCode.6052_2.title"),
+          message: t("errorCode.6052_2.description"),
+        },
         { status: 401 }
       );
     }
@@ -96,7 +108,12 @@ export async function GET(req, { params }) {
     const user = await User.findById(administrator_id).lean();
     if (!user) {
       return NextResponse.json(
-        { success: false, message: "Administrator not found" },
+        {
+          success: false,
+          code: "6052_3",
+          title: t("errorCode.6052_3.title"),
+          message: t("errorCode.6052_3.description"),
+        },
         { status: 404 }
       );
     }
@@ -104,7 +121,12 @@ export async function GET(req, { params }) {
     // Ensure that the requested data belongs to the logged-in user
     if (session.user.email !== user.UT_User_Id) {
       return NextResponse.json(
-        { success: false, message: "Forbidden: Access denied" },
+        {
+          success: false,
+          code: "6052_4",
+          title: t("errorCode.6052_4.title"),
+          message: t("errorCode.6052_4.description"),
+        },
         { status: 403 }
       );
     }
@@ -116,22 +138,33 @@ export async function GET(req, { params }) {
 
     if (!individualDetails) {
       return NextResponse.json(
-        { success: false, message: "Individual details not found" },
+        {
+          success: false,
+          code: "6052_5",
+          title: t("errorCode.6052_5.title"),
+          message: t("errorCode.6052_5.description"),
+        },
         { status: 404 }
       );
     }
 
     // Fetch Related Data Concurrently
     const [address, socialLinks, documents] = await Promise.all([
-      IndividualAddress.findOne({ IAD_Individual_Id: individualDetails._id }).lean(),
+      IndividualAddress.findOne({
+        IAD_Individual_Id: individualDetails._id,
+      }).lean(),
       SocialLinks.findOne({ SL_Id: individualDetails._id }).lean(),
-      IndividualDocuments.findOne({ IDD_Individual_Id: individualDetails._id }).lean(),
+      IndividualDocuments.findOne({
+        IDD_Individual_Id: individualDetails._id,
+      }).lean(),
     ]);
 
     return NextResponse.json(
       {
         success: true,
-        message: "Administrator details retrieved successfully",
+        code: "6052_6",
+        title: t("errorCode.6052_6.title"),
+        message: t("errorCode.6052_6.description"),
         data: {
           user,
           individualDetails,
@@ -145,12 +178,13 @@ export async function GET(req, { params }) {
   } catch (error) {
     console.error("Error fetching administrator details:", error);
     return NextResponse.json(
-      { success: false, message: "Internal Server Error" },
+      {
+        success: false,
+        code: "6052_7",
+        title: t("errorCode.6052_7.title"),
+        message: t("errorCode.6052_7.description", { message: error.message }),
+      },
       { status: 500 }
     );
   }
 }
-
-
-
-

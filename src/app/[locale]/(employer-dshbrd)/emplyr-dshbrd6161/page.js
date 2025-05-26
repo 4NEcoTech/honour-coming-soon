@@ -12,9 +12,14 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-
+import { useSession } from "next-auth/react";
+import useInstitution from "@/hooks/useInstitution";
 import { useTheme } from "next-themes";
 import { Link } from "@/i18n/routing";
+import { Share2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+
 const data = [
   { name: "Sat", value: 200 },
   { name: "Sun", value: 400 },
@@ -41,41 +46,148 @@ const cards = [
     icon: "/image/employerdashboard/pg/p3.svg",
     href: "/emplyr-dshbrd6161/opprtnty6166",
   },
-  {
-    title: "Drafts",
-    icon: "/image/employerdashboard/pg/p4.svg",
-    href: "/emplyr-dshbrd6161/draft6174",
-  },
-  {
-    title: "Hiring Stats",
-    icon: "/image/employerdashboard/pg/p5.svg",
-    href: "/emplyr-dshbrd6161/hrng-stats6168",
-  },
-  {
-    title: "Interviews",
-    icon: "/image/employerdashboard/pg/p6.svg",
-    href: "/emplyr-dshbrd6161/intrvw6167",
-  },
-  {
-    title: "Inbox",
-    icon: "/image/employerdashboard/pg/p7.svg",
-    href: "/emplyr-dshbrd6161/inbox6169",
-  },
+  // {
+  //   title: "Drafts",
+  //   icon: "/image/employerdashboard/pg/p4.svg",
+  //   href: "/emplyr-dshbrd6161/draft6174",
+  // },
+  // {
+  //   title: "Hiring Stats",
+  //   icon: "/image/employerdashboard/pg/p5.svg",
+  //   href: "/emplyr-dshbrd6161/hrng-stats6168",
+  // },
+  // {
+  //   title: "Interviews",
+  //   icon: "/image/employerdashboard/pg/p6.svg",
+  //   href: "/emplyr-dshbrd6161/intrvw6167",
+  // },
+  // {
+  //   title: "Inbox",
+  //   icon: "/image/employerdashboard/pg/p7.svg",
+  //   href: "/emplyr-dshbrd6161/inbox6169",
+  // },
 ];
 
 export default function Dashboard() {
   const [activeTimeframe, setActiveTimeframe] = useState("Day");
   const { theme } = useTheme();
+  const { data: session } = useSession();
+  //  console.log(session);
+  const companyId = session?.user?.companyId;
+  const { institutionData, loading, error } = useInstitution(companyId);
+
+  // Admin Eco Liink Started
+  const [isHovered, setIsHovered] = useState();
+  const individualId = session?.user?.individualId;
+
   return (
     <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-600 dark:text-gray-100">
-          Hello Administrator Username!
-        </h1>
-        <p className="text-gray-600 dark:text-gray-300">
-          Welcome to Your Dashboard!
-        </p>
+      <div className="mb-10">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between">
+          {/* Left Greeting Block */}
+          <div>
+            <h1 className="text-3xl font-bold text-gray-500 dark:text-gray-100">
+              Hello{" "}
+              {session?.user?.first_name
+                ? `${session.user.first_name} ${session.user.last_name}`
+                : "Administrator"}
+              !
+            </h1>
+            <p className="text-gray-500 dark:text-gray-300">
+              Welcome to Your Dashboard!
+            </p>
+          </div>
+
+          {/* Right Side Block */}
+          <div className="mt-4 md:mt-0 flex flex-col items-start md:items-end">
+            <p className="text-lg text-gray-700 dark:text-gray-200 font-semibold">
+              Company Number:{" "}
+              {loading
+                ? "Loading..."
+                : institutionData?.CD_Company_Num || "Not Available"}
+            </p>
+            <Link href="/emplyr-dshbrd6161/post-oppartunity6182">
+            <Button
+              onClick={() => console.log("Upload Opportunity clicked")}
+              className="mt-2 px-4 py-2 bg-primary text-white font-semibold rounded hover:bg-primary/90 transition"
+            >
+              Post Opportunities
+            </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Wrap both buttons in a horizontal flex container */}
+      <div className="flex flex-wrap items-end gap-4 mt-8 mb-10">
+        {/* Button 1 */}
+        <Link
+          href={`/user-ecolink/${individualId}`}
+          target="_blank"
+          className="inline-block"
+        >
+          <motion.button
+            className="group relative flex items-center gap-2.5 overflow-hidden rounded-lg bg-white px-6 py-3 text-gray-700 shadow-md transition-all duration-300 hover:text-gray-900 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 border border-gray-200 sm:px-8 sm:py-3.5 md:min-w-[200px]"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            aria-label="View your EcoLink"
+          >
+            <Share2 className="h-5 w-5 transition-all duration-300 group-hover:rotate-12 group-hover:scale-110 sm:h-5 sm:w-5" />
+            <span className="font-semibold text-sm tracking-wide sm:text-base">
+              View Your EcoLink
+            </span>
+
+            <motion.div
+              className="absolute inset-0 -z-10 bg-gray-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: isHovered ? 1 : 0 }}
+              transition={{ duration: 0.3 }}
+            />
+            <motion.div
+              className="absolute bottom-0 left-0 h-[2px] w-full bg-gray-400"
+              initial={{ scaleX: 0, originX: 0 }}
+              animate={{ scaleX: isHovered ? 1 : 0 }}
+              transition={{ duration: 0.4 }}
+            />
+          </motion.button>
+        </Link>
+
+        {/* Button 2 */}
+        <Link
+          href={`/company-ecolink/${companyId}`}
+          target="_blank"
+          className="inline-block"
+        >
+          <motion.button
+            className="group relative flex items-center gap-2.5 overflow-hidden rounded-lg bg-white px-6 py-3 text-gray-700 shadow-md transition-all duration-300 hover:text-gray-900 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 border border-gray-200 sm:px-8 sm:py-3.5 md:min-w-[200px]"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            aria-label="View institution EcoLink"
+          >
+            <Share2 className="h-5 w-5 transition-all duration-300 group-hover:rotate-12 group-hover:scale-110 sm:h-5 sm:w-5" />
+            <span className="font-semibold text-sm tracking-wide sm:text-base">
+              View Company EcoLink
+            </span>
+
+            <motion.div
+              className="absolute inset-0 -z-10 bg-gray-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: isHovered ? 1 : 0 }}
+              transition={{ duration: 0.3 }}
+            />
+            <motion.div
+              className="absolute bottom-0 left-0 h-[2px] w-full bg-gray-400"
+              initial={{ scaleX: 0, originX: 0 }}
+              animate={{ scaleX: isHovered ? 1 : 0 }}
+              transition={{ duration: 0.4 }}
+            />
+          </motion.button>
+        </Link>
       </div>
 
       {/* Cards Grid */}

@@ -42,6 +42,7 @@ const individualDetailsSchema = new Schema(
       required: true,
       ref: "User",
     },
+    ID_Individual_Status : { type: String,  default: '02', enum: ['01', '02', '03'] },
     ID_Individual_Num: { type: String, required: false, unique: true },
     ID_Profile_Picture: { type: String },
     ID_Cover_Photo: { type: String },

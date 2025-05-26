@@ -12,57 +12,64 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/hooks/use-toast";
+import { Link } from "@/i18n/routing";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Camera, Loader2, Save, X } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { toast } from "@/hooks/use-toast";
-import { Link } from "@/i18n/routing";
-import { VisibilitySheet } from "./visibility-popover";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { Skeleton } from "@/components/ui/skeleton";
+import { InstitutionVisibilitySheet } from "./visibility-popover";
 
 // Define schemas for form validation
-const basicInfoSchema = z.object({
-  institutionName: z.string().min(1, "Institution name is required"),
-  specialization: z.string().optional(),
-  totalStudents: z.string().optional(),
-  institutionType: z.enum(["private", "public"], {
-    required_error: "Institution type is required",
-  }),
-  about: z.string().optional(),
-  mission: z.string().optional(),
-});
+const basicInfoSchema = (t) =>
+  z.object({
+    institutionName: z.string().min(1, t("6062_1")),
+    specialization: z.string().optional(),
+    // totalStudents: z.string().optional(),
+    institutionType: z.enum(["private", "public"], {
+      required_error: t("6062_2"),
+    }),
+    about: z.string().optional(),
+    mission: z.string().optional(),
+  });
 
-const addressSchema = z.object({
-  addressLine1: z.string().min(1, "Address line 1 is required"),
-  addressLine2: z.string().optional(),
-  landmark: z.string().optional(),
-  country: z.string().min(1, "Country is required"),
-  state: z.string().min(1, "State is required"),
-  city: z.string().min(1, "City is required"),
-  pincode: z.string().min(1, "Pincode is required"),
-});
+const addressSchema = (t) =>
+  z.object({
+    addressLine1: z.string().min(1, t("6062_3")),
+    addressLine2: z.string().optional(),
+    landmark: z.string().optional(),
+    country: z.string().min(1, t("6062_4")),
+    state: z.string().min(1, t("6062_5")),
+    city: z.string().min(1, t("6062_6")),
+    pincode: z.string().min(1, t("6062_7")),
+  });
 
-const contactSchema = z.object({
-  email: z.string().email("Invalid email address").min(1, "Email is required"),
-  phone: z.string().min(1, "Phone number is required"),
-  website: z.string().url("Invalid URL").optional().or(z.literal("")),
-});
+const contactSchema = (t) =>
+  z.object({
+    email: z.string().email(t("6062_8")).min(1, t("6062_9")),
+    phone: z.string().min(1, t("6062_10")),
+    website: z.string().url(t("6062_11")).optional().or(z.literal("")),
+  });
 
-const socialLinksSchema = z.object({
-  linkedin: z.string().url("Invalid URL").optional().or(z.literal("")),
-  facebook: z.string().url("Invalid URL").optional().or(z.literal("")),
-  instagram: z.string().url("Invalid URL").optional().or(z.literal("")),
-  twitter: z.string().url("Invalid URL").optional().or(z.literal("")),
-  website: z.string().url("Invalid URL").optional().or(z.literal("")),
-});
+const socialLinksSchema = (t) =>
+  z.object({
+    linkedin: z.string().url(t("6062_11")).optional().or(z.literal("")),
+    facebook: z.string().url(t("6062_11")).optional().or(z.literal("")),
+    instagram: z.string().url(t("6062_11")).optional().or(z.literal("")),
+    twitter: z.string().url(t("6062_11")).optional().or(z.literal("")),
+    website: z.string().url(t("6062_11")).optional().or(z.literal("")),
+  });
 
 export default function InstitutionProfileEdit() {
+  const tForm = useTranslations("formErrors");
+  const tError = useTranslations("errorCode");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [coverImage, setCoverImage] = useState(null);
@@ -81,11 +88,12 @@ export default function InstitutionProfileEdit() {
 
   // Initialize forms with default values
   const basicInfoForm = useForm({
-    resolver: zodResolver(basicInfoSchema),
+    resolver: zodResolver(basicInfoSchema(tForm)),
+    mode: "onChange",
     defaultValues: {
       institutionName: "",
       specialization: "",
-      totalStudents: "250", // Pre-filled as per the original code
+      // totalStudents: "250", // Pre-filled as per the original code
       institutionType: "private", // Default value
       about: "",
       mission: "",
@@ -93,7 +101,8 @@ export default function InstitutionProfileEdit() {
   });
 
   const addressForm = useForm({
-    resolver: zodResolver(addressSchema),
+    resolver: zodResolver(addressSchema(tForm)),
+    mode: "onChange",
     defaultValues: {
       addressLine1: "",
       addressLine2: "",
@@ -106,7 +115,8 @@ export default function InstitutionProfileEdit() {
   });
 
   const contactForm = useForm({
-    resolver: zodResolver(contactSchema),
+    resolver: zodResolver(contactSchema(tForm)),
+    mode: "onChange",
     defaultValues: {
       email: "",
       phone: "",
@@ -115,7 +125,8 @@ export default function InstitutionProfileEdit() {
   });
 
   const socialLinksForm = useForm({
-    resolver: zodResolver(socialLinksSchema),
+    resolver: zodResolver(socialLinksSchema(tForm)),
+    mode: "onChange",
     defaultValues: {
       linkedin: "",
       facebook: "",
@@ -133,15 +144,15 @@ export default function InstitutionProfileEdit() {
         // Get institution ID from session
         if (status !== "authenticated" || !session?.user?.individualId) {
           toast({
-            title: "Error",
-            description: "You must be logged in to edit your profile",
+            title: tError("6062_12.title"),
+            description: tError("6062_12.description"),
             variant: "destructive",
           });
           return;
         }
 
         const institutionId = session.user.individualId;
-        console.log("Fetching data for institution ID:", institutionId);
+        // console.log("Fetching data for institution ID:", institutionId);
 
         // Fetch real data from the API
         const response = await fetch(
@@ -198,10 +209,10 @@ export default function InstitutionProfileEdit() {
           basicInfo: {
             institutionName: companyDetails?.CD_Company_Name || "",
             specialization: "", // Map this if available in your API
-            totalStudents: "250", // This seems to be hardcoded in your original code
+            //  totalStudents: "250", // This seems to be hardcoded in your original code
             institutionType: companyDetails?.CD_Company_Type || "private",
             about: companyDetails?.CD_Company_About || "",
-            mission: companyDetails?.CD_Company_About || "", // Using the same field for mission if no separate field exists
+            mission: companyDetails?.CD_Company_Mission || "", // Using the same field for mission if no separate field exists
           },
           address: {
             addressLine1: companyAddress?.CAD_Address_Line1 || "",
@@ -234,7 +245,7 @@ export default function InstitutionProfileEdit() {
       } catch (error) {
         console.error("Error fetching institution data:", error);
         toast({
-          title: "Error",
+          title: error.title,
           description: error.message || "Failed to load institution data",
           variant: "destructive",
         });
@@ -271,8 +282,8 @@ export default function InstitutionProfileEdit() {
     try {
       if (!profileImage && !coverImage) {
         toast({
-          title: "No changes",
-          description: "No images selected for upload",
+          title: tError("6061_59.title"),
+          description: tError("6061_59.description"),
         });
         setSavingSection("");
         return;
@@ -310,7 +321,7 @@ export default function InstitutionProfileEdit() {
       }
 
       const result = await response.json();
-      console.log("API Response:", result);
+      // console.log("API Response:", result);
 
       // Update existing image URLs if the API returns them
       if (result.data) {
@@ -323,13 +334,13 @@ export default function InstitutionProfileEdit() {
       }
 
       toast({
-        title: "Success",
-        description: "Institution images updated successfully",
+        title: result.title,
+        description: result.description,
       });
     } catch (error) {
-      console.error("Error uploading images:", error);
+      // console.error("Error uploading images:", error);
       toast({
-        title: "Error",
+        title: error.title || "Error",
         description: error.message || "Failed to upload images",
         variant: "destructive",
       });
@@ -351,6 +362,7 @@ export default function InstitutionProfileEdit() {
         CD_Company_Name: data.institutionName,
         CD_Company_Type: data.institutionType,
         CD_Company_About: data.about,
+        CD_Company_Mission: data.mission,
         CD_Company_Email: contactForm.getValues().email,
         CD_Phone_Number: contactForm.getValues().phone,
         CD_Company_Website: contactForm.getValues().website,
@@ -380,13 +392,14 @@ export default function InstitutionProfileEdit() {
       console.log("API Response:", result);
 
       toast({
-        title: "Success",
-        description: "Institution information updated successfully",
+        title: result.title || "Success",
+        description:
+          result.message || "Institution information updated successfully",
       });
     } catch (error) {
       console.error("Error updating basic info:", error);
       toast({
-        title: "Error",
+        title: error.title || "Error",
         description:
           error.message || "Failed to update institution information",
         variant: "destructive",
@@ -438,13 +451,14 @@ export default function InstitutionProfileEdit() {
       console.log("API Response:", result);
 
       toast({
-        title: "Success",
-        description: "Address information updated successfully",
+        title: result.title || "Success",
+        description:
+          result.message || "Address information updated successfully",
       });
     } catch (error) {
       console.error("Error updating address:", error);
       toast({
-        title: "Error",
+        title: error.title || "Error",
         description: error.message || "Failed to update address information",
         variant: "destructive",
       });
@@ -491,13 +505,13 @@ export default function InstitutionProfileEdit() {
       console.log("API Response:", result);
 
       toast({
-        title: "Success",
+        title: result.title || "Success",
         description: "Social links updated successfully",
       });
     } catch (error) {
-      console.error("Error updating social links:", error);
+      // console.error("Error updating social links:", error);
       toast({
-        title: "Error",
+        title: error.title || "Error",
         description: error.message || "Failed to update social links",
         variant: "destructive",
       });
@@ -551,7 +565,7 @@ export default function InstitutionProfileEdit() {
           <h1 className="text-2xl font-bold">Edit Institution Profile</h1>
         </div>
         <div className="flex items-end">
-          <VisibilitySheet position="top-right" />
+          <InstitutionVisibilitySheet position="top-right" />
         </div>
       </div>
 
@@ -577,8 +591,7 @@ export default function InstitutionProfileEdit() {
                   className="absolute top-2 right-2 bg-white/80 hover:bg-white"
                   onClick={() =>
                     document.getElementById("cover-upload").click()
-                  }
-                >
+                  }>
                   <Camera className="h-4 w-4 mr-2" />
                   Change Cover
                 </Button>
@@ -590,8 +603,7 @@ export default function InstitutionProfileEdit() {
                   className="text-primary"
                   onClick={() =>
                     document.getElementById("cover-upload").click()
-                  }
-                >
+                  }>
                   <Camera className="mr-2 h-4 w-4" />
                   Add cover photo
                 </Button>
@@ -630,8 +642,7 @@ export default function InstitutionProfileEdit() {
                     className="text-primary p-0 h-auto font-normal"
                     onClick={() =>
                       document.getElementById("profile-upload").click()
-                    }
-                  >
+                    }>
                     Change Institution Logo
                   </Button>
                 </div>
@@ -650,8 +661,7 @@ export default function InstitutionProfileEdit() {
             <Button
               onClick={handleImageUpload}
               disabled={savingSection === "photos"}
-              className="bg-primary text-white hover:bg-primary/90"
-            >
+              className="bg-primary text-white hover:bg-primary/90">
               {savingSection === "photos" ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -679,8 +689,7 @@ export default function InstitutionProfileEdit() {
           <Form {...basicInfoForm}>
             <form
               onSubmit={basicInfoForm.handleSubmit(onBasicInfoSubmit)}
-              className="space-y-6"
-            >
+              className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={basicInfoForm.control}
@@ -718,7 +727,7 @@ export default function InstitutionProfileEdit() {
                   )}
                 />
 
-                <FormField
+                {/* <FormField
                   control={basicInfoForm.control}
                   name="totalStudents"
                   render={({ field }) => (
@@ -732,7 +741,7 @@ export default function InstitutionProfileEdit() {
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                /> */}
 
                 <FormField
                   control={basicInfoForm.control}
@@ -747,14 +756,12 @@ export default function InstitutionProfileEdit() {
                         <RadioGroup
                           onValueChange={field.onChange}
                           defaultValue={field.value}
-                          className="flex gap-4"
-                        >
+                          className="flex gap-4">
                           <div className="flex items-center space-x-2">
                             <RadioGroupItem value="private" id="private" />
                             <FormLabel
                               htmlFor="private"
-                              className="font-normal"
-                            >
+                              className="font-normal">
                               Private
                             </FormLabel>
                           </div>
@@ -868,8 +875,7 @@ export default function InstitutionProfileEdit() {
                 <Button
                   type="submit"
                   disabled={savingSection === "basicInfo"}
-                  className="bg-primary text-white hover:bg-primary/90"
-                >
+                  className="bg-primary text-white hover:bg-primary/90">
                   {savingSection === "basicInfo" ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -899,8 +905,7 @@ export default function InstitutionProfileEdit() {
           <Form {...addressForm}>
             <form
               onSubmit={addressForm.handleSubmit(onAddressSubmit)}
-              className="space-y-6"
-            >
+              className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={addressForm.control}
@@ -1018,8 +1023,7 @@ export default function InstitutionProfileEdit() {
                 <Button
                   type="submit"
                   disabled={savingSection === "address"}
-                  className="bg-primary text-white hover:bg-primary/90"
-                >
+                  className="bg-primary text-white hover:bg-primary/90">
                   {savingSection === "address" ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1049,8 +1053,7 @@ export default function InstitutionProfileEdit() {
           <Form {...socialLinksForm}>
             <form
               onSubmit={socialLinksForm.handleSubmit(onSocialLinksSubmit)}
-              className="space-y-6"
-            >
+              className="space-y-6">
               <div className="space-y-4">
                 <FormField
                   control={socialLinksForm.control}
@@ -1201,8 +1204,7 @@ export default function InstitutionProfileEdit() {
                 <Button
                   type="submit"
                   disabled={savingSection === "social"}
-                  className="bg-primary text-white hover:bg-primary/90"
-                >
+                  className="bg-primary text-white hover:bg-primary/90">
                   {savingSection === "social" ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1226,8 +1228,7 @@ export default function InstitutionProfileEdit() {
         <Link href="/institutn-dshbrd6051/edu-institutn6053">
           <Button
             variant="outline"
-            className="border-2 border-primary text-primary"
-          >
+            className="border-2 border-primary text-primary">
             <X className="mr-2 h-4 w-4" />
             Cancel
           </Button>
@@ -1235,8 +1236,7 @@ export default function InstitutionProfileEdit() {
         <Link href="/institutn-dshbrd6051/edu-institutn6053">
           <Button
             variant="outline"
-            className="border-2 border-green-500 text-green-500"
-          >
+            className="border-2 border-green-500 text-green-500">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Profile
           </Button>

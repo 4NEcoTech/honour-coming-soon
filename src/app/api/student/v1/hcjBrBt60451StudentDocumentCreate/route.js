@@ -1,11 +1,12 @@
-import { NextResponse } from "next/server";
-import { z } from "zod";
-import mongoose from "mongoose";
-import DocumentDetails from "@/app/models/individual_document_details";
 import IndividualDetails from "@/app/models/individual_details";
+import DocumentDetails from "@/app/models/individual_document_details";
+import Notification from "@/app/models/Notification";
 import { generateAuditTrail } from "@/app/utils/audit-trail";
 import { dbConnect } from "@/app/utils/dbConnect";
-import Notification from "@/app/models/Notification";
+import { getTranslator } from "@/i18n/server";
+import mongoose from "mongoose";
+import { NextResponse } from "next/server";
+import { z } from "zod";
 
 /**
  * @swagger
@@ -71,8 +72,9 @@ import Notification from "@/app/models/Notification";
  *         description: Internal Server Error
  */
 
-
 export async function POST(req) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   await dbConnect();
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -101,9 +103,13 @@ export async function POST(req) {
       return NextResponse.json(
         {
           success: false,
+          code: "6046_10",
+          title: t("errorCode.6046_10.title"),
           errors: validation.error.errors.map((err) => ({
             path: err.path.join("."),
-            message: err.message,
+            message: t("errorCode.6046_10.description", {
+              message: err.message,
+            }),
           })),
         },
         { status: 400 }
@@ -112,12 +118,30 @@ export async function POST(req) {
 
     // Check if valid MongoDB ID
     if (!mongoose.Types.ObjectId.isValid(IDD_Individual_Id)) {
-      return NextResponse.json({ success: false, message: "Invalid User ID" }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          code: "6046_11",
+          title: t("errorCode.6046_11.title"),
+          message: t("errorCode.6046_11.description"),
+        },
+        { status: 400 }
+      );
     }
 
-    const user = await IndividualDetails.findById(IDD_Individual_Id).session(session);
+    const user = await IndividualDetails.findById(IDD_Individual_Id).session(
+      session
+    );
     if (!user) {
-      return NextResponse.json({ success: false, message: "User not found" }, { status: 404 });
+      return NextResponse.json(
+        {
+          success: false,
+          code: "6046_12",
+          title: t("errorCode.6046_12.title"),
+          message: t("errorCode.6046_12.description"),
+        },
+        { status: 404 }
+      );
     }
 
     const auditTrail = await generateAuditTrail(req);
@@ -138,7 +162,9 @@ export async function POST(req) {
     await doc.save({ session });
 
     // Add notification to queue
-    const notificationMessage = `User ${user.ID_Email || user.ID_Phone} uploaded a new document. Please verify the profile.`;
+    const notificationMessage = `User ${
+      user.ID_Email || user.ID_Phone
+    } uploaded a new document. Please verify the profile.`;
     await Notification.create({
       recipientRole: "02", // Not Verified
       message: notificationMessage,
@@ -150,9 +176,9 @@ export async function POST(req) {
     return NextResponse.json(
       {
         success: true,
-        title: "Saved Successfully",
-        code: "6046_7",
-        message: "6046_7 Document details saved successfully!",
+        code: "6046_13",
+        title: t("errorCode.6046_13.title"),
+        message: t("errorCode.6046_13.description"),
       },
       { status: 201 }
     );
@@ -164,9 +190,9 @@ export async function POST(req) {
     return NextResponse.json(
       {
         success: false,
-        title: "Error",
-        code: "6046_8",
-        message: "6046_8 Error processing the request.",
+        code: "6046_10",
+        title: t("errorCode.6046_10.title"),
+        message: t("errorCode.6046_10.description", { message: err.message }),
       },
       { status: 500 }
     );

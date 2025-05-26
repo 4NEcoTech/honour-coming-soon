@@ -31,7 +31,7 @@ const formSchema = z.object({
   pincode: z.string().min(6, 'Pincode is required'),
 });
 
-export default function AddressDetailsTab({ onSubmit, onBack, initialData }) {
+export default function AddressDetailsTab({ onNext, onBack, initialData }) {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -46,8 +46,9 @@ export default function AddressDetailsTab({ onSubmit, onBack, initialData }) {
   });
 
   const handleSubmit = (data) => {
-    onSubmit(data);
+    onNext(data); // call the correct prop
   };
+  
 
   // Function to fetch address details from pincode
   const fetchAddressDetails = async (pincode) => {

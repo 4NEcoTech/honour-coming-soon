@@ -1,5 +1,15 @@
 "use client";
 
+import { useAbility } from "@/Casl/CaslContext";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,19 +18,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { GENDER_ROLES } from "@/constants/roles";
 import { useRouter } from "@/i18n/routing";
 import { useState } from "react"; //  Import useState
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
-
-
 
 // Role Mapping
 const roleMapping = {
@@ -31,6 +31,7 @@ const roleMapping = {
 export default function TeamProfile({ staff, isOpen, onClose, onDelete }) {
   const router = useRouter();
   const [deleteStaffId, setDeleteStaffId] = useState(null);
+  const ability = useAbility();
 
   if (!staff) return null;
 
@@ -45,11 +46,16 @@ export default function TeamProfile({ staff, isOpen, onClose, onDelete }) {
       phone: staff.CCP_Contact_Person_Phone,
       altPhone: staff.CCP_Contact_Person_Alternate_Phone || "",
       email: staff.CCP_Contact_Person_Email,
+      altEmail: staff.CCP_Contact_Person_Alternate_Email, //added altEmail
+      documentType: staff.CCP_Contact_Person_Document_Type, //added documentType
+      documentNumber: staff.CCP_Contact_Person_Document_Number, //added documentNumber
+      documentDomicile: staff.CCP_Contact_Person_Document_Domicile, //added documentDomicile
+      uploadPhoto: staff.CCP_Contact_Person_Upload_Photo, //  added uploadPhoto
       designation: staff.CCP_Contact_Person_Designation,
       role: staff.CCP_Contact_Person_Role,
       department: staff.CCP_Contact_Person_Department,
       joiningYear: staff.CCP_Contact_Person_Joining_Year,
-      gender: staff.CCP_Contact_Person_Gender,
+      gender: staff.CCP_Contact_Person_Gender, 
       dob: staff.CCP_Contact_Person_DOB,
       address: staff.CCP_Contact_Person_Address_Line1,
       city: staff.CCP_Contact_Person_City,
@@ -87,12 +93,19 @@ export default function TeamProfile({ staff, isOpen, onClose, onDelete }) {
         {/* Buttons Section */}
         <div className="flex space-x-4">
           <div className="flex-1">
-            <Button
-              className="w-full border bg-primary py-2 px-4 rounded-md"
-              onClick={handleEdit}
-            >
-              Edit
-            </Button>
+            {ability.can("update", "Staff") ? (
+              <Button
+                className="w-full border bg-primary py-2 px-4 rounded-md"
+                onClick={handleEdit}>
+                Edit
+              </Button>
+            ) : (
+              <Button
+                disabled
+                className="w-full border bg-primary py-2 px-4 rounded-md cursor-not-allowed">
+                Edit
+              </Button>
+            )}
           </div>
           <div className="flex-1">
             {/* <Button
@@ -103,12 +116,19 @@ export default function TeamProfile({ staff, isOpen, onClose, onDelete }) {
             </Button> */}
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button
-                  className="w-full border bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700"
-                  onClick={() => setDeleteStaffId(staff.id)}
-                >
-                  Delete Profile
-                </Button>
+                {ability.can("delete", "Staff") ? (
+                  <Button
+                    className="w-full border bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700"
+                    onClick={() => setDeleteStaffId(staff.id)}>
+                    Delete Profile
+                  </Button>
+                ) : (
+                  <Button
+                    disabled
+                    className="w-full border bg-red-600 text-white py-2 px-4 rounded-md cursor-not-allowed">
+                    Delete Profile
+                  </Button>
+                )}
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
@@ -127,8 +147,7 @@ export default function TeamProfile({ staff, isOpen, onClose, onDelete }) {
                         );
                       }
                     }}
-                    className="bg-red-600 text-white hover:bg-red-700"
-                  >
+                    className="bg-red-600 text-white hover:bg-red-700">
                     Delete
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -170,7 +189,7 @@ export default function TeamProfile({ staff, isOpen, onClose, onDelete }) {
           <div className="grid gap-2 sm:grid-cols-2">
             <div className="font-medium">Gender</div>
             <div className="text-sm text-muted-foreground">
-              {staff.CCP_Contact_Person_Gender}
+              {GENDER_ROLES[staff?.CCP_Contact_Person_Gender]}
             </div>
           </div>
           <div className="grid gap-2 sm:grid-cols-2">

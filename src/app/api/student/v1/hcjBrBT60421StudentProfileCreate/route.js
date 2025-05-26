@@ -4,13 +4,15 @@ import Hcj_Job_Seeker from "@/app/models/hcj_job_seeker";
 import AddressDetails from "@/app/models/individual_address_detail";
 import IndividualDetails from "@/app/models/individual_details";
 import IndividualEducation from "@/app/models/individual_education";
+import IndividualVisibility from "@/app/models/individual_info_visibility";
 import SocialProfile from "@/app/models/social_link";
 import User from "@/app/models/user_table";
 import { dbConnect } from "@/app/utils/dbConnect";
+import { queueStudentEcoLinkCreation } from "@/app/utils/student-queue";
+import { getTranslator } from "@/i18n/server";
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
 import { cookies } from "next/headers";
-import { queueStudentEcoLinkCreation } from "@/app/utils/student-queue";
 
 /**
  * @swagger
@@ -153,18 +155,38 @@ import { queueStudentEcoLinkCreation } from "@/app/utils/student-queue";
  *         description: Internal Server Error
  */
 
-
 export async function POST(req) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   await dbConnect();
   const body = await req.json();
 
   const sessionToken = await getServerSession(authOptions);
   const userId = body.UT_User_Id || sessionToken?.user?.id;
 
-  if (!userId) return new Response(JSON.stringify({ success: false, message: "Unauthorized" }), { status: 401 });
+  if (!userId)
+    return new Response(
+      JSON.stringify({
+        success: false,
+        code: "6042_23",
+        title: t("errorCode.6042_23.title"),
+        message: t("errorCode.6042_23.description"),
+      }),
+      { status: 401 }
+    );
 
   const user = await User.findById(userId);
-  if (!user) return new Response(JSON.stringify({ success: false, message: "User not found" }), { status: 404 });
+  if (!user)
+    return new Response(
+      JSON.stringify({
+        success: false,
+        success: false,
+        code: "6042_22",
+        title: t("errorCode.6042_22.title"),
+        message: t("errorCode.6042_22.description"),
+      }),
+      { status: 404 }
+    );
 
   const session = await mongoose.startSession();
 
@@ -260,11 +282,29 @@ export async function POST(req) {
         HCJ_JS_Class_Of_Year: body.IE_Year,
         HCJ_JS_Audit_Trail: [AuditTrailSchema],
       }).save({ session });
+
+      await new IndividualVisibility({
+        IIV_Individual_Id: savedIndividual._id,
+        IIV_Phone_Number: true,
+        IIV_Email: true,
+        IIV_BirthDate: false,
+        IIV_Address_Line1: true,
+        IIV_Address_Line2: false,
+        IIV_Landmark: false,
+        IIV_Pincode: true,
+        IIV_Website_Url_Visibility: true,
+        IIV_Creation_DtTym: new Date(),
+        IIV_Audit_Trail: [],
+      }).save({ session });
     });
 
     // After successful transaction, fetch the saved records
-    const savedIndividual = await IndividualDetails.findOne({ ID_User_Id: userId });
-    const savedJobSeeker = await Hcj_Job_Seeker.findOne({ HCJ_JS_Individual_Id: savedIndividual._id });
+    const savedIndividual = await IndividualDetails.findOne({
+      ID_User_Id: userId,
+    });
+    const savedJobSeeker = await Hcj_Job_Seeker.findOne({
+      HCJ_JS_Individual_Id: savedIndividual._id,
+    });
 
     // Queue EcoLink creation (non-transactional)
     await queueStudentEcoLinkCreation({
@@ -280,9 +320,9 @@ export async function POST(req) {
       institute: body.IE_Institute_Name,
       program: body.IE_Program_Name,
       specialization: body.IE_Specialization,
-      lang: body.lang || 'en',
-      route: body.route || 'student-ecolink',
-      designation: body.ID_Individual_Designation 
+      lang: body.lang || "en",
+      route: body.route || "student-ecolink",
+      designation: body.ID_Individual_Designation,
     });
 
     // Set cookie
@@ -296,23 +336,29 @@ export async function POST(req) {
     return new Response(
       JSON.stringify({
         success: true,
-        message: "Profile created successfully!",
+        code: "6042_24",
+        title: t("errorCode.6042_24.title"),
+        message: t("errorCode.6042_24.description"),
         individualId: savedIndividual._id.toString(),
         jobSeekerId: savedJobSeeker._id.toString(),
         first_name: body.ID_First_Name,
         last_name: body.ID_Last_Name,
+        profileImage: body.ID_Profile_Picture || null,
       }),
       { status: 201 }
     );
-
   } catch (error) {
     console.error("Student Profile Error:", error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        message: "Internal Server Error",
-        error: error.message 
-      }), 
+      JSON.stringify({
+        success: false,
+        code: "6042_25",
+        title: t("errorCode.6042_25.title"),
+        message: t("errorCode.6042_25.description", {
+          message: error.message,
+        }),
+        error: error.message,
+      }),
       { status: 500 }
     );
   } finally {

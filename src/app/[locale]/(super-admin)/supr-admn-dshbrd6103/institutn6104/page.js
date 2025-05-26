@@ -65,60 +65,113 @@ export default function InstitutionsPage() {
 
   useEffect(() => {
     if (institutions && institutions.length > 0) {
-      const transformedData = institutions.map((institution) => {
-        // Map verification status from the API response
-        const verificationStatus = institution?.companyKYC?.CKD_Verification_Status === "verified" 
-          ? "Verified" 
-          : institution?.companyKYC?.CKD_Verification_Status === "pending" 
-            ? "Pending" 
-            : "Not Verified";
+      // const transformedData = institutions.map((institution) => {
+      //   // Map verification status from the API response
+      //   const verificationStatus = institution?.companyKYC?.CKD_Verification_Status === "verified" 
+      //     ? "Verified" 
+      //     : institution?.companyKYC?.CKD_Verification_Status === "pending" 
+      //       ? "Pending" 
+      //       : "Not Verified";
         
-        // Get admin name if available
-        const adminName = institution.administrator 
-          ? `${institution?.administrator.ID_First_Name || ''} ${institution.administrator.ID_Last_Name || ''}`.trim() 
-          : "No Admin";
+      //   // Get admin name if available
+      //   const adminName = institution.administrator 
+      //     ? `${institution?.administrator.ID_First_Name || ''} ${institution.administrator.ID_Last_Name || ''}`.trim() 
+      //     : "No Admin";
         
-        // Get documents array
-        const documents = [
-          ...(institution?.companyKYC?.CKD_Company_Registration_Documents ? [{ 
-            type: 'pdf', 
-            name: 'Registration Document',
-            url: institution?.companyKYC.CKD_Company_Registration_Documents 
-          }] : []),
-          ...(institution?.companyKYC?.CKD_Company_Tax_Documents ? [{ 
-            type: 'pdf', 
-            name: 'Tax Document',
-            url: institution?.companyKYC.CKD_Company_Tax_Documents 
-          }] : [])
-        ];
+      //   // Get documents array
+      //   const documents = [
+      //     ...(institution?.companyKYC?.CKD_Company_Registration_Documents ? [{ 
+      //       type: 'pdf', 
+      //       name: 'Registration Document',
+      //       url: institution?.companyKYC.CKD_Company_Registration_Documents 
+      //     }] : []),
+      //     ...(institution?.companyKYC?.CKD_Company_Tax_Documents ? [{ 
+      //       type: 'pdf', 
+      //       name: 'Tax Document',
+      //       url: institution?.companyKYC.CKD_Company_Tax_Documents 
+      //     }] : [])
+      //   ];
 
-        return {
-          id: institution._id,
-          username: institution.companyDetails?.CD_Company_Name || "N/A",
-          institutionName: institution.companyDetails?.CD_Company_Name || "Institution",
-          location: institution.companyDetails?.CD_Company_Location || institution.companyAddress?.CAD_City || "N/A",
-          email: institution.companyDetails?.CD_Company_Email || "N/A",
-          phone: institution.companyDetails?.CD_Phone_Number || "N/A",
-          administrators: institution.administrator ? [
-            {
-              name: adminName,
-              email: institution.administrator.ID_Email,
-              phone: institution.administrator.ID_Phone,
-              profileImage: ""
-            }
-          ] : [],
-          documents: documents,
-          verificationStatus: verificationStatus,
-          verificationBadgeColor: getVerificationBadgeColor(verificationStatus),
-          verificationCode: institution?.companyKYC?.CKD_Verification_Status || "pending",
-          address: institution?.companyAddress ? 
-            `${institution?.companyAddress?.CAD_Address_Line1 || ''}, ${institution.companyAddress.CAD_City || ''}, ${institution.companyAddress.CAD_State || ''}, ${institution.companyAddress.CAD_Country || ''}` : 
-            "N/A",
-          createdAt: institution.createdAt,
-          profileImage: institution.companyDetails?.CD_Company_Logo || "",
-          rawData: institution, // Store the raw data for reference
-        };
-      });
+      //   return {
+      //     id: institution._id,
+      //     username: institution.companyDetails?.CD_Company_Name || "N/A",
+      //     institutionName: institution.companyDetails?.CD_Company_Name || "Institution",
+      //     location: institution.companyDetails?.CD_Company_Location || institution.companyAddress?.CAD_City || "N/A",
+      //     email: institution.companyDetails?.CD_Company_Email || "N/A",
+      //     phone: institution.companyDetails?.CD_Phone_Number || "N/A",
+      //     administrators: institution.administrator ? [
+      //       {
+      //         name: adminName,
+      //         email: institution.administrator.ID_Email,
+      //         phone: institution.administrator.ID_Phone,
+      //         profileImage: ""
+      //       }
+      //     ] : [],
+      //     documents: documents,
+      //     verificationStatus: verificationStatus,
+      //     verificationBadgeColor: getVerificationBadgeColor(verificationStatus),
+      //     verificationCode: institution?.companyKYC?.CKD_Verification_Status || "pending",
+      //     address: institution?.companyAddress ? 
+      //       `${institution?.companyAddress?.CAD_Address_Line1 || ''}, ${institution.companyAddress.CAD_City || ''}, ${institution.companyAddress.CAD_State || ''}, ${institution.companyAddress.CAD_Country || ''}` : 
+      //       "N/A",
+      //     createdAt: institution.createdAt,
+      //     profileImage: institution.companyDetails?.CD_Company_Logo || "",
+      //     rawData: institution, // Store the raw data for reference
+      //   };
+      // });
+
+      const transformedData = institutions
+  .filter((institution) => institution) // skip null/undefined entries
+  .map((institution) => {
+    const verificationStatus = institution?.companyKYC?.CKD_Verification_Status === "verified" 
+      ? "Verified" 
+      : institution?.companyKYC?.CKD_Verification_Status === "pending" 
+        ? "Pending" 
+        : "Not Verified";
+
+    const admin = institution?.administrator;
+    const adminName = admin 
+      ? `${admin.ID_First_Name || ''} ${admin.ID_Last_Name || ''}`.trim() 
+      : "No Admin";
+
+    const documents = [
+      ...(institution?.companyKYC?.CKD_Company_Registration_Documents ? [{ 
+        type: 'pdf', 
+        name: 'Registration Document',
+        url: institution?.companyKYC.CKD_Company_Registration_Documents 
+      }] : []),
+      ...(institution?.companyKYC?.CKD_Company_Tax_Documents ? [{ 
+        type: 'pdf', 
+        name: 'Tax Document',
+        url: institution?.companyKYC.CKD_Company_Tax_Documents 
+      }] : [])
+    ];
+
+    return {
+      id: institution._id,
+      username: institution.companyDetails?.CD_Company_Name || "N/A",
+      institutionName: institution.companyDetails?.CD_Company_Name || "Institution",
+      location: institution.companyDetails?.CD_Company_Location || institution.companyAddress?.CAD_City || "N/A",
+      email: institution.companyDetails?.CD_Company_Email || "N/A",
+      phone: institution.companyDetails?.CD_Phone_Number || "N/A",
+      administrators: admin ? [{
+        name: adminName,
+        email: admin.ID_Email,
+        phone: admin.ID_Phone,
+        profileImage: ""
+      }] : [],
+      documents,
+      verificationStatus,
+      verificationBadgeColor: getVerificationBadgeColor(verificationStatus),
+      verificationCode: institution?.companyKYC?.CKD_Verification_Status || "pending",
+      address: institution?.companyAddress ? 
+        `${institution?.companyAddress?.CAD_Address_Line1 || ''}, ${institution.companyAddress.CAD_City || ''}, ${institution.companyAddress.CAD_State || ''}, ${institution.companyAddress.CAD_Country || ''}` : 
+        "N/A",
+      createdAt: institution.createdAt,
+      profileImage: institution.companyDetails?.CD_Company_Logo || "",
+      rawData: institution,
+    };
+  });
 
       setMappedInstitutions(transformedData);
     } else {

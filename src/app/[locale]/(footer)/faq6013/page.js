@@ -9,6 +9,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useSearchParams } from "next/navigation";
 
 const staticFaqs = [
   {
@@ -69,7 +70,10 @@ const staticFaqs = [
 ];
 
 export default function Page() {
-  const [search, setSearch] = useState("");
+  const searchParams = useSearchParams();
+  const queryFromURL = searchParams.get("q") || "";
+  const [search, setSearch] = useState(queryFromURL);
+
   const [suggestions, setSuggestions] = useState([]);
   const [selectedFaq, setSelectedFaq] = useState(null);
   const router = useRouter();
@@ -83,11 +87,35 @@ export default function Page() {
     const timeout = setTimeout(() => {
       fetch(`/api/hcj/v1/hcjArET60131fetchFaq?search=${search}`)
         .then((res) => res.json())
-        .then((json) => setSuggestions(json.data || []));
+        .then((json) => {
+          const faqs = json.data || [];
+          setSuggestions(faqs);
+
+          // If the query was passed and no selectedFaq yet, auto-select the first match
+          if (queryFromURL && faqs.length > 0 && !selectedFaq) {
+            setSelectedFaq(faqs[0]);
+            setSearch("");
+          }
+        });
     }, 300);
 
     return () => clearTimeout(timeout);
   }, [search]);
+
+  // useEffect(() => {
+  //   if (!search.trim()) {
+  //     setSuggestions([]);
+  //     return;
+  //   }
+
+  //   const timeout = setTimeout(() => {
+  //     fetch(`/api/hcj/v1/hcjArET60131fetchFaq?search=${search}`)
+  //       .then((res) => res.json())
+  //       .then((json) => setSuggestions(json.data || []));
+  //   }, 300);
+
+  //   return () => clearTimeout(timeout);
+  // }, [search]);
 
   const handleClick = () => router.push("/cntct6011");
 
@@ -149,7 +177,12 @@ export default function Page() {
             <h2 className="text-xl font-semibold mb-6 text-gray-800 dark:text-white">
               Answer:
             </h2>
-            <Accordion type="single" collapsible className="space-y-6">
+            <Accordion
+              type="single"
+              collapsible
+              className="space-y-6"
+              value="selected-faq"
+            >
               <AccordionItem
                 value="selected-faq"
                 className="border rounded-lg shadow-sm overflow-hidden mb-4 bg-white dark:bg-gray-800 hover:shadow-lg transition-shadow"
@@ -174,8 +207,8 @@ export default function Page() {
           {/* Info Message */}
           <section className="py-8 px-4 text-center">
             <p className="text-gray-600 dark:text-gray-300 text-lg mb-4">
-              If you have questions that aren&apos;t answered below, please feel free
-              to contact us!
+              If you have questions that aren&apos;t answered below, please feel
+              free to contact us!
             </p>
           </section>
 

@@ -3,16 +3,67 @@ import { dbConnect } from "@/app/utils/dbConnect";
 import HcjAchieversCentral from "@/app/models/hcj_achievers_central";
 
 /**
- * PATCH /api/super-admin/v1/hcjArET61032UpdateAchieverStatus
- * Description:
- *  - Super Admin can verify (status = "01") or reject (status = "03") an achiever.
- * Request Body:
- *  {
- *    "achieverId": "MONGO_ID",
- *    "status": "01" or "03",
- *    "superAdminId": "SA123456"
- *  }
+ * @swagger
+ * /api/super-admin/v1/hcjBrBT61081AchieverCentral:
+ *   patch:
+ *     summary: Verify or Reject an Achiever
+ *     description: >
+ *       Allows Super Admin to update the status of an achiever as "01" (Verified) or "03" (Rejected).  
+ *       Also appends an audit trail with action metadata.
+ *     tags:
+ *       - Super-Admin Verify A Achiver Central
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - achieverId
+ *               - status
+ *               - superAdminId
+ *             properties:
+ *               achieverId:
+ *                 type: string
+ *                 description: MongoDB ObjectId of the achiever to update
+ *               status:
+ *                 type: string
+ *                 enum: ["01", "03"]
+ *                 description: "01 = Verified, 03 = Rejected"
+ *               superAdminId:
+ *                 type: string
+ *                 description: ID of the Super Admin performing the action
+ *     responses:
+ *       200:
+ *         description: Achiever status updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 updatedStatus:
+ *                   type: string
+ *                 auditLog:
+ *                   type: object
+ *                   properties:
+ *                     actionBy:
+ *                       type: string
+ *                     actionType:
+ *                       type: string
+ *                     actionAt:
+ *                       type: string
+ *                       format: date-time
+ *       400:
+ *         description: Bad Request - Missing or invalid fields
+ *       404:
+ *         description: Achiever not found
+ *       500:
+ *         description: Internal Server Error
  */
+
+
 export async function PATCH(req) {
   try {
     await dbConnect();

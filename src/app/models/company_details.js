@@ -43,6 +43,7 @@ const company_detailsSchema = new Schema(
       ref: 'IndividualDetails',
       required: true,
     },
+    CD_Company_Status : { type: String,  default: '02', enum: ['01', '02', '03'] },
     // CD_Individual_Num: { type: Number, required: true },
     CD_Company_Establishment_Year: { type: Number }, // Mandatory
     CD_Company_Name: { type: String, required: true },
@@ -57,7 +58,8 @@ const company_detailsSchema = new Schema(
     CD_Company_Website: { type: String },
     CD_Company_Logo: { type: String },
     CD_Company_Cover_Profile: { type: String },
-    CD_Company_About: { type: String, required: true }, // Mandatory
+    CD_Company_Mission: { type: String, required: false },
+    CD_Company_About: { type: String, required: false }, // Mandatory
     CD_Company_Type: { type: String },
     CD_Session_Id: { type: Number },
     CD_Created_DtTym: { type: Date, default: Date.now },

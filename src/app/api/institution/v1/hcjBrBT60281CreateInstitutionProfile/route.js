@@ -1,13 +1,15 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import CompanyAddressDetails from '@/app/models/company_address_details';
-import CompanyDetails from '@/app/models/company_details';
-import IndividualDetails from '@/app/models/individual_details';
-import SocialProfile from '@/app/models/social_link';
-import { dbConnect } from '@/app/utils/dbConnect';
-import mongoose from 'mongoose';
-import { getServerSession } from 'next-auth';
-import { cookies } from 'next/headers';
-import { queueEcoLinkCreation } from '@/app/utils/admin-institution-queue';
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import CompanyAddressDetails from "@/app/models/company_address_details";
+import CompanyDetails from "@/app/models/company_details";
+import CompanyVisibility from "@/app/models/company_info_visibility";
+import IndividualDetails from "@/app/models/individual_details";
+import SocialProfile from "@/app/models/social_link";
+import { queueEcoLinkCreation } from "@/app/utils/admin-institution-queue";
+import { dbConnect } from "@/app/utils/dbConnect";
+import { getTranslator } from "@/i18n/server";
+import mongoose from "mongoose";
+import { getServerSession } from "next-auth";
+import { cookies } from "next/headers";
 
 /**
  * @swagger
@@ -119,8 +121,9 @@ import { queueEcoLinkCreation } from '@/app/utils/admin-institution-queue';
  *         description: Internal Server Error
  */
 
-
 export async function POST(req) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   let session;
   let transactionCommitted = false;
 
@@ -136,15 +139,27 @@ export async function POST(req) {
 
     if (!sessionId) {
       return new Response(
-        JSON.stringify({ success: false, message: 'Unauthorized' }), 
+        JSON.stringify({
+          success: false,
+          code: "6028_14",
+          title: t(`errorCode.6028_14.title`),
+          message: t(`errorCode.6028_14.description`),
+        }),
         { status: 401 }
       );
     }
 
-    const individual = await IndividualDetails.findById(sessionId).session(session);
+    const individual = await IndividualDetails.findById(sessionId).session(
+      session
+    );
     if (!individual) {
       return new Response(
-        JSON.stringify({ success: false, message: 'User not found' }), 
+        JSON.stringify({
+          success: false,
+          code: "6028_15",
+          title: t(`errorCode.6028_15.title`),
+          message: t(`errorCode.6028_15.description`),
+        }),
         { status: 404 }
       );
     }
@@ -156,7 +171,12 @@ export async function POST(req) {
 
     if (existingCompany) {
       return new Response(
-        JSON.stringify({ success: false, message: 'Company already exists!' }), 
+        JSON.stringify({
+          success: false,
+          code: "6028_16",
+          title: t(`errorCode.6028_16.title`),
+          message: t(`errorCode.6028_16.description`),
+        }),
         { status: 409 }
       );
     }
@@ -167,8 +187,12 @@ export async function POST(req) {
       CD_Company_Type: body.CD_Company_Type,
       CD_Company_Establishment_Year: body.CD_Company_Establishment_Year,
       CD_Company_Email: body.CD_Company_Email,
-      CD_Company_About: body.CD_Company_About || 'Tell us about your company!',
+      CD_Company_Alternate_Email: body.CD_Company_Alternate_Email,
+      CD_Company_About: body.CD_Company_About || "Tell us about your company!",
+      CD_Company_Mission:
+        body.CD_Company_Mission || "Tell us your company mission!",
       CD_Phone_Number: body.CD_Phone_Number,
+      CD_Alternate_Phone_Number: body.CD_Alternate_Phone_Number,
       CD_Company_Website: body.CD_Company_Website,
       CD_Company_Logo: body.CD_Company_Logo || null,
       CD_Audit_Trail: body.CD_Audit_Trail || [],
@@ -179,7 +203,7 @@ export async function POST(req) {
     // Save address details
     const companyAddressDetails = new CompanyAddressDetails({
       CAD_Company_Id: savedCompanyDetails._id,
-      CAD_Address_Type: 'Registered',
+      CAD_Address_Type: "Registered",
       CAD_Address_Line1: body.CAD_Address_Line1,
       CAD_Address_Line2: body.CAD_Address_Line2,
       CAD_Landmark: body.CAD_Landmark,
@@ -195,17 +219,31 @@ export async function POST(req) {
     // Save social profiles
     await new SocialProfile({
       SL_Id: savedCompanyDetails._id,
-      SL_Individual_Role: '06', // Institution role code
-      SL_Product_Identifier: '10000',
-      SL_Social_Profile_Name: body.SL_Social_Profile_Name || '',
-      SL_LinkedIn_Profile: body.SL_LinkedIn_Profile || '',
-      SL_Website_Url: body.SL_Website_Url || '',
-      SL_Instagram_Url: body.SL_Instagram_Url || '',
-      SL_Facebook_Url: body.SL_Facebook_Url || '',
-      SL_Twitter_Url: body.SL_Twitter_Url || '',
-      SL_Pinterest_Url: body.SL_Pinterest_Url || '',
-      SL_Custom_Url: body.SL_Custom_Url || '',
-      SL_Portfolio_Url: body.SL_Portfolio_Url || '',
+      //  SL_Individual_Role: '06', // Institution role code
+      SL_Individual_Role: individual.ID_Individual_Role,
+      SL_Product_Identifier: "000001000",
+      SL_Social_Profile_Name: body.SL_Social_Profile_Name || "",
+      SL_LinkedIn_Profile: body.SL_LinkedIn_Profile || "",
+      SL_Website_Url: body.SL_Website_Url || "",
+      SL_Instagram_Url: body.SL_Instagram_Url || "",
+      SL_Facebook_Url: body.SL_Facebook_Url || "",
+      SL_Twitter_Url: body.SL_Twitter_Url || "",
+      SL_Pinterest_Url: body.SL_Pinterest_Url || "",
+      SL_Custom_Url: body.SL_Custom_Url || "",
+      SL_Portfolio_Url: body.SL_Portfolio_Url || "",
+    }).save({ session });
+
+    await new CompanyVisibility({
+      CIV_Company_Id: savedCompanyDetails._id,
+      CIV_Company_Email: true,
+      CIV_Company_Phone: true,
+      CIV_Company_Website: true,
+      CIV_Address_Line1: true,
+      CIV_Address_Line2: false,
+      CIV_Landmark: false,
+      CIV_Pincode: true,
+      CIV_Creation_DtTym: new Date(),
+      CIV_Audit_Trail: [],
     }).save({ session });
 
     await session.commitTransaction();
@@ -214,7 +252,7 @@ export async function POST(req) {
     // Queue EcoLink creation
     await queueEcoLinkCreation({
       companyId: savedCompanyDetails._id,
-      idSource: 'CompanyDetails',
+      idSource: "CompanyDetails",
       profileName: body.CD_Company_Name,
       profilePicture: body.CD_Company_Logo,
       phone: body.CD_Phone_Number,
@@ -223,38 +261,43 @@ export async function POST(req) {
       city: body.CAD_City,
       state: body.CAD_State,
       website: body.CD_Company_Website,
-      lang: body.lang || 'en',
-      route: 'institution-ecolink',
-      establishmentYear: body.CD_Company_Establishment_Year
+      lang: body.lang || "en",
+      route: "institution-ecolink",
+      establishmentYear: body.CD_Company_Establishment_Year,
     });
 
     // Set cookie
     const cookieStore = await cookies();
-    cookieStore.set('company_id', savedCompanyDetails._id.toString(), {
+    cookieStore.set("company_id", savedCompanyDetails._id.toString(), {
       httpOnly: true,
-      path: '/',
+      path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Institution profile created successfully!',
+        code: "6028_17",
+        title: t(`errorCode.6028_17.title`),
+        message: t(`errorCode.6028_17.description`),
         companyId: savedCompanyDetails._id.toString(),
         hasLogo: !!body.CD_Company_Logo,
       }),
       { status: 201 }
     );
-
   } catch (error) {
     if (session && !transactionCommitted) await session.abortTransaction();
-    console.error('Transaction Error:', error);
+    console.error("Transaction Error:", error);
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        message: 'Profile creation failed',
-        error: error.message 
-      }), 
+      JSON.stringify({
+        success: false,
+        code: "6028_18",
+        title: t(`errorCode.6028_18.title`),
+        message: t(`errorCode.6028_18.description`, {
+          error: error.message,
+        }),
+        error: error.message,
+      }),
       { status: 500 }
     );
   } finally {

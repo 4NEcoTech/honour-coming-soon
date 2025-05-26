@@ -307,42 +307,42 @@
 //   );
 // }
 
+"use client";
 
-'use client';
+import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
-import { usePathname } from 'next/navigation';
-
-import { DataList } from '@/components/data-list';
-import { DataTable } from '@/components/data-table';
-import { DataViewToggle } from '@/components/data-view-toggle';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { DataList } from "@/components/data-list";
+import { DataTable } from "@/components/data-table";
+import { DataViewToggle } from "@/components/data-view-toggle";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { PaginationControls } from '@/components/ui/pagination-controls';
-import { SearchInput } from '@/components/ui/search-input';
-import StudentDetailsPopup from '../../components/stdnt-prfl';
+} from "@/components/ui/dropdown-menu";
+import { PaginationControls } from "@/components/ui/pagination-controls";
+import { SearchInput } from "@/components/ui/search-input";
+import StudentDetailsPopup from "../../components/stdnt-prfl";
 
-import useInstitution from '@/hooks/useInstitution';
-import { toast } from '@/hooks/use-toast';
-import { usePagination } from '@/hooks/use-pagination';
+import { usePagination } from "@/hooks/use-pagination";
+import { toast } from "@/hooks/use-toast";
+import useInstitution from "@/hooks/useInstitution";
 
 export default function Page() {
   const pathname = usePathname();
-  const isInvited = pathname.includes('invited');
+  const isInvited = pathname.includes("invited");
 
   const { data: session } = useSession();
   const companyId = session?.user?.companyId;
-  const { institutionData, loading: institutionLoading } = useInstitution(companyId);
+  const { institutionData, loading: institutionLoading } =
+    useInstitution(companyId);
 
-  const [viewMode, setViewMode] = useState('table');
+  const [viewMode, setViewMode] = useState("table");
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
@@ -362,12 +362,12 @@ export default function Page() {
     goToPage,
     setAdditionalFilters,
     refreshData,
-  } = usePagination('/api/institution/v1/hcjBrET60661FetchInvitedStudent', {
+  } = usePagination("/api/institution/v1/hcjBrET60661FetchInvitedStudent", {
     pageSize: 10,
     batchSize: 100,
     searchDelay: 400,
     initialFilters: {
-      status: 'invited',
+      status: "invited",
     },
   });
 
@@ -375,6 +375,7 @@ export default function Page() {
     if (institutionData?.CD_Company_Num) {
       setAdditionalFilters({
         HCJ_ST_InstituteNum: institutionData.CD_Company_Num,
+        status: 'invited',
       });
     }
   }, [institutionData, setAdditionalFilters]);
@@ -391,9 +392,9 @@ export default function Page() {
   const handleDelete = async (studentId) => {
     if (!studentId) {
       toast({
-        title: 'Error',
-        description: 'Student ID is missing. Unable to delete.',
-        variant: 'destructive',
+        title: "Error",
+        description: "Student ID is missing. Unable to delete.",
+        variant: "destructive",
       });
       return;
     }
@@ -402,25 +403,25 @@ export default function Page() {
       const response = await fetch(
         `/api/institution/v1/hcjBrBT60552ManageStudents?id=${studentId}`,
         {
-          method: 'DELETE',
+          method: "DELETE",
         }
       );
 
-      if (!response.ok) throw new Error('Failed to delete student');
+      if (!response.ok) throw new Error("Failed to delete student");
 
       toast({
-        title: 'Student Deleted',
-        description: 'The student has been removed successfully.',
-        variant: 'destructive',
+        title: "Student Deleted",
+        description: "The student has been removed successfully.",
+        variant: "destructive",
       });
 
       refreshData(); // Refetch after delete
       setIsPopupOpen(false);
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to delete student. Please try again.',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to delete student. Please try again.",
+        variant: "destructive",
       });
     }
   };
@@ -452,25 +453,25 @@ export default function Page() {
   }));
 
   const tableColumns = [
-    { key: 'name', header: 'Name', isVisible: visibleColumns.name },
+    { key: "name", header: "Name", isVisible: visibleColumns.name },
     {
-      key: 'branchSpecialization',
-      header: 'Specialization',
+      key: "branchSpecialization",
+      header: "Specialization",
       isVisible: visibleColumns.specialization,
     },
     {
-      key: 'programName',
-      header: 'Program',
+      key: "programName",
+      header: "Program",
       isVisible: visibleColumns.program,
     },
     {
-      key: 'enrollmentYear',
-      header: 'Enrollment Year',
+      key: "enrollmentYear",
+      header: "Enrollment Year",
       isVisible: visibleColumns.year,
     },
     {
-      key: 'actions',
-      header: 'View',
+      key: "actions",
+      header: "View",
       render: (student) => (
         <button
           className="text-primary hover:underline"
@@ -485,10 +486,10 @@ export default function Page() {
   ];
 
   const listFields = [
-    { key: 'name', label: 'Name' },
-    { key: 'branchSpecialization', label: 'Specialization' },
-    { key: 'programName', label: 'Program' },
-    { key: 'enrollmentYear', label: 'Enrollment Year' },
+    { key: "name", label: "Name" },
+    { key: "branchSpecialization", label: "Specialization" },
+    { key: "programName", label: "Program" },
+    { key: "enrollmentYear", label: "Enrollment Year" },
   ];
 
   return (
@@ -535,17 +536,18 @@ export default function Page() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+          {/* commenting  now because of the  functionality is not  implemented yet  */}
 
-          <Button
+          {/* <Button
             variant="outline"
             className="bg-blue-500 text-white hover:bg-blue-600">
             Export to Excel
-          </Button>
+          </Button> */}
         </div>
       </div>
 
       {!isLoading && mappedStudents.length > 0 ? (
-        viewMode === 'table' ? (
+        viewMode === "table" ? (
           <DataTable
             data={mappedStudents}
             columns={tableColumns}
@@ -562,7 +564,7 @@ export default function Page() {
         )
       ) : (
         <div className="text-center py-8 text-gray-500">
-          {isLoading ? 'Loading...' : 'No invited students found'}
+          {isLoading ? "Loading..." : "No invited students found"}
         </div>
       )}
 

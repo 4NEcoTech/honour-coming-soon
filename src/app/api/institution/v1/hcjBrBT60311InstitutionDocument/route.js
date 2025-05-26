@@ -2,6 +2,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import company_details from "@/app/models/company_details";
 import CompanyKYCDetails from "@/app/models/company_kyc_details";
 import { dbConnect } from "@/app/utils/dbConnect";
+import { getTranslator } from "@/i18n/server";
 import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
 import { v4 as uuidv4 } from "uuid";
@@ -93,8 +94,9 @@ import { v4 as uuidv4 } from "uuid";
  *         description: Internal Server Error or Database Transaction Failed
  */
 
-
 export async function POST(req) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   try {
     await dbConnect();
     const body = await req.json();
@@ -103,17 +105,33 @@ export async function POST(req) {
     const sessionId = body.CKD_Company_Id || sessionData?.user?.companyId;
 
     if (!sessionId) {
-      return new Response(JSON.stringify({ success: false, message: "Unauthorized" }), {
-        status: 401,
-      });
+      return new Response(
+        JSON.stringify({
+          success: false,
+          code: "6031_16",
+          title: t(`errorCode.6031_16.title`),
+          message: t(`errorCode.6031_16.description`),
+        }),
+        {
+          status: 401,
+        }
+      );
     }
 
     // Validate company
     const companyDetails = await company_details.findOne({ _id: sessionId });
     if (!companyDetails) {
-      return new Response(JSON.stringify({ success: false, message: "Company not found" }), {
-        status: 404,
-      });
+      return new Response(
+        JSON.stringify({
+          success: false,
+          code: "6031_17",
+          title: t(`errorCode.6031_17.title`),
+          message: t(`errorCode.6031_17.description`),
+        }),
+        {
+          status: 404,
+        }
+      );
     }
 
     const {
@@ -169,7 +187,9 @@ export async function POST(req) {
       return new Response(
         JSON.stringify({
           success: true,
-          message: "KYC details submitted successfully!",
+          code: "6031_18",
+          title: t(`errorCode.6031_18.title`),
+          message: t(`errorCode.6031_18.description`),
           kycNumber,
         }),
         { status: 201 }
@@ -181,15 +201,27 @@ export async function POST(req) {
       return new Response(
         JSON.stringify({
           success: false,
-          message: "Database transaction failed",
+          code: "6031_19",
+          title: t(`errorCode.6031_19.title`),
+          message: t(`errorCode.6031_19.description`),
         }),
         { status: 500 }
       );
     }
   } catch (error) {
     console.error("KYC Submission Error:", error);
-    return new Response(JSON.stringify({ success: false, message: "Internal Server Error" }), {
-      status: 500,
-    });
+    return new Response(
+      JSON.stringify({
+        success: false,
+        code: "6031_20",
+        title: t(`errorCode.6031_20.title`),
+        message: t(`errorCode.6031_20.description`, {
+          message: error.message,
+        }),
+      }),
+      {
+        status: 500,
+      }
+    );
   }
 }

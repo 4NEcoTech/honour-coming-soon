@@ -223,7 +223,7 @@ export function FormMultiSelect({
       name={name}
       render={({ field, fieldState }) => (
         <FormItem className={className}>
-          {label && <FormLabel>{label}</FormLabel>}
+          {label && <FormLabel className = "text-primary">{label}</FormLabel>}
           <FormControl>
             <MultiSelect
               id={field.name}

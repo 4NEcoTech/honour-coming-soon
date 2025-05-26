@@ -1,228 +1,134 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
-import { signIn, useSession } from "next-auth/react";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { Link, useRouter } from "@/i18n/routing";
-
+"use client"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { useToast } from "@/hooks/use-toast"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
+import { signIn, useSession } from "next-auth/react"
+import { useEffect, useState } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { Link } from "@/i18n/routing"
+import { useRouter } from "next/navigation"
 
 const FormSchema = z.object({
   email: z.string().email({
-    message: "6035_1 Please enter a valid email address.",
+    message: "Please enter a valid email address.",
   }),
   password: z.string().min(8, {
-    message: "6035_2 Password must be at least 8 characters long.",
+    message: "Password must be at least 8 characters long.",
   }),
-});
+})
 
-function Page() {
-  const [loginType, setLoginType] = useState("institution");
-  const [showPassword, setShowPassword] = useState(false);
-  const [subRole, setSubRole] = useState("");
-  const router = useRouter();
-  const { toast } = useToast();
-  const { data: session, status } = useSession();
+export default function Page() {
+  const [showPassword, setShowPassword] = useState(false)
+  const [role, setRole] = useState("09") // Default to Company Admin
+  const router = useRouter()
+  const { data: session, status } = useSession()
+  const { toast } = useToast()
   const form = useForm({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       email: "",
       password: "",
     },
-  });
+  })
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/")
+    }
+  }, [status, router])
 
   async function onSubmit(data) {
-    let role;
-  
-    // Assign role based on selected login type
-    switch (loginType) {
-      case "institution":
-        role = subRole; // Can be 06, 07, or 08
-        break;
-      case "student":
-        role = "05"; // 05 for Student
-        break;
-      case "employer":
-        role = subRole; // Can be 09, 10, or 11
-        break;
-      case "jobseeker":
-        role = "12"; // 12 for Job Seeker
-        break;
-      default:
-        role = "05";
-    }
-  
-    //  Send selected role to NextAuth for verification
+    // Send selected role to NextAuth for verification
     const res = await signIn("credentials", {
       redirect: false,
       email: data.email,
       password: data.password,
-      role: role, //  Send role in login request
-    });
-  
+      role: role, // 09 (Admin), 10 (Staff), or 11 (Support)
+    })
+
     if (res?.error) {
       toast({
         title: "Login Failed",
         description: res.error,
         variant: "destructive",
-      });
-    } else {
-      router.replace("/");
+      })
+    } else if (res?.url) {
+      router.replace(res.url)
     }
   }
 
-  // If user is already authenticated, redirect them to the home page
-  useEffect(() => {
-    if (status === "authenticated") {
-      router.replace("/");
-    }
-  }, [status, router]);
-
-  // Set default sub-role based on login type
-  useEffect(() => {
-    if (loginType === "institution") {
-      setSubRole("06"); // 06 for Institution Admin by default
-    } else if (loginType === "employer") {
-      setSubRole("09"); // 09 for Employer Admin by default
-    } else {
-      setSubRole("");
-    }
-  }, [loginType]);
-
   return (
-    <div className="p-6 min-h-screen sm:bg-transparent bg-transparent flex justify-center items-center">
-      <Card className="w-full max-w-lg p-8 rounded-lg sm:border sm:shadow shadow-none">
-        <CardHeader>
-          <CardTitle>Login</CardTitle>
+    <div className="min-h-screen flex justify-center items-center p-4">
+      <Card className="w-full max-w-lg rounded-lg shadow-md">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-2xl text-center">Company Login</CardTitle>
         </CardHeader>
 
         <CardContent>
-          {/* Login Type Selection */}
-          <div className="flex justify-around space-x-4 mb-4">
-            <div className="flex items-center">
-              <input
-                type="radio"
-                id="institution-login"
-                name="login-type"
-                checked={loginType === "institution"}
-                onChange={() => setLoginType("institution")}
-                className="mr-2"
-              />
-              <Label htmlFor="institution-login">Institution</Label>
-            </div>
-            <div className="flex items-center">
-              <input
-                type="radio"
-                id="student-login"
-                name="login-type"
-                checked={loginType === "student"}
-                onChange={() => setLoginType("student")}
-                className="mr-2"
-              />
-              <Label htmlFor="student-login">Student</Label>
-            </div>
-            <div className="flex items-center">
-              <input
-                type="radio"
-                id="employer-login"
-                name="login-type"
-                checked={loginType === "employer"}
-                onChange={() => setLoginType("employer")}
-                className="mr-2"
-              />
-              <Label htmlFor="employer-login">Employer</Label>
-            </div>
-            <div className="flex items-center">
-              <input
-                type="radio"
-                id="jobseeker-login"
-                name="login-type"
-                checked={loginType === "jobseeker"}
-                onChange={() => setLoginType("jobseeker")}
-                className="mr-2"
-              />
-              <Label htmlFor="jobseeker-login">Job Seeker</Label>
-            </div>
-          </div>
-
-          {/* LinkedIn Button - Shown Only for Institution Login */}
-          {loginType === "institution" && (
-            <>
-              <div className="mb-4">
-                <Button
-                  onClick={() => signIn("linkedin")}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-md"
-                >
-                  <Image src="/image/authmodule/linkedin.svg" alt="LinkedIn" width={30} height={30} />
-                  Login with LinkedIn
-                </Button>
-              </div>
-              {/* Divider for OR */}
-              <div className="flex items-center justify-center space-x-2 mb-4">
-                <div className="border-t w-1/3"></div>
-                <span className="text-sm text-gray-500">OR</span>
-                <div className="border-t w-1/3"></div>
-              </div>
-            </>
-          )}
-
-          {(loginType === "institution" || loginType === "employer") && (
+          <div className="space-y-6">
+            {/* Company Role Selection */}
             <div className="mb-4">
-              <Label htmlFor="role-select" className="block text-sm font-medium text-primary">
-                Select Role
-              </Label>
-              <select
-                id="role-select"
-                value={subRole}
-                onChange={(e) => setSubRole(e.target.value)}
-                className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                {loginType === "institution" && (
-                  <>
-                    <option value="06">Institution Administrator</option>
-                    <option value="07">Institution Team</option>
-                    <option value="08">Institution Support</option>
-                  </>
-                )}
-                {loginType === "employer" && (
-                  <>
-                    <option value="09">Employer Admin</option>
-                    <option value="10">Employer Team</option>
-                    <option value="11">Employer Support</option>
-                  </>
-                )}
-              </select>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    id="admin-role"
+                    name="company-role"
+                    checked={role === "09"}
+                    onChange={() => setRole("09")}
+                    className="mr-2"
+                  />
+                  <Label htmlFor="admin-role">Administrator</Label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    id="staff-role"
+                    name="company-role"
+                    checked={role === "10"}
+                    onChange={() => setRole("10")}
+                    className="mr-2"
+                  />
+                  <Label htmlFor="staff-role">Staff</Label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    id="support-role"
+                    name="company-role"
+                    checked={role === "11"}
+                    onChange={() => setRole("11")}
+                    className="mr-2"
+                  />
+                  <Label htmlFor="support-role">Support</Label>
+                </div>
+              </div>
             </div>
-          )}
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              {/* Email Field */}
-              <div className="mb-4">
+            {/* Company Login Form */}
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                {/* Email Field */}
                 <FormField
                   control={form.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-medium text-primary">
-                        {loginType === "institution" ? "Educational Institution Email" : "Email"}{" "}
-                        <span className="text-destructive">*</span>
+                        Company Email <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder={
-                            loginType === "institution" ? "Enter your educational institution email" : "Enter your email"
-                          }
-                          className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                          placeholder="Enter your company email"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                           {...field}
                         />
                       </FormControl>
@@ -230,10 +136,8 @@ function Page() {
                     </FormItem>
                   )}
                 />
-              </div>
 
-              {/* Password Field */}
-              <div className="mb-4">
+                {/* Password Field */}
                 <FormField
                   control={form.control}
                   name="password"
@@ -247,7 +151,7 @@ function Page() {
                           <Input
                             type={showPassword ? "text" : "password"}
                             placeholder="Enter your password"
-                            className="w-full px-4 py-2 mt-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                             {...field}
                           />
                           <Button
@@ -270,42 +174,47 @@ function Page() {
                     </FormItem>
                   )}
                 />
-              </div>
 
-              <Link href="/frgt-psswd6036" className="flex justify-end text-sm text-primary mb-4 font-semibold hover:underline">
-                Forgot Password?
-              </Link>
+                <div className="flex justify-end">
+                  <Link href="/frgt-psswd6036" className="text-sm text-primary font-semibold hover:underline">
+                    Forgot Password?
+                  </Link>
+                </div>
 
-              <div className="mb-4">
-                <Button type="submit" className="w-full py-2 bg-primary text-white rounded-md">
+                <Button
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                  className="w-full py-2 bg-primary text-white rounded-md"
+                >
+                  {form.formState.isSubmitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
                   Login
                 </Button>
-              </div>
-            </form>
-          </Form>
+              </form>
+            </Form>
+          </div>
         </CardContent>
 
-        <CardFooter className="flex flex-col text-xs text-left text-gray-400">
-          <p className="text-sm text-muted-foreground">
+        <CardFooter className="flex flex-col items-start text-sm text-gray-500 pt-2">
+          <p className="mb-2">
             Don&apos;t have an account?{" "}
             <Link href="/rgstrtn6021" className="text-primary hover:underline">
               Sign up
             </Link>
           </p>
-          <span>By creating an account or logging in, you agree with HCJ&apos;s</span>
-          <span className="flex items-center">
-            <Link href="/prvcy-plcy6014" className="text-primary mr-1">
-              Privacy Policy
-            </Link>
-            <span>and</span>
-            <Link href="/trmsnd-cndtn6015" className="text-primary ml-1">
-              Terms & Conditions
-            </Link>
-          </span>
+          <div className="text-xs">
+            <p>By creating an account or logging in, you agree with HCJ&apos;s</p>
+            <div className="flex flex-wrap gap-1">
+              <Link href="/prvcy-plcy6014" className="text-primary hover:underline">
+                Privacy Policy
+              </Link>
+              <span>and</span>
+              <Link href="/trmsnd-cndtn6015" className="text-primary hover:underline">
+                Terms & Conditions
+              </Link>
+            </div>
+          </div>
         </CardFooter>
       </Card>
     </div>
-  );
+  )
 }
-
-export default Page;

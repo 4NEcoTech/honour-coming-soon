@@ -1,35 +1,45 @@
-"use client"
+"use client";
 
-import { FormMultiSelect } from "@/components/extension/multi-select"
-import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader2 } from "lucide-react"
-import Image from "next/image"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import PhoneInput from "react-phone-input-2"
-import "react-phone-input-2/lib/style.css"
-import Swal from "sweetalert2"
-import * as z from "zod"
-import { useSession } from "next-auth/react"
+import { FormMultiSelect } from "@/components/extension/multi-select";
+import { ProfilePhotoUpload } from "@/components/image-upload";
+import { YearSelect } from "@/components/select-year";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import Swal from "sweetalert2";
+import * as z from "zod";
 
-const formSchema = z.object({
-  institutionName: z.string().min(2, "Institution name is required"),
-  mission: z.string().max(1000, "Mission statement must be less than 1000 characters"),
-  specialization: z.array(z.string().min(1)).min(1, "Select at least one specialization"),
-  institutionType: z.string().min(1, "Institution type is required"),
-  institutionEmail: z.string().email("Invalid email address"),
-  alternateEmail: z.string().email("Invalid email address").optional().or(z.literal("")),
-  phoneNumber: z.string().min(10, "Phone number is required"),
-  alternatePhoneNumber: z.string().optional(),
-  websiteUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
-  establishmentYear: z.number().optional(),
-  logoUrl: z.string().optional(),
-})
+const formSchema = (t) =>
+  z.object({
+    institutionName: z.string().min(2, t("6028_1")),
+    mission: z.string().max(1000, t("6028_2")),
+    about: z.string().max(1000, t("6028_3")).optional(),
+    specialization: z.array(z.string().min(1)).min(1, t("6028_4")),
+    institutionType: z.string().min(1, t("6028_5")),
+    institutionEmail: z.string().email(t("6028_6")),
+    alternateEmail: z.string().email(t("6028_7")).optional().or(z.literal("")),
+    phoneNumber: z.string().min(10, t("6028_8")),
+    alternatePhoneNumber: z.string().optional(),
+    websiteUrl: z.string().url(t("6028_9")).optional().or(z.literal("")),
+    establishmentYear: z.string().optional(),
+    logoUrl: z.string().optional(),
+  });
 
 const specializations = [
   {
@@ -142,49 +152,51 @@ const specializations = [
       { label: "Sports Management", value: "sports-management" },
     ],
   },
-]
+];
 
-const currentYear = new Date().getFullYear()
-const years = Array.from({ length: 100 }, (_, i) => currentYear - i)
+const currentYear = new Date().getFullYear();
 
 const debounce = (func, delay) => {
-  let timer
+  let timer;
   return (...args) => {
-    clearTimeout(timer)
-    timer = setTimeout(() => func(...args), delay)
-  }
-}
+    clearTimeout(timer);
+    timer = setTimeout(() => func(...args), delay);
+  };
+};
 
 export default function EducationalDetailsTab({ initialData, onSubmit }) {
-  const [logo, setLogo] = useState(initialData?.logo || null)
-  const [uploadedFile, setUploadedFile] = useState(null)
-  const [searchResults, setSearchResults] = useState([])
-  const [customEntry, setCustomEntry] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [uploadingLogo, setUploadingLogo] = useState(false)
-
-  const { data: session } = useSession()
+  const [logo, setLogo] = useState(initialData?.logo || null);
+  const [searchResults, setSearchResults] = useState([]);
+  const [customEntry, setCustomEntry] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const { toast } = useToast();
+  const { data: session } = useSession();
+  const tForm = useTranslations("formErrors");
 
   const fetchInstitutions = async (query) => {
-    if (query.length < 4) return
-    setLoading(true)
+    if (query.length < 4) return;
+    setLoading(true);
     try {
-      const res = await fetch(`/api/global/v1/gblArET90011FtchInstitutnDtls?institutionName=${query}`)
-      const data = await res.json()
-      setSearchResults(data.data || [])
+      const res = await fetch(
+        `/api/global/v1/gblArET90011FtchInstitutnDtls?institutionName=${query}`
+      );
+      const data = await res.json();
+      setSearchResults(data.data || []);
     } catch {
-      setSearchResults([])
+      setSearchResults([]);
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
-  const handleSearch = debounce(fetchInstitutions, 500)
+  const handleSearch = debounce(fetchInstitutions, 500);
 
   const form = useForm({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema(tForm)),
     defaultValues: {
       institutionName: initialData?.institutionName || "",
       mission: initialData?.mission || "",
+      about: initialData?.about || "",
       specialization: initialData?.specialization?.split(",") || [],
       institutionType: initialData?.institutionType || "",
       institutionEmail: initialData?.institutionEmail || "",
@@ -195,26 +207,29 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
       establishmentYear: initialData?.establishmentYear || currentYear,
       logoUrl: initialData?.logoUrl || "",
     },
-  })
+  });
 
   const handleLogoUpload = async (file) => {
-    if (!file) return null
+    if (!file) return null;
 
-    setUploadingLogo(true)
+    setUploadingLogo(true);
     try {
-      const formData = new FormData()
-      formData.append("individualId", session?.user?.individualId || "")
-      formData.append("file", file)
+      const formData = new FormData();
+      formData.append("individualId", session?.user?.individualId || "");
+      formData.append("file", file);
 
-      const response = await fetch("/api/institution/v1/hcjBrBT60282InstitutionProfileImage", {
-        method: "POST",
-        body: formData,
-      })
+      const response = await fetch(
+        "/api/institution/v1/hcjBrBT60282InstitutionProfileImage",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
-      const result = await response.json()
+      const result = await response.json();
       if (result.success && result.url) {
         // Set the URL in the form
-        form.setValue("logoUrl", result.url)
+        form.setValue("logoUrl", result.url);
 
         Swal.fire({
           title: "Success",
@@ -224,78 +239,77 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
           position: "top-end",
           showConfirmButton: false,
           timer: 3000,
-        })
+        });
 
-        return result.url
+        return result.url;
       } else {
-        throw new Error(result.message || "Upload failed")
+        throw new Error(result.message || "Upload failed");
       }
     } catch (error) {
-      console.error("Logo upload error:", error)
+      console.error("Logo upload error:", error);
       Swal.fire({
         title: "Error",
         text: error.message || "Failed to upload institution logo",
         icon: "error",
         confirmButtonText: "OK",
-      })
-      return null
+      });
+      return null;
     } finally {
-      setUploadingLogo(false)
+      setUploadingLogo(false);
     }
-  }
+  };
 
-  const handleFileChange = async (e, onChange) => {
-    const file = e.target.files[0]
-    if (file) {
-      // Check file size (less than 2MB)
-      if (file.size > 2 * 1024 * 1024) {
-        Swal.fire({
-          title: "Error",
-          text: "File size should be less than 2MB",
-          icon: "error",
-          confirmButtonText: "OK",
-        })
-        return
-      }
+  // const handleFileChange = async (e, onChange) => {
+  //   const file = e.target.files[0];
+  //   if (file) {
+  //     // Check file size (less than 2MB)
+  //     if (file.size > 2 * 1024 * 1024) {
+  //       Swal.fire({
+  //         title: "Error",
+  //         text: "File size should be less than 2MB",
+  //         icon: "error",
+  //         confirmButtonText: "OK",
+  //       });
+  //       return;
+  //     }
 
-      // Check file type
-      if (!["image/jpeg", "image/jpg", "image/png"].includes(file.type)) {
-        Swal.fire({
-          title: "Error",
-          text: "Only JPG, JPEG, and PNG files are allowed",
-          icon: "error",
-          confirmButtonText: "OK",
-        })
-        return
-      }
+  //     // Check file type
+  //     if (!["image/jpeg", "image/jpg", "image/png"].includes(file.type)) {
+  //       Swal.fire({
+  //         title: "Error",
+  //         text: "Only JPG, JPEG, and PNG files are allowed",
+  //         icon: "error",
+  //         confirmButtonText: "OK",
+  //       });
+  //       return;
+  //     }
 
-      setUploadedFile(file)
+  //     setUploadedFile(file);
 
-      // Create preview URL
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setLogo(e.target.result)
-        onChange(e.target.result)
-      }
-      reader.readAsDataURL(file)
+  //     // Create preview URL
+  //     const reader = new FileReader();
+  //     reader.onload = (e) => {
+  //       setLogo(e.target.result);
+  //       onChange(e.target.result);
+  //     };
+  //     reader.readAsDataURL(file);
 
-      // Upload the logo immediately
-      await handleLogoUpload(file)
-    }
-  }
+  //     // Upload the logo immediately
+  //     await handleLogoUpload(file);
+  //   }
+  // };
 
   const handleSubmit = (data) => {
     const formattedSpecialization = Array.isArray(data.specialization)
       ? data.specialization.join(",")
-      : data.specialization
-
+      : data.specialization;
     onSubmit({
       ...data,
       logo,
       specialization: formattedSpecialization,
       logoUrl: form.getValues("logoUrl") || "",
-    })
-  }
+    });
+  };
 
   const capitalize = (str) => {
     return str.toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase());
@@ -315,12 +329,52 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
       })
       .join(" ");
   };
-  
-  
+
+  const handleUploadSuccess = (url) => {
+    // setProfileImageUrl(url);
+    form.setValue("logoUrl", url);
+    console.log("Uploaded URL:", url);
+    toast({
+      title: "Success!",
+      description: tForm("6028_10"),
+      variant: "default",
+    });
+  };
+
+  const handleRemovePhoto = () => {
+    form.setValue("logoUrl", "");
+    toast({
+      title: "Removed",
+      description: tForm("6028_11"),
+      variant: "default",
+    });
+  };
+
+  const handleUploadError = (error) => {
+    toast({
+      title: "Upload failed",
+      description: tForm("6028_12", {
+        message: error.message,
+      }),
+      variant: "destructive",
+    });
+  };
+
+  const handleValidationError = (error) => {
+    toast({
+      title: "Invalid file",
+      description: tForm("6028_13", {
+        message: error.message,
+      }),
+      variant: "destructive",
+    });
+  };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 p-2 sm:p-4 max-w-xl mx-auto">
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="space-y-4 p-2 sm:p-4 max-w-xl mx-auto">
         {/* Institution Name */}
         <FormField
           control={form.control}
@@ -336,12 +390,16 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
                     {...field}
                     placeholder="Search Institution"
                     onChange={(e) => {
-                      field.onChange(e.target.value)
-                      handleSearch(e.target.value)
-                      setCustomEntry(false)
+                      field.onChange(e.target.value);
+                      handleSearch(e.target.value);
+                      setCustomEntry(false);
                     }}
                   />
-                  {loading && <span className="absolute right-3 top-3 text-gray-500">Loading...</span>}
+                  {loading && (
+                    <span className="absolute right-3 top-3 text-gray-500">
+                      Loading...
+                    </span>
+                  )}
                 </div>
               </FormControl>
               <FormMessage />
@@ -354,31 +412,40 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
                       key={inst.AISHE_Code}
                       className="p-2 cursor-pointer hover:bg-gray-100 capitalize"
                       onClick={() => {
-                        field.onChange(toTitleCase(inst.Institute_Name)) 
-                        setSearchResults([])
-                      }}
-                    >
-                       {toTitleCase(inst.Institute_Name)}
+                        field.onChange(toTitleCase(inst.Institute_Name));
+                        setSearchResults([]);
+                      }}>
+                      {toTitleCase(inst.Institute_Name)}
                     </li>
                   ))}
                 </ul>
               )}
 
               {/* Manual Entry Option */}
-              {!loading && searchResults.length === 0 && !customEntry && field.value.length >= 4 && (
-                <p className="mt-2 text-sm text-blue-600 cursor-pointer" onClick={() => setCustomEntry(true)}>
-                  Can&apos;t find your institution? Click here to enter manually.
-                </p>
-              )}
+              {!loading &&
+                searchResults.length === 0 &&
+                !customEntry &&
+                field.value.length >= 4 && (
+                  <p
+                    className="mt-2 text-sm text-blue-600 cursor-pointer"
+                    onClick={() => setCustomEntry(true)}>
+                    Can&apos;t find your institution? Click here to enter
+                    manually.
+                  </p>
+                )}
             </FormItem>
           )}
         />
 
         {/* Hidden field for logo URL */}
-        <FormField control={form.control} name="logoUrl" render={({ field }) => <input type="hidden" {...field} />} />
+        {/* <FormField
+          control={form.control}
+          name="logoUrl"
+          render={({ field }) => <input type="hidden" {...field} />}
+        /> */}
 
         {/* Upload Logo */}
-        <FormField
+        {/* <FormField
           control={form.control}
           name="logo"
           render={({ field: { value, onChange, ...field } }) => (
@@ -390,7 +457,9 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
                 <div>
                   <div
                     className="relative border-2 border-dashed border-gray-300 rounded-lg p-4 cursor-pointer text-center"
-                    onClick={() => document.getElementById("uploadLogo")?.click()}
+                    onClick={() =>
+                      document.getElementById("uploadLogo")?.click()
+                    }
                   >
                     {uploadingLogo ? (
                       <Loader2 className="mx-auto mb-2 w-8 h-8 animate-spin text-primary" />
@@ -404,9 +473,12 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
                       />
                     )}
                     <p className="text-gray-600">
-                      <span className="text-blue-600">Click to upload</span> or drag and drop
+                      <span className="text-blue-600">Click to upload</span> or
+                      drag and drop
                     </p>
-                    <p className="text-gray-400 text-xs mt-1">JPG, JPEG, PNG less than 2MB</p>
+                    <p className="text-gray-400 text-xs mt-1">
+                      JPG, JPEG, PNG less than 2MB
+                    </p>
                   </div>
                   <Input
                     type="file"
@@ -418,15 +490,29 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
                     {...field}
                   />
                   {uploadedFile && !uploadingLogo && (
-                    <p className="text-green-600 mt-2">File uploaded: {uploadedFile.name}</p>
+                    <p className="text-green-600 mt-2">
+                      File uploaded: {uploadedFile.name}
+                    </p>
                   )}
                 </div>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
+        /> */}
+        <ProfilePhotoUpload
+          onUploadSuccess={handleUploadSuccess}
+          onRemovePhoto={handleRemovePhoto}
+          onUploadError={handleUploadError}
+          onValidationError={handleValidationError}
+          userId={session?.user?.id}
+          imageTitle={"Upload Logo"}
+          uploadEndpoint="/api/institution/v1/hcjBrBT60282InstitutionProfileImage"
+          initialPhoto={form.getValues("logoUrl")}
+          onUploadStateChange={setUploadingLogo}
+          // UploadIcon={ShieldUser}
+          uploadType={"logo"}
         />
-
         {/* Establishment Year */}
         <FormField
           control={form.control}
@@ -436,18 +522,7 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
               <FormLabel className="text-primary">
                 Establishment Year<span className="text-destructive">*</span>
               </FormLabel>
-              <Select onValueChange={(value) => field.onChange(Number.parseInt(value))} value={field.value?.toString()}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select year" />
-                </SelectTrigger>
-                <SelectContent>
-                  {years.map((year) => (
-                    <SelectItem key={year} value={year.toString()}>
-                      {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <YearSelect name="establishmentYear" control={form.control} />
               <FormMessage />
             </FormItem>
           )}
@@ -531,7 +606,11 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
                 Institution Email ID <span className="text-destructive">*</span>
               </FormLabel>
               <FormControl>
-                <Input {...field} type="email" placeholder="example@institution.com" />
+                <Input
+                  {...field}
+                  type="email"
+                  placeholder="example@institution.com"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -545,10 +624,15 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-primary">
-                Alternate Email ID <span className="text-gray-400">(Optional)</span>
+                Alternate Email ID{" "}
+                <span className="text-gray-400">(Optional)</span>
               </FormLabel>
               <FormControl>
-                <Input {...field} type="email" placeholder="alternate@institution.com" />
+                <Input
+                  {...field}
+                  type="email"
+                  placeholder="alternate@institution.com"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -589,7 +673,8 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-primary">
-                Alternate Phone Number <span className="text-gray-400">(Optional)</span>
+                Alternate Phone Number{" "}
+                <span className="text-gray-400">(Optional)</span>
               </FormLabel>
               <FormControl>
                 <PhoneInput
@@ -616,7 +701,8 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-primary">
-                Institution Website URL <span className="text-gray-400">(Optional)</span>
+                Institution Website URL{" "}
+                <span className="text-gray-400">(Optional)</span>
               </FormLabel>
               <FormControl>
                 <Input {...field} placeholder="https://your-website.com" />
@@ -626,12 +712,38 @@ export default function EducationalDetailsTab({ initialData, onSubmit }) {
           )}
         />
 
+        <FormField
+          control={form.control}
+          name="about"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-primary">
+                About Institution{" "}
+                <span className="text-gray-400">(Optional)</span>
+              </FormLabel>
+              <FormControl>
+                <Textarea
+                  {...field}
+                  placeholder="Tell us about your institution, vision, culture, impact..."
+                  className="resize-none min-h-[100px]"
+                />
+              </FormControl>
+              <p className="text-xs text-gray-500 mt-1">
+                Less than 1000 characters
+              </p>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         {/* Submit Button */}
-        <Button type="submit" className="w-full bg-primary" disabled={uploadingLogo}>
+        <Button
+          type="submit"
+          className="w-full bg-primary"
+          disabled={uploadingLogo}>
           {uploadingLogo ? "Uploading Logo..." : "Next"}
         </Button>
       </form>
     </Form>
-  )
+  );
 }
-

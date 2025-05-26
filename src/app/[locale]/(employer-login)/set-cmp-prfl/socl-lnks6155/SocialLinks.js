@@ -132,6 +132,7 @@ export default function SocialLinksTab({
     // Pass the profiles array directly, not wrapped in an object
     onSubmit(profiles);
   };
+  
 
   return (
     <div className="space-y-6 p-2 sm:p-4 max-w-xl mx-auto">

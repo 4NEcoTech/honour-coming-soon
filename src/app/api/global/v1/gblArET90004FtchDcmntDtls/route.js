@@ -1,4 +1,5 @@
-import { dbConnect } from '@/app/utils/dbConnect';
+import { dbConnect } from "@/app/utils/dbConnect";
+import { getTranslator } from "@/i18n/server";
 
 /**
  * @swagger
@@ -17,47 +18,76 @@ import { dbConnect } from '@/app/utils/dbConnect';
  *             schema:
  *               type: object
  *               properties:
- *                 countryDetails:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       name:
- *                         type: string
- *                         example: "United States"
- *                       iso2:
- *                         type: string
- *                         example: "US"
- *                       iso3:
- *                         type: string
- *                         example: "USA"
- *                 documentDetails:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       document:
- *                         type: string
- *                         example: "Passport"
- *                       relatedCountry:
- *                         type: string
- *                         example: "United States"
- *                       relatedCountryCode:
- *                         type: string
- *                         example: "US"
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 code:
+ *                   type: number
+ *                   example: 200
+ *                 title:
+ *                   type: string
+ *                   example: "Fetch Successful"
+ *                 message:
+ *                   type: string
+ *                   example: "Document and country details retrieved successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     countryDetails:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           name:
+ *                             type: string
+ *                             example: "United States"
+ *                           iso2:
+ *                             type: string
+ *                             example: "US"
+ *                           iso3:
+ *                             type: string
+ *                             example: "USA"
+ *                     documentDetails:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           document:
+ *                             type: string
+ *                             example: "Passport"
+ *                           relatedCountry:
+ *                             type: string
+ *                             example: "United States"
+ *                           relatedCountryCode:
+ *                             type: string
+ *                             example: "US"
  *       500:
  *         description: Server error
  */
 
-export async function GET(req) {
+export async function GET(request) {
+  const locale = request.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
+
   try {
     const db = await dbConnect();
 
     if (!db) {
-      throw new Error('Failed to connect to the database');
+      return new Response(
+        JSON.stringify({
+          success: false,
+          code: "9004_1",
+          title: t("errorCode.9004_1.title"),
+          message: t("errorCode.9004_1.description"),
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
 
-    const collection = db.collection('document_list');
+    const collection = db.collection("document_list");
     const cursor = await collection
       .find(
         {},
@@ -91,15 +121,35 @@ export async function GET(req) {
       });
     });
 
-    return new Response(JSON.stringify(responseObject), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        code: "9004_2",
+        title: t("errorCode.9004_2.title"),
+        message: t("errorCode.9004_2.description"),
+        data: responseObject,
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (err) {
-    console.error('Error fetching data:', err);
-    return new Response(JSON.stringify({ error: 'Failed to fetch data' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    console.error("Error fetching data:", err);
+
+    return new Response(
+      JSON.stringify({
+        success: false,
+        code: "9004_3",
+        title: t("errorCode.9004_3.title"),
+        message: t("errorCode.9004_3.description", {
+          message: err.message,
+        }),
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }

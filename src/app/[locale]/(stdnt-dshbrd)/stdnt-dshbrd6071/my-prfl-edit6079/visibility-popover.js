@@ -1,33 +1,102 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Eye } from "lucide-react"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { useState, useEffect } from "react";
+import { Eye } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { toast } from "@/hooks/use-toast";
+import { useSession } from "next-auth/react";
 
 export function VisibilitySheet() {
   const [settings, setSettings] = useState({
-    showPhone: true,
-    showEmail: true,
-    showAddressLine1: true,
-    showAddressLine2: true,
-    showLandmark: true,
-    showPincode: true,
-  })
+    showPhone: false,
+    showEmail: false,
+    showBirthDate: false,
+    showAddressLine1: false,
+    showAddressLine2: false,
+    showLandmark: false,
+    showPincode: false,
+    // showWebsiteUrl: false,
+  });
 
-  const [isSheetOpen, setSheetOpen] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [isSheetOpen, setSheetOpen] = useState(false);
+  const { data: session } = useSession();
 
-  const toggleSheet = () => {
-    setSheetOpen(!isSheetOpen)
-  }
+  const fieldMap = {
+    showPhone: "IIV_Phone_Number",
+    showEmail: "IIV_Email",
+    showBirthDate: "IIV_BirthDate",
+    showAddressLine1: "IIV_Address_Line1",
+    showAddressLine2: "IIV_Address_Line2",
+    showLandmark: "IIV_Landmark",
+    showPincode: "IIV_Pincode",
+    // showWebsiteUrl: "IIV_Website_Url_Visibility",
+  };
+
+  // Load visibility settings when popover opens
+  useEffect(() => {
+    if (!isSheetOpen || !session?.user?.individualId) return;
+
+    const fetchSettings = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/institution/v1/hcjBrTo60618fetchAdminVisibilitySettings/${session.user.individualId}`);
+        const json = await res.json();
+        if (res.ok && json.success) {
+          const data = json.data || {};
+          const updated = {};
+          for (const key in fieldMap) {
+            const dbField = fieldMap[key];
+            updated[key] = Boolean(data[dbField]);
+          }
+          setSettings(updated);
+        } else {
+          toast({ title: "Error", description: json.message || "Failed to fetch settings", variant: "destructive" });
+        }
+      } catch (err) {
+        console.error("GET visibility failed", err);
+        toast({ title: "Error", description: "Failed to fetch visibility settings", variant: "destructive" });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSettings();
+  }, [isSheetOpen, session]);
+
+  // Toggle and PATCH single field at a time
+  const handleToggle = async (fieldKey, value) => {
+    setSettings((prev) => ({ ...prev, [fieldKey]: value }));
+
+    try {
+      const res = await fetch(
+        `/api/institution/v1/hcjBrTo60617updateAdminVisibilitySettings/${session.user.individualId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ [fieldKey]: value }),
+        }
+      );
+      const json = await res.json();
+      if (res.ok && json.success) {
+        toast({ title: "Success", description: "Visibility updated" });
+      } else {
+        toast({ title: "Error", description: json.message || "Update failed", variant: "destructive" });
+      }
+    } catch (err) {
+      console.error("PATCH failed", err);
+      toast({ title: "Error", description: "Network error", variant: "destructive" });
+    }
+  };
 
   return (
     <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
       <SheetTrigger asChild>
         <button
+          onClick={() => setSheetOpen(!isSheetOpen)}
           className="mt-4 right-2 p-2 flex items-center gap-2 rounded bg-blue-100 dark:bg-blue-900 text-xs md:text-xl"
-          onClick={toggleSheet}
         >
           <Eye className="h-4 w-4 text-primary dark:text-blue-400" />
           <span className="text-primary dark:text-blue-400">Manage Account Visibility</span>
@@ -39,56 +108,24 @@ export function VisibilitySheet() {
           <SheetTitle className="text-gray-900 dark:text-white">Visibility Settings</SheetTitle>
         </SheetHeader>
 
-        <div className="mt-6 space-y-6">
-          <div className="space-y-2">
-            <h4 className="font-medium text-gray-900 dark:text-white">Visibility of your profile</h4>
-            <p className="text-sm text-muted-foreground dark:text-gray-400">
-              Turn on to show this information on your profile
-            </p>
+        {loading ? (
+          <p className="text-center mt-8 text-muted-foreground">Loading...</p>
+        ) : (
+          <div className="mt-6 space-y-4">
+            {Object.keys(fieldMap).map((fieldKey) => (
+              <VisibilityToggle
+                key={fieldKey}
+                id={fieldKey}
+                label={toLabel(fieldKey)}
+                checked={settings[fieldKey]}
+                onCheckedChange={(val) => handleToggle(fieldKey, val)}
+              />
+            ))}
           </div>
-
-          <div className="space-y-4">
-            <VisibilityToggle
-              id="show-phone"
-              label="Show Phone Number"
-              checked={settings.showPhone}
-              onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, showPhone: checked }))}
-            />
-            <VisibilityToggle
-              id="show-email"
-              label="Show Email"
-              checked={settings.showEmail}
-              onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, showEmail: checked }))}
-            />
-            <VisibilityToggle
-              id="show-address1"
-              label="Show Address Line 1"
-              checked={settings.showAddressLine1}
-              onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, showAddressLine1: checked }))}
-            />
-            <VisibilityToggle
-              id="show-address2"
-              label="Show Address Line 2"
-              checked={settings.showAddressLine2}
-              onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, showAddressLine2: checked }))}
-            />
-            <VisibilityToggle
-              id="show-landmark"
-              label="Show Landmark"
-              checked={settings.showLandmark}
-              onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, showLandmark: checked }))}
-            />
-            <VisibilityToggle
-              id="show-pincode"
-              label="Show Pin code"
-              checked={settings.showPincode}
-              onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, showPincode: checked }))}
-            />
-          </div>
-        </div>
+        )}
       </SheetContent>
     </Sheet>
-  )
+  );
 }
 
 function VisibilityToggle({ id, label, checked, onCheckedChange }) {
@@ -99,6 +136,13 @@ function VisibilityToggle({ id, label, checked, onCheckedChange }) {
       </Label>
       <Switch id={id} checked={checked} onCheckedChange={onCheckedChange} />
     </div>
-  )
+  );
 }
 
+function toLabel(fieldKey) {
+  return fieldKey
+    .replace(/^show/, "")
+    .replace(/([A-Z])/g, " $1")
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .trim(); // e.g. showPhone -> Show Phone
+}

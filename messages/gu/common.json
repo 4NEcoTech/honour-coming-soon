@@ -1,0 +1,29 @@
+{
+  "HomePage": {
+    "Opportunities_for_every_student": "દરેક વિદ્યાર્થીઓ માટે અવસરો",
+    "Projects_Internships_Flexijobs_Regular_Jobs": "ઓનલાઇન નોકરી મેળાઓ | ઇન્ટર્નશિપ | ફ્લેક્સી જોબ | પ્રોજેક્ટ્સ | રીમોટ કામની તક",
+    "Marketing_Sales_Design_Development_DevOps_Robotics_ML_AI_Finance_Sketch_Artists_VFX_Animation": "માર્કેટિંગ, વેચાણ, ડિઝાઇન, ડેવલપમેન્ટ, ડેવઓપ્સ, રોબોટિક્સ, મશીન લર્નિંગ, એઆઇ, ફાઇનાન્સ, સ્કેચ આર્ટિસ્ટ્સ, વીએફએક્સ, એનિમેશન",
+    "Register_your_Institution_with_HCJ": "તમારું સંસ્થા HCJ સાથે નોંધાવો",
+    "Take_part_in_India_s_biggest_Job_Fair": "ભારતના સૌથી મોટા નોકરી મેળામાં ભાગ લો",
+    "Nov_10_Nov_20": "નવેમ્બર ૧૦ - નવેમ્બર ૨૦",
+    "Register_here": "અહીં નોંધણી કરો",
+    "About_Us": "અમારા વિશે",
+    "Welcome_to_HCJ_the_leading_platform_designed_to_connect_institutions_students_and_the_dynamic_job_market": "HCJ માં આપનું સ્વાગત છે, જે સંસ્થાઓ, વિદ્યાર્થીઓ અને ગતિશીલ નોકરી બજારને જોડતી અગ્રણી પ્લેટફોર્મ છે.",
+    "At_HCJ_our_mission_is_to_streamline_and_enhance_the_job_seeking_experience": "HCJ પર, અમારી મિશન છે નોકરી શોધવાની પ્રક્રિયાને સરળ અને અસરકારક બનાવવી. અમે સંસ્થાઓને વિદ્યાર્થીઓની પ્રોફાઇલ અપલોડ અને મેનેજ કરવાની સરળ રીત આપીએ છીએ જેથી વિદ્યાર્થીઓ પોતાના કૌશલ્યો અને લાયકાતો રજૂ કરી શકે.",
+    "Committed_to_bridging_the_gap_between_academia_and_industry": "અમે શૈક્ષણિક જગત અને ઉદ્યોગ વચ્ચેનો તફાવત ઘટાડવા પ્રતિબદ્ધ છીએ, જ્યાં વિદ્યાર્થીઓને નજરે ચડવાની અને સંભાવિત નોકરીદાતાઓ સુધી પહોંચી શકવાની તક મળે છે, અને સંસ્થાઓ વિદ્યાર્થીઓના કરિયર માર્ગમાં મહત્વપૂર્ણ ભૂમિકા ભજવી શકે છે. HCJ સાથે, શિક્ષણથી નોકરી સુધીનો ટ્રાન્ઝિશન સરળ અને અસરકારક બને છે.",
+    "Read_more": "વધુ વાંચો",
+    "Partner_Institutions": "ભાગીદારી સંસ્થાઓ",
+    "Achievers_Central": "સફળતા કેન્દ્ર",
+    "View_All": "બધું જુઓ",
+    "Featured_Achievers_Of_this_month": "આ મહીનાના વિશિષ્ટ સફળતા પ્રાપ્ત કરનાર",
+    "Give_your_students_access_to_real_world_opportunities": "તમારા વિદ્યાર્થીઓને વાસ્તવિક વિશ્વની તકો આપો",
+    "Get_Started": "શરૂ કરો"
+  },
+  "RegistrationWithCredentialForm": {
+    "title": "સંસ્થાની નોંધણી",
+    "subtitle": "જો તમે સંસ્થાના એડમિનસ્ટ્રેટર છો, તો નોંધણી ચાલુ રાખો.",
+    "OTP": "OTP ચકાસણી",
+    "OTP_Description": "તમારા સંસ્થાના ઇમેઇલ પર મોકલાયેલા OTP કોડ દાખલ કરો",
+    "'Password_title": "પાસવર્ડ બનાવો"
+  }
+}

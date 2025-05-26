@@ -42,6 +42,7 @@ import { useForm } from "react-hook-form";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { z } from "zod";
+import { VisibilitySheet } from "./visibility-popover";
 
 // Define schemas for form validation
 const personalInfoSchema = z.object({
@@ -883,6 +884,9 @@ export default function StudentProfileEdit() {
           </Link>
           <h1 className="text-2xl font-bold">Edit Profile</h1>
         </div>
+         <div className="flex items-end">
+                  <VisibilitySheet position="top-right" />
+                </div>
       </div>
 
       {/* Images Section */}

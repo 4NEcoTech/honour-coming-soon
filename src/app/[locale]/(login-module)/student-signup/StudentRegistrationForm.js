@@ -1,36 +1,36 @@
-'use client';
+"use client";
 
-import { updateUser } from '@/app/utils/indexDB';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Link } from '@/i18n/routing';
-import jwt from 'jsonwebtoken';
-import Image from 'next/image';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { updateUser } from "@/app/utils/indexDB";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Link } from "@/i18n/routing";
+import jwt from "jsonwebtoken";
+import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function StudentSignup({ goToNextStep }) {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false); // For loading state
   const searchParams = useSearchParams();
   const router = useRouter();
 
   useEffect(() => {
-    const token = searchParams.get('token');
+    const token = searchParams.get("token");
 
     if (!token) {
-      setError('Token is missing in the URL');
+      setError("Token is missing in the URL");
       return;
     }
 
     try {
       const decoded = jwt.decode(token);
-      console.log('🔍 Decoded Token:', decoded); // Debugging log
-      console.log('🔍 id:', decoded && typeof decoded !== 'string'); // Debugging log
+      console.log("🔍 Decoded Token:", decoded); // Debugging log
+      console.log("🔍 id:", decoded && typeof decoded !== "string"); // Debugging log
 
-      if (decoded && typeof decoded !== 'string') {
+      if (decoded && typeof decoded !== "string") {
         // updateUser(decoded)
         //   .then(() => {
         //     console.log('✅ Token data stored in IndexedDB');
@@ -45,21 +45,21 @@ export default function StudentSignup({ goToNextStep }) {
           // ✅ Store data in IndexedDB
           updateUser(decoded)
             .then(() => {
-              console.log('✅ Token data stored in IndexedDB');
-              localStorage.setItem('temp_student_id', decoded.id);
+              console.log("✅ Token data stored in IndexedDB");
+              localStorage.setItem("temp_student_id", decoded.id);
             })
             .catch((err) => {
-              console.error('❌ Error storing data in IndexedDB:', err);
+              console.error("❌ Error storing data in IndexedDB:", err);
             });
         } else {
-          setError('Email not found in token');
+          setError("Email not found in token");
         }
       } else {
-        setError('Invalid token format');
+        setError("Invalid token format");
       }
     } catch (err) {
-      console.error('❌ JWT Decoding Error:', err);
-      setError('Failed to decode token');
+      console.error("❌ JWT Decoding Error:", err);
+      setError("Failed to decode token");
     }
   }, [searchParams]);
 
@@ -68,9 +68,9 @@ export default function StudentSignup({ goToNextStep }) {
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/student/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/auth/student/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
 
@@ -78,14 +78,14 @@ export default function StudentSignup({ goToNextStep }) {
 
       if (response.ok) {
         // Save email in localStorage for OTP verification
-        localStorage.setItem('signupEmail', email);
+        localStorage.setItem("signupEmail", email);
         // Go to OTP step
         goToNextStep();
       } else {
-        setError(data.message || 'Something went wrong. Please try again.');
+        setError(data.message || "Something went wrong. Please try again.");
       }
     } catch (err) {
-      setError('Network error. Please try again.');
+      setError("Network error. Please try again.");
     }
 
     setLoading(false);
@@ -110,7 +110,8 @@ export default function StudentSignup({ goToNextStep }) {
             <div className="space-y-2 relative">
               <label
                 htmlFor="email"
-                className="text-sm text-primary font-medium">
+                className="text-sm text-primary font-medium"
+              >
                 Educational Institution Email Id
               </label>
               <div className="flex items-center">
@@ -137,32 +138,40 @@ export default function StudentSignup({ goToNextStep }) {
               onClick={handleSubmit}
               disabled={loading} // Disable button when loading
             >
-              {loading ? 'Sending OTP...' : 'Next'}
+              {loading ? "Sending OTP..." : "Next"}
             </Button>
 
-            <div className="sm:text-center text-sm text-left text-muted-foreground">
-              <p className="text-muted-foreground">
-                Already have an account?{' '}
+            {/* Footer Text */}
+            <CardFooter className="flex flex-col items-start sm:items-start text-sm text-gray-400 text-start sm:text-left w-full text-pretty">
+              {/* Login Link */}
+              <span className="text-sm mb-0 text-muted-foreground">
+                Already have an account?{" "}
                 <Link
-                  href="/login6035"
-                  className="text-primary hover:underline">
+                  href="/stdnt-login"
+                  className="text-primary hover:underline ml-1"
+                >
                   Click here to log in
                 </Link>
-                .
-              </p>
-              By creating an account or logging in, you agree with HCJ&apos;s{' '}
-              <Link
-                href="/prvcy-plcy6014"
-                className="text-primary hover:underline">
-                Privacy Policy
-              </Link>{' '}
-              &{' '}
-              <Link
-                href="/trmsndcndtn6015"
-                className="text-primary hover:underline">
-                Terms and condition
-              </Link>
-            </div>
+              </span>
+
+              {/* Terms Agreement */}
+              <span className="text-start sm:text-left text-sm block">
+                By creating an account or logging in, you agree with HCJ&apos;{" "}
+                <Link
+                  href="/prvcy-plcy6014"
+                  className="text-primary hover:underline"
+                >
+                  Privacy Policy
+                </Link>{" "}
+                <span>and&nbsp;</span>
+                <Link
+                  href="/trmsnd-cndtn6015"
+                  className="text-primary hover:underline"
+                >
+                  Terms & Conditions
+                </Link>
+              </span>
+            </CardFooter>
           </div>
         </CardContent>
       </Card>

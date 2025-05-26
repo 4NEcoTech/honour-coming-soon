@@ -1,8 +1,9 @@
-import { getServerSession } from "next-auth";
 import IndividualDetails from "@/app/models/individual_details";
-import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/utils/dbConnect";
 import { uploadToGoogleDrive } from "@/app/utils/googleDrive";
+import { getTranslator } from "@/i18n/server";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
 /**
  * @swagger
@@ -47,13 +48,20 @@ import { uploadToGoogleDrive } from "@/app/utils/googleDrive";
  */
 
 export async function PATCH(req, { params }) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   try {
     await dbConnect();
     const { individual_id } = await params;
 
     if (!individual_id) {
       return NextResponse.json(
-        { success: false, message: "Individual ID is required" },
+        {
+          success: false,
+          code: "6061_30",
+          title: t("errorCode.6061_30.title"),
+          message: t("errorCode.6061_30.description"),
+        },
         { status: 400 }
       );
     }
@@ -62,7 +70,12 @@ export async function PATCH(req, { params }) {
     const session = await getServerSession(req);
     if (!session || !session.user) {
       return NextResponse.json(
-        { success: false, message: "Unauthorized access" },
+        {
+          success: false,
+          code: "6061_31",
+          title: t("errorCode.6061_31.title"),
+          message: t("errorCode.6061_31.description"),
+        },
         { status: 401 }
       );
     }
@@ -75,7 +88,11 @@ export async function PATCH(req, { params }) {
     const profilePictureFile = formData.get("profilePicture");
     if (profilePictureFile && profilePictureFile instanceof Blob) {
       const profileBuffer = Buffer.from(await profilePictureFile.arrayBuffer());
-      const profileUrl = await uploadToGoogleDrive(profileBuffer, `profile_picture_${Date.now()}.png`, "image/png");
+      const profileUrl = await uploadToGoogleDrive(
+        profileBuffer,
+        `profile_picture_${Date.now()}.png`,
+        "image/png"
+      );
       updateData.ID_Profile_Picture = profileUrl;
     }
 
@@ -83,13 +100,22 @@ export async function PATCH(req, { params }) {
     const coverPhotoFile = formData.get("coverPhoto");
     if (coverPhotoFile && coverPhotoFile instanceof Blob) {
       const coverBuffer = Buffer.from(await coverPhotoFile.arrayBuffer());
-      const coverPhotoUrl = await uploadToGoogleDrive(coverBuffer, `cover_photo_${Date.now()}.png`, "image/png");
+      const coverPhotoUrl = await uploadToGoogleDrive(
+        coverBuffer,
+        `cover_photo_${Date.now()}.png`,
+        "image/png"
+      );
       updateData.ID_Cover_Photo = coverPhotoUrl;
     }
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json(
-        { success: false, message: "No files uploaded" },
+        {
+          success: false,
+          code: "6061_43",
+          title: t("errorCode.6061_43.title"),
+          message: t("errorCode.6061_43.description"),
+        },
         { status: 400 }
       );
     }
@@ -103,19 +129,36 @@ export async function PATCH(req, { params }) {
 
     if (!updatedIndividual) {
       return NextResponse.json(
-        { success: false, message: "Individual details not found" },
+        {
+          success: false,
+          code: "6061_44",
+          title: t("errorCode.6061_44.title"),
+          message: t("errorCode.6061_44.description"),
+        },
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      { success: true, message: "Profile images updated successfully", data: updatedIndividual },
+      {
+        success: true,
+
+        code: "6061_45",
+        title: t("errorCode.6061_45.title"),
+        message: t("errorCode.6061_45.description"),
+        data: updatedIndividual,
+      },
       { status: 200 }
     );
   } catch (error) {
     console.error("Error updating profile images:", error);
     return NextResponse.json(
-      { success: false, message: "Internal Server Error" },
+      {
+        success: false,
+        code: "6061_46",
+        title: t("errorCode.6061_46.title"),
+        message: t("errorCode.6061_46.description", { message: error.message }),
+      },
       { status: 500 }
     );
   }

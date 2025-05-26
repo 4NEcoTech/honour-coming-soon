@@ -1,23 +1,11 @@
 "use client";
-import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Link, usePathname, useRouter } from "@/i18n/routing";
+import useInstitution from "@/hooks/useInstitution";
+import { Link, useRouter } from "@/i18n/routing";
+import { motion } from "framer-motion";
+import { Share2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { useState } from "react";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { Share2 } from "lucide-react";
-import { motion } from "framer-motion";
-import useInstitution from "@/hooks/useInstitution";
+import { useEffect, useState } from "react";
 
 const data = [
   { name: "Sat", value: 200 },
@@ -42,10 +30,9 @@ export default function Page() {
   const router = useRouter();
 
   const { data: session } = useSession();
-//  console.log(session);
 
   const handleCardClick = (action) => {
-    console.log(`${action} clicked`);
+    // console.log(`${action} clicked`);
     // Add your routing or logic here
     if (action === "students") {
       router.push("/institutn-dshbrd6051/rgstr-stdnt6054");
@@ -61,7 +48,6 @@ export default function Page() {
       router.push("/institutn-dshbrd6051/accnt-sttng6060");
     }
   };
-  //  console.log(session);
 
   // Admin Eco Liink Started
   const [isHovered, setIsHovered] = useState();
@@ -69,8 +55,6 @@ export default function Page() {
   // Instituion Eco Liink Started
   const companyId = session?.user?.companyId; // replace with your session field name
   const { institutionData, loading, error } = useInstitution(companyId);
-
-  //  console.log("aditya", institutionData);
 
   const [registeredStudentCount, setRegisteredStudentCount] = useState(0);
   const [registeredStaffCount, setRegisteredStaffCount] = useState(0);
@@ -113,16 +97,26 @@ export default function Page() {
       <div className="p-6 min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Welcome Section */}
         <div className="mb-10">
-          <h1 className="text-3xl font-bold text-gray-500 dark:text-gray-100">
-            Hello{" "}
-            {session?.user?.first_name
-              ? `${session.user.first_name} ${session.user.last_name}`
-              : "Administrator"}
-            !
-          </h1>
-          <p className="text-gray-500 dark:text-gray-300">
-            Welcome to Your Dashboard!
-          </p>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-500 dark:text-gray-100">
+                Hello{" "}
+                {session?.user?.first_name
+                  ? `${session.user.first_name} ${session.user.last_name}`
+                  : "Administrator"}
+                !
+              </h1>
+              <p className="text-gray-500 dark:text-gray-300">
+                Welcome to Your Dashboard!
+              </p>
+            </div>
+
+            <div className="mt-4 md:mt-0">
+              <p className="text-lg text-gray-700 dark:text-gray-200 font-semibold">
+                Institution Number: {institutionData?.CD_Company_Num}
+              </p>
+            </div>
+          </div>
 
           {/* Wrap both buttons in a horizontal flex container */}
           <div className="flex flex-wrap items-end gap-4 mt-8">
@@ -130,16 +124,14 @@ export default function Page() {
             <Link
               href={`/user-ecolink/${individualId}`}
               target="_blank"
-              className="inline-block"
-            >
+              className="inline-block">
               <motion.button
                 className="group relative flex items-center gap-2.5 overflow-hidden rounded-lg bg-white px-6 py-3 text-gray-700 shadow-md transition-all duration-300 hover:text-gray-900 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 border border-gray-200 sm:px-8 sm:py-3.5 md:min-w-[200px]"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                aria-label="View your EcoLink"
-              >
+                aria-label="View your EcoLink">
                 <Share2 className="h-5 w-5 transition-all duration-300 group-hover:rotate-12 group-hover:scale-110 sm:h-5 sm:w-5" />
                 <span className="font-semibold text-sm tracking-wide sm:text-base">
                   View Your EcoLink
@@ -164,16 +156,14 @@ export default function Page() {
             <Link
               href={`/institution-ecolink/${companyId}`}
               target="_blank"
-              className="inline-block"
-            >
+              className="inline-block">
               <motion.button
                 className="group relative flex items-center gap-2.5 overflow-hidden rounded-lg bg-white px-6 py-3 text-gray-700 shadow-md transition-all duration-300 hover:text-gray-900 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 border border-gray-200 sm:px-8 sm:py-3.5 md:min-w-[200px]"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                aria-label="View institution EcoLink"
-              >
+                aria-label="View institution EcoLink">
                 <Share2 className="h-5 w-5 transition-all duration-300 group-hover:rotate-12 group-hover:scale-110 sm:h-5 sm:w-5" />
                 <span className="font-semibold text-sm tracking-wide sm:text-base">
                   View Institution EcoLink
@@ -201,8 +191,7 @@ export default function Page() {
           {/* First Row: Numbered Cards */}
           <div
             className="max-w-3xl p-6 rounded-lg shadow-lg flex items-center justify-between cursor-pointer bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            onClick={() => handleCardClick("students")}
-          >
+            onClick={() => handleCardClick("students")}>
             <div>
               <h2 className="text-2xl font-semibold dark:text-gray-300">
                 {registeredStudentCount}
@@ -222,8 +211,7 @@ export default function Page() {
 
           <div
             className="max-w-3xl p-6 rounded-lg shadow-lg flex items-center justify-between cursor-pointer bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            onClick={() => handleCardClick("team")}
-          >
+            onClick={() => handleCardClick("team")}>
             <div>
               <h2 className="text-2xl font-semibold">{registeredStaffCount}</h2>
               <p className="text-gray-600 dark:text-gray-300">Team Members</p>
@@ -260,8 +248,7 @@ export default function Page() {
           {/* Second Row: Text with Image */}
           <div
             className="max-w-3xl p-6 rounded-lg shadow-lg flex items-center justify-between cursor-pointer bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            onClick={() => handleCardClick("eduProfile")}
-          >
+            onClick={() => handleCardClick("eduProfile")}>
             <div className=" items-center">
               <div className="text-4xl text-gray-700 mr-4">
                 <Image
@@ -289,8 +276,7 @@ export default function Page() {
 
           <div
             className="max-w-3xl p-6 rounded-lg shadow-lg flex items-center justify-between cursor-pointer bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            onClick={() => handleCardClick("myProfile")}
-          >
+            onClick={() => handleCardClick("myProfile")}>
             <div className="items-center">
               <div className="text-4xl text-gray-700 mr-4">
                 <Image
@@ -316,8 +302,7 @@ export default function Page() {
 
           <div
             className="max-w-3xl p-6 rounded-lg shadow-lg flex items-center justify-between cursor-pointer bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            onClick={() => handleCardClick("settings")}
-          >
+            onClick={() => handleCardClick("settings")}>
             <div className=" items-center">
               <div className="text-4xl text-gray-700 mr-4">
                 <Image
@@ -345,13 +330,12 @@ export default function Page() {
         </div>
 
         {/* Activity Chart */}
-        <Card className="mt-10 p-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+        {/* <Card className="mt-10 p-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
           <div className="flex flex-col gap-6">
             <h2 className="text-xl font-semibold">
               Students adding activities
             </h2>
 
-            {/* Time Filters */}
             <div className="flex gap-2 sm:gap-4">
               {timeFilters.map((filter) => (
                 <Button
@@ -369,7 +353,6 @@ export default function Page() {
               ))}
             </div>
 
-            {/* Chart */}
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
@@ -414,7 +397,7 @@ export default function Page() {
               </ResponsiveContainer>
             </div>
           </div>
-        </Card>
+        </Card> */}
       </div>
     </>
   );

@@ -1,11 +1,14 @@
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import User from "@/app/models/user_table";
 import IndividualDetails from "@/app/models/individual_details";
+import IndividualDocuments from "@/app/models/individual_document_details";
 import CompanyDetails from "@/app/models/company_details";
 import CompanyKYC from "@/app/models/company_kyc_details";
 import { dbConnect } from "@/app/utils/dbConnect";
 import { sendInstitutionVerificationEmail } from "@/app/utils/SendMail";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 
 /**
@@ -88,6 +91,15 @@ import { sendInstitutionVerificationEmail } from "@/app/utils/SendMail";
 export async function PATCH(req) {
   try {
     await dbConnect();
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user || !session.user.id) {
+      return new Response(
+        JSON.stringify({ success: false, message: "Unauthorized." }),
+        { status: 401 }
+      );
+    }
+
     const { institutionId } = await req.json();
 
     if (!institutionId) {
@@ -97,7 +109,7 @@ export async function PATCH(req) {
       );
     }
 
-    // Step 1: Find KYC record using `institutionId`
+    // Step 1: Fetch KYC Record
     const kycRecord = await CompanyKYC.findById(institutionId);
     if (!kycRecord) {
       return new Response(
@@ -113,7 +125,7 @@ export async function PATCH(req) {
       );
     }
 
-    //  Step 2: Fetch Company Details using `CKD_Company_Id`
+    // Step 2: Fetch Company Details
     const companyDetails = await CompanyDetails.findById(kycRecord.CKD_Company_Id);
     if (!companyDetails) {
       return new Response(
@@ -122,7 +134,7 @@ export async function PATCH(req) {
       );
     }
 
-    //  Step 3: Fetch Individual Details using `CD_Individual_Id`
+    // Step 3: Fetch Individual Details
     const individualDetails = await IndividualDetails.findById(companyDetails.CD_Individual_Id);
     if (!individualDetails) {
       return new Response(
@@ -131,7 +143,7 @@ export async function PATCH(req) {
       );
     }
 
-    //  Step 4: Fetch User using `ID_User_Id` (from Individual Details)
+    // Step 4: Fetch User
     const user = await User.findById(individualDetails.ID_User_Id);
     if (!user) {
       return new Response(
@@ -140,24 +152,55 @@ export async function PATCH(req) {
       );
     }
 
-    //  Step 5: Update `CompanyKYC` Verification Status
+    // Step 5: Update KYC Status & Verifier
     await CompanyKYC.updateOne(
       { _id: institutionId },
-      { $set: { CKD_Verification_Status: "verified" } }
+      {
+        $set: {
+          CKD_Verification_Status: "verified",
+          CKD_Verified_By: session.user.id,
+        },
+      }
     );
 
-    //  Step 6: Update `User` Verification Status
+    // Step 6: Update Company Status
+    await CompanyDetails.updateOne(
+      { _id: companyDetails._id },
+      { $set: { CD_Company_Status: "01" } }
+    );
+
+    // Step 7: Update User Status & Verification
     await User.updateOne(
       { _id: user._id },
-      { $set: { UT_User_Verification_Status: "01" } }
+      {
+        $set: {
+          UT_User_Verification_Status: "01",
+          UT_User_Status: "01",
+        },
+      }
     );
 
-     // Step 7: Send Verification Email
-     const emailSent = await sendInstitutionVerificationEmail(user.UT_Email, companyDetails.CD_Company_Name);
+    // Step 8: Update Individual Status
+    await IndividualDetails.updateOne(
+      { _id: individualDetails._id },
+      { $set: { ID_Individual_Status: "01" } }
+    );
 
-     if (!emailSent) {
-       console.error("Email sending failed for:", user.UT_Email);
-     }
+    // Step 9: Update All Individual Document Verification Statuses
+    await IndividualDocuments.updateMany(
+      { IDD_Individual_Id: individualDetails._id },
+      { $set: { IDD_Verified1_Status: "01" } }
+    );
+
+    // Step 10: Send Verification Email
+    const emailSent = await sendInstitutionVerificationEmail(
+      user.UT_Email,
+      companyDetails.CD_Company_Name
+    );
+
+    if (!emailSent) {
+      console.error("Email sending failed for:", user.UT_Email);
+    }
 
     return new Response(
       JSON.stringify({ success: true, message: "Institution verified successfully." }),
@@ -171,3 +214,5 @@ export async function PATCH(req) {
     );
   }
 }
+
+

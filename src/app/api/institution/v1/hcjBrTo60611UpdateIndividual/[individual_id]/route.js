@@ -1,7 +1,8 @@
-import { getServerSession } from "next-auth";
 import IndividualDetails from "@/app/models/individual_details";
-import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/utils/dbConnect";
+import { getTranslator } from "@/i18n/server";
+import { getServerSession } from "next-auth";
+import { NextResponse } from "next/server";
 
 /**
  * @swagger
@@ -50,13 +51,20 @@ import { dbConnect } from "@/app/utils/dbConnect";
  */
 
 export async function PATCH(req, { params }) {
+  const locale = req.headers.get("accept-language") || "en";
+  const t = await getTranslator(locale);
   try {
     await dbConnect();
 
     const { individual_id } = await params;
     if (!individual_id) {
       return NextResponse.json(
-        { success: false, message: "Individual ID is required" },
+        {
+          success: false,
+          code: "6061_40",
+          title: t("errorCode.6061_40.title"),
+          message: t("errorCode.6061_40.description"),
+        },
         { status: 400 }
       );
     }
@@ -64,7 +72,12 @@ export async function PATCH(req, { params }) {
     const session = await getServerSession(req);
     if (!session || !session.user) {
       return NextResponse.json(
-        { success: false, message: "Unauthorized access" },
+        {
+          success: false,
+          code: "6061_31",
+          title: t("errorCode.6061_31.title"),
+          message: t("errorCode.6061_31.description"),
+        },
         { status: 401 }
       );
     }
@@ -78,19 +91,36 @@ export async function PATCH(req, { params }) {
 
     if (!updatedIndividual) {
       return NextResponse.json(
-        { success: false, message: "Individual details not found" },
+        {
+          success: false,
+          code: "6061_44",
+          title: t("errorCode.6061_44.title"),
+          message: t("errorCode.6061_44.description"),
+        },
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      { success: true, message: "Individual details updated", data: updatedIndividual },
+      {
+        success: true,
+        code: "6061_47",
+        title: t("errorCode.6061_47.title"),
+        message: t("errorCode.6061_47.description"),
+        data: updatedIndividual,
+      },
       { status: 200 }
     );
   } catch (error) {
     console.error("Error updating individual details:", error);
     return NextResponse.json(
-      { success: false, message: "Internal Server Error" },
+      {
+        success: false,
+        code: "6061_46",
+        title: t("errorCode.6061_46.title"),
+        message: t("errorCode.6061_46.description"),
+        error: error.message,
+      },
       { status: 500 }
     );
   }

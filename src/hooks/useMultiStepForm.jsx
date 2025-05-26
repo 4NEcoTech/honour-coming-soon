@@ -4,7 +4,7 @@ import { getUserById, updateUser } from "@/app/utils/indexDB";
 import { useRouter } from "@/i18n/routing";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useToast } from "./use-toast";
 
 export function useMultiStepForm(initialStep = "personal") {
   const [activeTab, setActiveTab] = useState(initialStep);
@@ -13,6 +13,7 @@ export function useMultiStepForm(initialStep = "personal") {
   const [isLoading, setIsLoading] = useState(true);
   const { data: session, update } = useSession();
   const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     const tempId = localStorage.getItem("temp_student_id");
@@ -32,10 +33,15 @@ export function useMultiStepForm(initialStep = "personal") {
       const updatedData = { ...formData, ...data };
 
       //  Ensure profile picture is not lost
-      if (!updatedData.ID_Profile_Picture && data.ID_Profile_Picture) {
-        updatedData.ID_Profile_Picture = data.ID_Profile_Picture;
-      }
-      
+      // if (!updatedData.ID_Profile_Picture && data.ID_Profile_Picture) {
+      //   updatedData.ID_Profile_Picture = data.ID_Profile_Picture;
+      // }
+      // updatedData.
+      //  = data.
+      //  || updatedData.ID_Profile_Picture;
+
+      // console.log("walavalkar", updatedData.ID_Profile_Picture)
+
       setFormData(updatedData);
 
       await updateUser(updatedData);
@@ -48,8 +54,10 @@ export function useMultiStepForm(initialStep = "personal") {
       }
     } catch (error) {
       console.error("Error submitting step:", error);
-      toast.error("Submission Error", {
-        description: error.message || "Something went wrong",
+      toast({
+        variant: "destructive",
+        title: error?.title,
+        description: error?.message || "Something went wrong",
       });
     } finally {
       setIsSubmitting(false);
@@ -134,6 +142,8 @@ export function useMultiStepForm(initialStep = "personal") {
         jsonData["SL_Social_Profile_Name"] = "Social Profiles";
       }
 
+      //  console.log("aditya", jsonData)
+
       // Make the API call with JSON data
       const res = await fetch(
         "/api/student/v1/hcjBrBT60421StudentProfileCreate",
@@ -149,11 +159,12 @@ export function useMultiStepForm(initialStep = "personal") {
       const data = await res.json();
 
       if (!res.ok) {
-        handleApiError(res.status, data.message || data.error);
+        handleApiError(res.status, data.message || data.error, data);
         throw new Error(data.message || data.error || "Upload failed");
       } else {
-        toast.success("Profile Created Successfully", {
-          description: "Your profile has been created successfully!",
+        toast({
+          title: data?.title,
+          description: data?.message,
         });
 
         // Update session with new IDs
@@ -163,9 +174,14 @@ export function useMultiStepForm(initialStep = "personal") {
             ...session.user,
             individualId: data.individualId,
             jobSeekerId: data.jobSeekerId,
-            // Add EcoLink specific fields if needed
             hasEcoLink: true,
             ecoLinkType: "student",
+            first_name:
+              data.first_name || formData.HCJ_ST_Student_First_Name || "",
+            last_name:
+              data.last_name || formData.HCJ_ST_Student_Last_Name || "",
+            profileImage:
+              data.profileImage || formData.ID_Profile_Picture || "",
           },
         };
 
@@ -179,26 +195,40 @@ export function useMultiStepForm(initialStep = "personal") {
       }
     } catch (error) {
       console.error("Upload Error:", error);
-      toast.error("Upload Failed", {
-        description: error.message || "Something went wrong during upload.",
+      toast({
+        variant: "destructive",
+        title: error?.title,
+        description: error?.message || "Something went wrong during upload.",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleApiError = (status, errorMessage) => {
-    console.log("inside handleApiError", status, errorMessage);
+  const handleApiError = (status, errorMessage, data) => {
+    //  console.log("inside handleApiError", status, errorMessage);
     if (status === 400) {
-      toast.error("Missing Fields", { description: errorMessage });
+      toast({
+        variant: "destructive",
+        title: data?.title,
+        description: errorMessage,
+      });
     } else if (status === 409) {
-      toast.error("Conflict", { description: errorMessage });
+      toast({
+        variant: "destructive",
+        title: data?.title || "Conflict",
+        description: errorMessage,
+      });
     } else if (status === 500) {
-      toast.error("Server Error", {
+      toast({
+        variant: "destructive",
+        title: data?.title || "Server Error",
         description: "Something went wrong on the server.",
       });
     } else {
-      toast.error("Upload Failed", {
+      toast({
+        variant: "destructive",
+        title: data?.title || "Upload Failed",
         description: "An unexpected error occurred.",
       });
     }

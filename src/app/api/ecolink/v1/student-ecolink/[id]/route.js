@@ -47,7 +47,7 @@ import Hcj_Job_Seeker from '@/app/models/hcj_job_seeker';
 export async function GET(request, { params }) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = await params;
 
     const [
       ecoLink,
