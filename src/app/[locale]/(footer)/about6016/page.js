@@ -124,10 +124,10 @@ export default function AboutPage() {
   };
 
   // Animated counters
-  const [institutionsCount, institutionsRef] = useCounter(500);
-  const [studentsCount, studentsRef] = useCounter(50000);
-  const [jobFairsCount, jobFairsRef] = useCounter(200);
-  const [placementsCount, placementsRef] = useCounter(10000);
+  const [institutionsCount, institutionsRef] = useCounter(20);
+  const [studentsCount, studentsRef] = useCounter(2000);
+  const [jobFairsCount, jobFairsRef] = useCounter(1);
+  const [placementsCount, placementsRef] = useCounter(25);
 
   // Animation variants
   const fadeIn = {
@@ -172,15 +172,15 @@ export default function AboutPage() {
             variants={fadeIn}
           >
             <div className="inline-block rounded-full bg-white/80 backdrop-blur-sm px-4 py-1 text-sm font-medium text-violet-800 shadow-sm">
-              Honour • Career • Journey
+              Honour • Career • Junction
             </div>
             <div className="space-y-3">
               <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl bg-gradient-to-r from-violet-700 via-indigo-700 to-sky-700 bg-clip-text text-transparent">
                 Honouring Every Career Journey
               </h1>
-              <p className="mx-auto max-w-[800px] text-slate-700 text-lg md:text-xl lg:text-2xl leading-relaxed">
-                Empowering students and institutions to build meaningful career
-                pathways through verification, connection, and opportunity.
+              <p className="mx-auto max-w-[800px] text-slate-700 text-md md:text-xl lg:text-xl leading-relaxed">
+                Empowering Students and Institutions to build meaningful career
+                pathways through opportunities, connections, and industry-aligned trusted ecosystem.
               </p>
             </div>
             <motion.div
@@ -258,11 +258,11 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-4 text-slate-700">
                 <p className="text-lg md:text-xl leading-relaxed">
-                  Welcome to HCJ, the leading platform designed to connect
+                  Welcome to Honour Career Junction, the leading platform designed to connect
                   institutions, students, and the dynamic job market.
                 </p>
                 <p className="text-lg md:text-xl leading-relaxed">
-                  At HCJ, our mission is to streamline and enhance the
+                  At Honour Career Junction, our mission is to streamline and enhance the
                   job-seeking experience by offering institutions a simple and
                   efficient way to upload and manage their student&apos;s
                   profiles. This allows students to showcase their skills and
@@ -274,7 +274,7 @@ export default function AboutPage() {
                   industry by providing a seamless platform where students can
                   gain visibility and access to potential employers, while
                   institutions can play a key role in shaping their
-                  student&apos;s career paths. With HCJ, we make the transition
+                  student&apos;s career paths. With Honour Career Junction, we make the transition
                   from education to employment smoother and more effective.
                 </p>
               </div>
@@ -326,7 +326,7 @@ export default function AboutPage() {
                 Your Journey With Us
               </div>
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight lg:text-5xl/tight bg-gradient-to-r from-sky-700 to-indigo-700 bg-clip-text text-transparent">
-                How HCJ Supports Your Career Path
+                How Honour Career Junction Supports Your Career Path
               </h2>
               <p className="mx-auto max-w-[700px] text-slate-700 text-lg md:text-xl">
                 From registration to career launch, we&apos;re with you every
@@ -359,7 +359,7 @@ export default function AboutPage() {
                     Student Registration
                   </h3>
                   <p className="text-slate-700 text-lg">
-                    Create your profile and join the HCJ community with a simple
+                    Create your profile and join the Honour Career Junction community with a simple
                     registration process.
                   </p>
                 </motion.div>
@@ -381,7 +381,7 @@ export default function AboutPage() {
                     </div>
                     <p className="text-slate-700">
                       Join thousands of students who have already started their
-                      journey with HCJ.
+                      journey with Honour Career Junction.
                     </p>
                   </motion.div>
                 </motion.div>
@@ -575,7 +575,7 @@ export default function AboutPage() {
                     </div>
                     <p className="text-slate-700">
                       Take the first step in your career with the backing of the
-                      HCJ community.
+                      Honour Career Junction community.
                     </p>
                   </motion.div>
                 </motion.div>
@@ -602,7 +602,7 @@ export default function AboutPage() {
                 Our Impact
               </div>
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight lg:text-5xl/tight bg-gradient-to-r from-violet-700 to-indigo-700 bg-clip-text text-transparent">
-                HCJ in Numbers
+                Honour Career Junction in Numbers
               </h2>
               <p className="mx-auto max-w-[700px] text-slate-700 text-lg md:text-xl">
                 Our growing community is making a real difference in career
@@ -661,7 +661,7 @@ export default function AboutPage() {
                   Registered Students
                 </h3>
                 <p className="text-slate-700">
-                  Building their career journeys with HCJ
+                  Building their career journeys with Honour Career Junction
                 </p>
               </Card>
             </motion.div>
@@ -740,7 +740,7 @@ export default function AboutPage() {
                 What Our Community Says
               </h2>
               <p className="mx-auto max-w-[700px] text-slate-700 text-lg md:text-xl">
-                Hear from students and institutions who have experienced the HCJ
+                Hear from students and institutions who have experienced the Honour Career Junction
                 difference.
               </p>
             </motion.div>
@@ -792,11 +792,11 @@ export default function AboutPage() {
           >
             <motion.div className="space-y-6" variants={fadeIn}>
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight lg:text-5xl/tight text-white">
-                Ready to Join the HCJ Community?
+                Ready to Join the Honour Career Junction Community?
               </h2>
               <p className="text-white/90 text-lg md:text-xl max-w-[600px]">
                 Whether you&apos;re a student starting your career journey or an
-                institution looking to connect with verified talent, HCJ is your
+                institution looking to connect with verified talent, Honour Career Junction is your
                 trusted partner.
               </p>
               <motion.div
@@ -858,7 +858,7 @@ export default function AboutPage() {
                     Start Your Journey Today
                   </p>
                   <p className="text-base opacity-90">
-                    Join thousands of students and institutions already on HCJ
+                    Join thousands of students and institutions already on Honour Career Junction
                   </p>
                 </div>
               </div>

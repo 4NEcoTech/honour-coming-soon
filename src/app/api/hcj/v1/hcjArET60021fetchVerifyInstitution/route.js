@@ -96,6 +96,8 @@ export async function GET(request) {
     // Force only verified institutions
     const cleanedSearchParams = new URLSearchParams(searchParams);
     cleanedSearchParams.set("CD_Company_Status", "01");
+    cleanedSearchParams.set("CD_Company_Logo__$exists", "true");
+    cleanedSearchParams.set("CD_Company_Logo__$ne", '""'); 
 
     const searchFields = [
       "CD_Company_Name",

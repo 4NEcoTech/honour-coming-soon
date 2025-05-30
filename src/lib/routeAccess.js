@@ -2,6 +2,7 @@
 export const PUBLIC_ROUTES = [
   "/",
   "/video",
+  "/about6016",
   "/message",
   "/swagger",
   "/unauthorized",

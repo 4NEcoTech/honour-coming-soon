@@ -283,9 +283,10 @@ export default function Home() {
                   className="block"
                 />
               </div>
+              <Link href="/about6016">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100">
                 {t("About_Us")}
-              </h2>
+              </h2></Link>
               <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base">
                 {t(
                   "Welcome_to_HCJ_the_leading_platform_designed_to_connect_institutions_students_and_the_dynamic_job_market"
