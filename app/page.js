@@ -102,7 +102,7 @@ export default function ComingSoon() {
             </button>
           </form>
           {message && <p className="mt-4 text-sm">{message}</p>}
-         {/* Visit us and Contact Us Section */}
+            {/* Visit us and Contact Us Section */}
           <footer className="mt-12 text-sm px-4 space-y-2">
             <p className="text-lg font-semibold">
               <a
@@ -121,7 +121,6 @@ export default function ComingSoon() {
               </a>
             </p>
           </footer>
-
         </div>
 
         <div
