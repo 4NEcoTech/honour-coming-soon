@@ -102,12 +102,26 @@ export default function ComingSoon() {
             </button>
           </form>
           {message && <p className="mt-4 text-sm">{message}</p>}
-          <footer className="mt-12 text-sm px-4">
-            Contact us at{' '}
-            <a href="mailto:thehonourenterprise@gmail.com" className="underline">
-              thehonourenterprise@gmail.com
-            </a>
+         {/* Visit us and Contact Us Section */}
+          <footer className="mt-12 text-sm px-4 space-y-2">
+            <p className="text-lg font-semibold">
+              <a
+                href="https://www.honour.app"
+                className="underline text-blue-400 hover:text-blue-500 transition-all"
+              >
+                Visit us at www.honour.app
+              </a>
+            </p>
+            <p className="text-lg font-semibold">
+              <a
+                href="https://www.honour.app/en/cntct6011"
+                className="underline text-blue-400 hover:text-blue-500 transition-all"
+              >
+                Contact us here
+              </a>
+            </p>
           </footer>
+
         </div>
 
         <div
