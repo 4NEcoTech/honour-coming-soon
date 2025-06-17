@@ -71,11 +71,11 @@ export default function ComingSoon() {
           }}
         ></div>
 
-        <div className="relative z-10 max-w-2xl w-full text-center p-6 bg-opacity-80 bg-black rounded-lg mx-4">
+        <div className="relative z-10 max-w-2xl w-full text-center p-6 bg-opacity-80 bg-black rounded-lg">
           <img
             src="/honourimage.jpg"
             alt="Honour Equality and Equity"
-            className="mx-auto w-full max-w-sm mb-8 rounded-lg shadow-lg object-contain"
+            className="mx-auto max-w-[25rem] max-h-[21rem] mb-8 rounded-lg shadow-lg object-contain"
           />
           <h1 className="text-4xl font-bold mb-4">Coming Soon</h1>
           <p className="text-lg mb-8">
@@ -91,7 +91,7 @@ export default function ComingSoon() {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full sm:w-72 px-4 py-2 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-white"
+              className="px-4 py-2 rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-white sm:w-72"
               required
             />
             <button
@@ -102,7 +102,7 @@ export default function ComingSoon() {
             </button>
           </form>
           {message && <p className="mt-4 text-sm">{message}</p>}
-            {/* Visit us and Contact Us Section */}
+           {/* Visit us and Contact Us Section */}
           <footer className="mt-12 text-sm px-4 space-y-2">
             <p className="text-lg font-semibold">
               <a
@@ -142,17 +142,6 @@ export default function ComingSoon() {
           }}
         ></div>
       </div>
-
-      <style jsx>{`
-        @media (max-width: 640px) {
-          h1 {
-            font-size: 2rem;
-          }
-          p {
-            font-size: 1rem;
-          }
-        }
-      `}</style>
     </>
   );
 }
